@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=@VERSION@
+Name=EvolutionMailFactory
+Comment=Evolution Mail Data server
+Exec=evolution-mail-factory
+Categories=Application
+Icon=evolution-mail-factory32
+Type=Application
+Terminal=true
+URL=
+StartupNotify=true
+
