@@ -67,6 +67,7 @@ Makefile
 libegdbus/Makefile
 src/Makefile
 src/evolution-mail-factory.desktop
+src/org.gnome.evolution.dataserver.Mail.service
 ])
 
 echo ""

@@ -34,8 +34,12 @@ evolution_mail_factory_LDADD = \
 		$(top_builddir)/libegdbus/libegdbus-mail.la	\
 		$(E_MAIL_FACTORY_LIBS)				
 
+service_in_files = org.gnome.evolution.dataserver.Mail.service.in
+servicedir = $(datadir)/dbus-1/services
+service_DATA = $(service_in_files:.service.in=.service)
 
-EXTRA_DIST = 
 
-CLEANFILES = *~ evolution-mail-factory.desktop
+EXTRA_DIST = $(service_in_files)
+
+CLEANFILES = *~ evolution-mail-factory.desktop $(service_DATA)
 
