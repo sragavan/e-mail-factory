@@ -1,6 +1,9 @@
 
 bin_PROGRAMS = evolution-mail-factory
-evolution_mail_factory_SOURCES = 
+evolution_mail_factory_SOURCES = 	\
+		main.c			\
+		mail-send-recv.c	\
+		utils.c			
 
 noinst_PROGRAMS = test-email-client
 
