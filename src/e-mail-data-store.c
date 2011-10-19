@@ -957,7 +957,6 @@ handle_get_auth_types (CamelService *service, GAsyncResult *result, EMailCDRFold
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(send_data->mstore);
 	GList *list, *iter;
-	int len, i;
 	GError *error = NULL;
 	GVariantBuilder *builder;
 	GVariant *variant;
