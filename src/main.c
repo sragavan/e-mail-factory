@@ -71,10 +71,9 @@ start_mail_engine ()
 
 	g_free(data_dir);
 
-	//e_mail_connection_connman_new();
 	mail_autoreceive_init (session);
 	
-	//e_dbus_manager_new ();
+	e_dbus_manager_new ();
 
 	return FALSE;
 }

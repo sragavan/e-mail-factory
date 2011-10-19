@@ -1,10 +1,8 @@
-GDBUS_XML_FILES =					\
-	../src/e-mail-data-session.xml	\
-	../src/e-mail-data-store.xml		\
-	../src/e-mail-data-folder.xml
+GDBUS_XML_FILES =			\
+	../src/e-mail-data-session.xml	
 
 gdbus-files: $(GDBUS_XML_FILES)
-	~/opt/master/bin/gdbus-codegen --namespace=EGdbus --strip-prefix=org.gnome.evolution.dataserver.mail --generate-c-code=$^ $^.xml
+	gdbus-codegen --c-namespace=EGdbus --interface-prefix=org.gnome.evolution.dataserver.mail --c-generate-object-manager --generate-c-code=e-gdbus-emailsession
 
 # The library
 noinst_LTLIBRARIES = libegdbus-mail.la
@@ -14,13 +12,8 @@ libegdbus_mail_la_CPPFLAGS =			\
 	-DG_LOG_DOMAIN=\"libegdbus-mail\"	\
 	$(E_MAIL_GDBUS_UTILS_CFLAGS)
 
-libegdbus_mail_la_SOURCES =			
-#	e-gdbus-emailfolder.h			\
-#	e-gdbus-emailfolder.c			\
-#	e-gdbus-emailstore.h		\
-#	e-gdbus-emailstore.c		\
-#	e-gdbus-emailsession.h		\
-#	e-gdbus-emailsession.c		
+libegdbus_mail_la_SOURCES =			\
+	e-gdbus-emailsession.c
 
 libegdbus_mail_la_LIBADD =			\
 	$(E_MAIL_GDBUS_UTILS_LIBS)

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node SYSTEM "dbus.dtd">
+
+<!--
+  Author: Srinivasa Ragavan <sragavan@gnome.org>
+  Copyright (C) 2011 Intel Corporation
+-->
+<node>
+
+  <interface name="org.gnome.evolution.dataserver.mail.Session">
+    <annotation name="org.gtk.GDBus.Name" value="CS"/>
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="EMailDataSession"/>
+
+    <!-- Camel Session's Native APIs -->
+    <method name="addService">
+      <arg name="uid" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+      <arg name="isstore" type="b" direction="in"/>
+      <arg name="service" type="o" direction="out"/>
+    </method>
+    <method name="removeService">
+      <arg name="uid" type="s" direction="in"/>
+      <arg name="success" type="b" direction="out"/>
+    </method>
+    <method name="getService">
+      <arg name="uid" type="s" direction="in"/>
+      <arg name="service" type="o" direction="out"/>
+    </method>
+    <method name="getServiceByUrl">
+      <arg name="url" type="s" direction="in"/>
+      <arg name="isstore" type="b" direction="in"/>
+      <arg name="service" type="o" direction="out"/>
+    </method>
+    <method name="removeServices">
+    </method>
+    <method name="listServices">
+      <arg name="services" type="ao" direction="out"/>
+    </method>
+    <method name="getOnline">
+      <arg name="online" type="b" direction="out"/>
+    </method>
+    <method name="setOnline">
+      <arg name="online" type="b" direction="in"/>
+    </method>
+    <method name="getNetworkAvailable">
+      <arg name="online" type="b" direction="out"/>
+    </method>
+    <method name="setNetworkAvailable">
+      <arg name="online" type="b" direction="in"/>
+    </method>
+    
+    <!-- Custom APIs -->
+    <method name="getLocalStore">
+      <arg name="store" type="o" direction="out"/>
+    </method>
+
+    <method name="addPassword">
+      <arg name="key" type="s" direction="in"/>	    
+      <arg name="password" type="s" direction="in"/>
+      <arg name="remember" type="b" direction="in"/>      
+    </method>
+    <method name="findPassword">
+      <arg name="key" type="s" direction="in"/>	    
+      <arg name="password" type="s" direction="out"/>
+    </method>
+
+    <!-- 
+    FolderType should be a string "inbox" "draft" "outbox" "sent" "templates"
+    -->
+    <method name="getLocalFolder">
+      <arg name="type" type="s" direction="in"/>	    
+      <arg name="folder" type="o" direction="out"/>
+    </method>
+    <method name="getFolderFromUri">
+      <arg name="uri" type="s" direction="in"/>	    
+      <arg name="folder" type="o" direction="out"/>
+    </method>
+
+    <method name="sendReceive">
+    </method>
+    <method name="fetchAccount">
+      <arg name="uid" type="s" direction="in"/>	    
+    </method>
+    
+    <method name="fetchOldMessages">
+      <arg name="uid" type="s" direction="in"/>	 
+      <arg name="count" type="i" direction="in"/>	    	             
+      <arg name="success" type="b" direction="out"/>            
+    </method>
+
+    <method name="cancelOperations">
+    </method>    
+    <signal name="sendReceiveComplete">
+    </signal>
+    <signal name="AccountAdded">
+      <arg name="uid" type="s"/>
+    </signal>
+    <signal name="AccountRemoved">
+      <arg name="uid" type="s"/>    
+    </signal>
+    <signal name="AccountChanged">
+      <arg name="uid" type="s"/>    
+    </signal>
+
+    <signal name="GetPassword">
+      <arg name="title" type="s"/>
+      <arg name="prompt" type="s"/>
+      <arg name="key" type="s"/>
+    </signal>
+
+  </interface>
+
+</node>
