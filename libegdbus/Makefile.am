@@ -1,7 +1,8 @@
 GDBUS_XML_FILES =			\
-	../src/e-mail-data-session.xml	
+	../src/e-mail-data-session.xml	\
+	../src/e-mail-data-store.xml
 
-gdbus-files: $(GDBUS_XML_FILES)
+gdbus_files: $(GDBUS_XML_FILES)
 	gdbus-codegen --c-namespace=EGdbus --interface-prefix=org.gnome.evolution.dataserver.mail --c-generate-object-manager --generate-c-code=e-gdbus-emailsession
 
 # The library
@@ -13,7 +14,8 @@ libegdbus_mail_la_CPPFLAGS =			\
 	$(E_MAIL_GDBUS_UTILS_CFLAGS)
 
 libegdbus_mail_la_SOURCES =			\
-	e-gdbus-emailsession.c
+	e-gdbus-emailsession.c			\
+	e-gdbus-emailstore.c
 
 libegdbus_mail_la_LIBADD =			\
 	$(E_MAIL_GDBUS_UTILS_LIBS)

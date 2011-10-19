@@ -5,7 +5,8 @@ evolution_mail_factory_SOURCES = 	\
 		mail-send-recv.c	\
 		utils.c			\
 		e-dbus-manager.c	\
-		e-mail-data-session.c	
+		e-mail-data-session.c	\
+		e-mail-data-store.c	
 
 noinst_PROGRAMS = test-email-client
 
