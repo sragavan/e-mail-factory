@@ -7,19 +7,20 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#if 0
+
 #include <libedataserver/e-data-server-util.h>
 #include <camel/camel.h>
-#include "e-account-utils.h"
+#include "libemail-utils/e-account-utils.h"
 #include "e-gdbus-emailsession.h"
 #include "e-gdbus-emailstore.h"
-#include "e-gdbus-emailfolder.c"
+#include "e-gdbus-emailfolder.h"
 
 #define E_MAIL_DATA_FACTORY_SERVICE_NAME \
 	"org.gnome.evolution.dataserver.Mail"
 
-EGdbusSessionCS *session_proxy;
+EGdbusSession *session_proxy;
 
+#if 0
 static void
 message_info_dump (CamelMessageInfoBase *mi)
 {
@@ -746,7 +747,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 
 	error = NULL;
 	printf("Success in getting FolderProxy for INBOX ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
-#   endif
+# endif
 #if 1	
 	/* Get Trash */
 	if (!egdbus_store_ms_call_get_trash_sync (
@@ -790,7 +791,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	error = NULL;
 	printf("Success in getting FolderProxy for JUNK ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
 
-#    endif	
+# endif	
 
 	/* Create Folder */
 	if (!egdbus_store_ms_call_create_folder_sync (store_proxy, "", "ATestEmailServer", &cf_info, NULL, &error))
@@ -876,7 +877,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 			} else {
 				printf("Folder successfully unsubscribed: %d\n", success);
 			}
-#    endif
+# endif
 		}
 	}
 	
@@ -906,7 +907,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 		printf("SUCCESS, delete folder to ANOTHERTestEmailServer\n");
 	}
 	error = NULL;
-#   endif
+# endif
 
 	/* Sync */
 	if (!egdbus_store_ms_call_sync_sync (store_proxy, FALSE, &success, NULL, &error)) {
@@ -981,6 +982,7 @@ folder_unsubscribed_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder UnSubscribed");	
 }
+#endif
 
 static gboolean
 start_test_client (gpointer foo)
@@ -988,14 +990,15 @@ start_test_client (gpointer foo)
 	EAccount *account = e_get_default_account ();
 	const char *uri = e_account_get_string (account, E_ACCOUNT_SOURCE_URL);
 	GError *error = NULL;
-	EGdbusStoreMS *store_proxy;
-	EGdbusFolderCF *folder_proxy;
-	
+	EGdbusStore *store_proxy;
+	EGdbusFolder *folder_proxy;
+	char **services; 
 	char *path;
 	GVariant *infos = NULL;
+	int i;
 
 	/* Get Session */
-	session_proxy = egdbus_session_cs_proxy_new_for_bus_sync (
+	session_proxy = egdbus_session_proxy_new_for_bus_sync (
 		G_BUS_TYPE_SESSION,
 		G_DBUS_PROXY_FLAGS_NONE,
 		E_MAIL_DATA_FACTORY_SERVICE_NAME,
@@ -1007,6 +1010,18 @@ start_test_client (gpointer foo)
 	else 
 		printf("Success\n");
 
+	/* List services */
+	if (!egdbus_session_call_list_services_sync (session_proxy, &services, NULL, &error)) {
+		printf("List Services: %s\n", error->message);
+	} else {
+		printf("Services are: \n");
+		while (services[i]) {
+			printf("\t%s\n", services[i]);
+			i++;
+		}
+		printf("End\n");
+	}
+#if 0	
 	/* Get Store */
 	if (!egdbus_session_cs_call_get_store_sync (session_proxy, uri, &path, NULL, &error)) {
 		printf("Get store %s\n", error->message);
@@ -1055,11 +1070,10 @@ start_test_client (gpointer foo)
 
 	parse_infos (store_proxy, infos);
 	
-
+#endif
 
 	return FALSE;
 }
-#endif
 
 int 
 main(int argc, char* argv[])
@@ -1074,7 +1088,7 @@ main(int argc, char* argv[])
 	if (!g_thread_supported ()) g_thread_init (NULL);
 
 
-//	g_idle_add ((GSourceFunc) start_test_client, NULL);
+	g_idle_add ((GSourceFunc) start_test_client, NULL);
 	gtk_main ();
 
    	return 0;

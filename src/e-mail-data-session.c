@@ -51,10 +51,35 @@ static gchar *
 construct_mail_session_path (const char *uid)
 {
 	static volatile gint counter = 1;
-
-	return g_strdup_printf (
+	int i, len;
+	char *path;
+	
+	path = g_strdup_printf (
 		"/org/gnome/evolution/dataserver/mail/service/%s/%d/%u",
 		uid, getpid (), g_atomic_int_exchange_and_add (&counter, 1));
+
+	len = strlen(path);
+	for (i=0; i<len ; i++)
+		if (path[i] == '.')
+			path[i] = '_';
+		else if (path[i] == '#')
+			path[i] = '_';
+		else if (path[i] == '(')
+			path[i] = '_';
+		else if (path[i] == '-')
+			path[i] = '_';
+		else if (path[i] == '@')
+			path[i] = '_';
+		else if (path[i] == ')')
+			path[i] = '_';
+		else if (path[i] == ' ')
+			path[i] = '_';
+		else if (path[i] == '[' || path[i] == ']')
+			path[i] = '_';
+	
+	
+
+	return path;
 }
 
 static char *
@@ -111,7 +136,7 @@ impl_Mail_getService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 		char *url;
 
 		service = camel_session_get_service (CAMEL_SESSION(session), uid);
-		url = camel_service_get_url (service);
+		url = mail_get_service_url (service);
 
 		/* Hashtable owns the key's memory */
 		g_hash_table_insert (priv->stores, g_strdup(uid), service);
@@ -203,7 +228,7 @@ impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 	}
 	
 	/* Hashtable owns the key's memory */
-	g_hash_table_insert (priv->stores, camel_service_get_url (service), service);
+	g_hash_table_insert (priv->stores, mail_get_service_url (service), service);
 	g_hash_table_insert (priv->stores, g_strdup(camel_service_get_uid(service)), service);
 
 	path = process_service (msession, camel_service_get_uid(service), service, object, invocation);
@@ -268,11 +293,12 @@ impl_Mail_listServices (EGdbusSession *object, GDBusMethodInvocation *invocation
 
 		service = CAMEL_SERVICE (iter->data);
 		uid = camel_service_get_uid (service);
-	
+		ipc(printf("Sending Service: %s\n", uid));
 		if (!g_hash_table_lookup (priv->stores, uid)) {
 			char *url;
 
-			url = camel_service_get_url (service);
+			url = mail_get_service_url (service);
+			micro(printf("Sending Service Url: %s\n", url));
 
 			/* Hashtable owns the key's memory */
 			g_hash_table_insert (priv->stores, g_strdup(uid), service);
@@ -281,6 +307,7 @@ impl_Mail_listServices (EGdbusSession *object, GDBusMethodInvocation *invocation
 
 		path = process_service (msession, uid, service, object, invocation);
 		services[i] = path;
+		ipc(printf("Sending Service Path : %s\n", path));
 
 		i++;
 		iter = iter->next;
@@ -376,7 +403,7 @@ impl_Mail_getLocalStore (EGdbusSession *object, GDBusMethodInvocation *invocatio
 		const char *uid;
 		char *url;
 
-		url = camel_service_get_url((CamelService *)store);
+		url = mail_get_service_url ((CamelService *)store);
 		uid = camel_service_get_uid((CamelService *)store);
 		path = construct_mail_session_path (uid);
 		estore = e_mail_data_store_new ((CamelService *)store, uid);
@@ -446,7 +473,7 @@ impl_Mail_getLocalFolder (EGdbusSession *object, GDBusMethodInvocation *invocati
 		char *path;
 		char *url;
 
-		url = camel_service_get_url((CamelService *)store);
+		url = mail_get_service_url ((CamelService *)store);
 		uid = camel_service_get_uid((CamelService *)store);
 		path = construct_mail_session_path (uid);
 		estore = e_mail_data_store_new ((CamelService *)store, uid);
@@ -509,7 +536,7 @@ get_folder_done (EMailSession *session, GAsyncResult *result, EMailGetStoreData 
 		const char *uid;
 		char *url;
 
-		url = camel_service_get_url ((CamelService *)store);
+		url = mail_get_service_url ((CamelService *)store);
 		uid = camel_service_get_uid((CamelService *)store);
 		spath = construct_mail_session_path (uid);
 		estore = e_mail_data_store_new ((CamelService *)store, uid);

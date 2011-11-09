@@ -3,10 +3,17 @@ bin_PROGRAMS = evolution-mail-factory
 evolution_mail_factory_SOURCES = 	\
 		main.c			\
 		mail-send-recv.c	\
+		mail-send-recv.h	\		
 		utils.c			\
+		utils.h			\
 		e-dbus-manager.c	\
 		e-mail-data-session.c	\
-		e-mail-data-store.c	
+		e-mail-data-store.c	\
+		e-mail-data-folder.c	\
+		e-dbus-manager.h	\
+		e-mail-data-session.h	\
+		e-mail-data-store.h	\
+		e-mail-data-folder.h
 
 noinst_PROGRAMS = test-email-client
 

@@ -45,3 +45,16 @@ mail_debug_log (EMailDebugFlag flag)
 {
 	return (mail_debug_flag & flag) != 0;
 }
+
+char *
+mail_get_service_url (CamelService *service)
+{
+	char *url;	
+	CamelURL *curl;
+
+	curl = camel_service_new_camel_url (service);
+	url = camel_url_to_string (curl, CAMEL_URL_HIDE_ALL);
+	camel_url_free (curl);
+
+	return url;
+}

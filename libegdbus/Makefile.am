@@ -15,7 +15,12 @@ libegdbus_mail_la_CPPFLAGS =			\
 
 libegdbus_mail_la_SOURCES =			\
 	e-gdbus-emailsession.c			\
-	e-gdbus-emailstore.c
+	e-gdbus-emailstore.c			\
+	e-gdbus-emailfolder.c			\
+	e-gdbus-emailsession.h			\
+	e-gdbus-emailstore.h			\
+	e-gdbus-emailfolder.h
+
 
 libegdbus_mail_la_LIBADD =			\
 	$(E_MAIL_GDBUS_UTILS_LIBS)

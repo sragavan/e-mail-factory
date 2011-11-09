@@ -1,5 +1,4 @@
-EXTRA_DIST = autogen.sh	\
-	     marshal.mk
+EXTRA_DIST = autogen.sh	
 SUBDIRS = libegdbus src 
 
 DISTCHECK_CONFIGURE_FLAGS=

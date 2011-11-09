@@ -943,9 +943,9 @@ static gboolean
 impl_Mail_getUrl (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
-	char *url;
+	char *url;	
 
-	url = camel_service_get_url (priv->store);
+	url = mail_get_service_url (priv->store);
 	egdbus_store_complete_get_url (object, invocation, url);
 	g_free (url);
 
@@ -1047,7 +1047,7 @@ e_mail_data_store_init (EMailDataStore *self)
 	g_signal_connect (priv->gdbus_object, "handle-unsubscribe-folder", G_CALLBACK (impl_Mail_unsubscribeFolder), self);
 
 	g_signal_connect (priv->gdbus_object, "handle-get-display-name", G_CALLBACK (impl_Mail_getDisplayName), self);
-	g_signal_connect (priv->gdbus_object, "handle-set-display-dame", G_CALLBACK (impl_Mail_setDisplayName), self);
+	g_signal_connect (priv->gdbus_object, "handle-set-display-name", G_CALLBACK (impl_Mail_setDisplayName), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-password", G_CALLBACK (impl_Mail_getPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-set-password", G_CALLBACK (impl_Mail_setPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-user-data-dir", G_CALLBACK (impl_Mail_getUserDataDir), self);
@@ -1197,25 +1197,27 @@ e_mail_data_store_register_gdbus_object (EMailDataStore *estore, GDBusConnection
 	g_object_set_data ((GObject *)priv->store, "object-path", priv->object_path);
 
 	ipc (printf("EMailDataStore: Registering gdbus path: %s: %p\n", object_path, priv->store));
-
-	g_signal_connect (
-		priv->store, "folder-opened",
-		G_CALLBACK (store_folder_opened_cb), estore);
-	g_signal_connect (
-		priv->store, "folder-created",
-		G_CALLBACK (store_folder_created_cb), estore);
-	g_signal_connect (
-		priv->store, "folder-deleted",
-		G_CALLBACK (store_folder_deleted_cb), estore);
-	g_signal_connect (
-		priv->store, "folder-renamed",
-		G_CALLBACK (store_folder_renamed_cb), estore);
-	g_signal_connect (
-		priv->store, "folder-subscribed",
-		G_CALLBACK (store_folder_subscribed_cb), estore);
-	g_signal_connect (
-		priv->store, "folder-unsubscribed",
-		G_CALLBACK (store_folder_unsubscribed_cb), estore);
+	
+	if (CAMEL_IS_STORE(priv->store)) {
+		g_signal_connect (
+			priv->store, "folder-opened",
+			G_CALLBACK (store_folder_opened_cb), estore);
+		g_signal_connect (
+			priv->store, "folder-created",
+			G_CALLBACK (store_folder_created_cb), estore);
+		g_signal_connect (
+			priv->store, "folder-deleted",
+			G_CALLBACK (store_folder_deleted_cb), estore);
+		g_signal_connect (
+			priv->store, "folder-renamed",
+			G_CALLBACK (store_folder_renamed_cb), estore);
+		g_signal_connect (
+			priv->store, "folder-subscribed",
+			G_CALLBACK (store_folder_subscribed_cb), estore);
+		g_signal_connect (
+			priv->store, "folder-unsubscribed",
+			G_CALLBACK (store_folder_unsubscribed_cb), estore);
+	}
 
  	return g_dbus_interface_skeleton_export ((GDBusInterfaceSkeleton *) priv->gdbus_object,
                	                     		 connection,

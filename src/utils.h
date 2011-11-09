@@ -3,6 +3,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <camel/camel.h>
+
 G_BEGIN_DECLS
 
 typedef enum {
@@ -15,6 +17,7 @@ typedef enum {
 
 void mail_debug_init (void);
 gboolean mail_debug_log (EMailDebugFlag flag);
+char * mail_get_service_url (CamelService *service);
 
 G_END_DECLS
 
