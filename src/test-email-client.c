@@ -993,9 +993,11 @@ start_test_client (gpointer foo)
 	EGdbusStore *store_proxy;
 	EGdbusFolder *folder_proxy;
 	char **services; 
+	char *service;
 	char *path;
 	GVariant *infos = NULL;
 	int i;
+	gboolean success;
 
 	/* Get Session */
 	session_proxy = egdbus_session_proxy_new_for_bus_sync (
@@ -1012,7 +1014,7 @@ start_test_client (gpointer foo)
 
 	/* List services */
 	if (!egdbus_session_call_list_services_sync (session_proxy, &services, NULL, &error)) {
-		printf("List Services: %s\n", error->message);
+		printf("List Services failed: %s\n", error->message);
 	} else {
 		printf("Services are: \n");
 		while (services[i]) {
@@ -1021,6 +1023,29 @@ start_test_client (gpointer foo)
 		}
 		printf("End\n");
 	}
+
+	/* Get Service */
+	if (!egdbus_session_call_get_service_sync (session_proxy, account->uid, &service, NULL, &error)) {
+		printf("Get Service failed: %s\n", error->message);
+	} else {
+		printf("Get Service: Path: %s\n", service);
+	}
+
+	/* Remove Service */
+	if (!egdbus_session_call_remove_service_sync (session_proxy, account->uid, &success, NULL, &error)) {
+		printf("Remove Service failed: %s\n", error->message);
+	} else {
+		printf("Remove Service: Success: %d\n", success);
+	}
+
+	/* Add Service */
+	CamelURL *url = camel_url_new (account->source->url, NULL);
+	if (!egdbus_session_call_add_service_sync (session_proxy, account->uid, url->protocol, TRUE, &service, NULL, &error)) {
+		printf("Add Service failed: %s\n", error->message);
+	} else {
+		printf("Add Service Success : Path: %s\n", service);
+	}
+
 #if 0	
 	/* Get Store */
 	if (!egdbus_session_cs_call_get_store_sync (session_proxy, uri, &path, NULL, &error)) {
