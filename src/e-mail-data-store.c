@@ -194,7 +194,7 @@ handle_get_folder_info_cb (CamelStore *store,
 
 	convert_folder_info (info, builder);
 	/* Added a empty entry */
-	g_variant_builder_add (builder, "(sssuii)", "", "", "", 0, -1, -1);
+	g_variant_builder_add (builder, "(ssuii)",  "", "", 0, -1, -1);
 	
 	variant = g_variant_builder_end (builder);
 	g_variant_ref (variant);
@@ -264,10 +264,18 @@ handle_mail_get_folder (CamelStore *store,
 	if (folder == NULL) {
 		g_mutex_unlock (priv->folders_lock);
 		g_mutex_unlock (priv->datafolders_lock);
-		g_warning ("Unable to get folder : %s\n", error->message);
-		ipc (printf("EMailDataStore: get folder failed : %s - %s\n", priv->object_path, error->message));
+		g_warning ("Unable to get folder : %s\n", error ? error->message : "No Error");
+		ipc (printf("EMailDataStore: get folder failed : %s - %s\n", priv->object_path, error ? error->message : "No error"));
+	
+		if (error)
+			g_dbus_method_invocation_return_gerror (send_data->invocation, error);
+		else {
+			g_dbus_method_invocation_return_error (send_data->invocation,
+								CAMEL_ERROR,
+								CAMEL_ERROR_GENERIC,
+								"No Error");
+		}
 
-		g_dbus_method_invocation_return_gerror (send_data->invocation, error);
 		return;
 	}
 
@@ -439,7 +447,7 @@ handle_create_folder_cb (CamelStore *store,
 
 	convert_folder_info (fi, builder);
 	/* Added a empty entry */
-	g_variant_builder_add (builder, "(sssuii)", "", "", "", 0, -1, -1);
+	g_variant_builder_add (builder, "(ssuii)", "", "", 0, -1, -1);
 	
 	variant = g_variant_builder_end (builder);
 	g_variant_ref (variant);
@@ -1084,7 +1092,7 @@ variant_from_info (CamelFolderInfo *info)
 
 	convert_folder_info (info, builder);
 	/* Added a empty entry */
-	g_variant_builder_add (builder, "(sssuii)", "", "", "", 0, -1, -1);
+	g_variant_builder_add (builder, "(ssuii)", "", "", 0, -1, -1);
 	
 	variant = g_variant_builder_end (builder);
 	g_variant_ref (variant);

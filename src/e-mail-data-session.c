@@ -524,6 +524,7 @@ get_folder_done (EMailSession *session, GAsyncResult *result, EMailGetStoreData 
 	if (folder == NULL) {
 		ipc(printf("Unable to get folder: %s\n", error->message));
 		g_dbus_method_invocation_return_gerror (data->invocation, error);		
+		return;
 	}
 
 	store = camel_folder_get_parent_store (folder);
