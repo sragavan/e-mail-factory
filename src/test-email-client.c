@@ -20,7 +20,6 @@
 
 EGdbusSession *session_proxy;
 
-#if 0
 static void
 message_info_dump (CamelMessageInfoBase *mi)
 {
@@ -60,20 +59,20 @@ message_info_dump (CamelMessageInfoBase *mi)
 }
 
 static void
-test_folder_basic (EGdbusFolderCF *folder_proxy, char *folder_path)
+test_folder_basic (EGdbusFolder *folder_proxy, char *folder_path)
 {
 	char *data = NULL;
 
-	egdbus_folder_cf_call_get_name_sync (folder_proxy, &data, NULL, NULL);
+	egdbus_folder_call_get_display_name_sync (folder_proxy, &data, NULL, NULL);
 	printf("\n Folder Name: %s\n", data);
 
-	egdbus_folder_cf_call_get_full_name_sync (folder_proxy, &data, NULL, NULL);
+	egdbus_folder_call_get_full_name_sync (folder_proxy, &data, NULL, NULL);
 	printf("\n Full Name: %s\n", data);
 
-	egdbus_folder_cf_call_get_description_sync (folder_proxy, &data, NULL, NULL);
+	egdbus_folder_call_get_description_sync (folder_proxy, &data, NULL, NULL);
 	printf("\n Description %s\n", data);
 
-	printf("\n Prepare Summary %d\n", egdbus_folder_cf_call_prepare_summary_sync (folder_proxy, NULL, NULL));
+	printf("\n Prepare Summary %d\n", egdbus_folder_call_prepare_summary_sync (folder_proxy, NULL, NULL));
 
 }
 
@@ -301,14 +300,14 @@ variant_from_info (CamelMessageInfoBase *info)
 
 
 static void
-test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
+test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 {
 	char *data = NULL;
 	char **uids;
 	GError *error = NULL;
 	GVariant *variant=NULL;
 
-	egdbus_folder_cf_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
+	egdbus_folder_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
 
 	if (error) {
 		printf("Error while getting uids: %s\n", error->message);
@@ -329,7 +328,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 		printf("\n");
 
-		ret = egdbus_folder_cf_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
+		ret = egdbus_folder_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting messageinfo: %s\n", error->message);
 			g_error_free (error);
@@ -343,7 +342,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Message flags */
-		ret = egdbus_folder_cf_call_get_message_flags_sync(folder_proxy, uids[0], &flags, NULL, &error);
+		ret = egdbus_folder_call_get_message_flags_sync(folder_proxy, uids[0], &flags, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message flags: %s\n", error->message);
 			g_error_free (error);
@@ -352,7 +351,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 			printf("\nFlags of the message : %u\n", flags);
 		}
 
-		ret = egdbus_folder_cf_call_set_message_flags_sync(folder_proxy, uids[0], CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, &fg, NULL, &error);
+		ret = egdbus_folder_call_set_message_flags_sync(folder_proxy, uids[0], CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message flags: %s\n", error->message);
 			g_error_free (error);
@@ -363,7 +362,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 
 
 		/* User flags */
-		ret = egdbus_folder_cf_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
+		ret = egdbus_folder_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user flag: %s\n", error->message);
 			g_error_free (error);
@@ -372,7 +371,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 			printf("\nUser Flags of the message for 'bold': %d\n", fg);
 		}
 	
-		ret = egdbus_folder_cf_call_set_message_user_flag_sync(folder_proxy, uids[0], "bold", TRUE, NULL, &error);
+		ret = egdbus_folder_call_set_message_user_flag_sync(folder_proxy, uids[0], "bold", TRUE, NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message user flag: %s\n", error->message);
 			g_error_free (error);
@@ -381,7 +380,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 			printf("\nSet UserFlags of the message to 'bold': success\n");
 		}
 
-		ret = egdbus_folder_cf_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
+		ret = egdbus_folder_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user flag: %s\n", error->message);
 			g_error_free (error);
@@ -391,7 +390,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 		
 		/* User Tag */
-		ret = egdbus_folder_cf_call_get_message_user_tag_sync(folder_proxy, uids[0], "", &val, NULL, &error);
+		ret = egdbus_folder_call_get_message_user_tag_sync(folder_proxy, uids[0], "", &val, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user tag: %s\n", error->message);
 			g_error_free (error);
@@ -400,7 +399,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 			printf("User Tag of the message : %s\n", val ? val : "<empty>");
 		}
 	
-		ret = egdbus_folder_cf_call_set_message_user_tag_sync(folder_proxy, uids[0], "bold", "strong", NULL, &error);
+		ret = egdbus_folder_call_set_message_user_tag_sync(folder_proxy, uids[0], "bold", "strong", NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message user tag: %s\n", error->message);
 			g_error_free (error);
@@ -409,7 +408,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 			printf("\nSet UserTag of the message 'bold' to 'strong': success\n");
 		}
 
-		ret = egdbus_folder_cf_call_get_message_user_tag_sync(folder_proxy, uids[0], "bold", &val, NULL, &error);
+		ret = egdbus_folder_call_get_message_user_tag_sync(folder_proxy, uids[0], "bold", &val, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user tag: %s\n", error->message);
 			g_error_free (error);
@@ -421,7 +420,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 
 		printf("\n\nMessage Info at the end\n");
 
-		ret = egdbus_folder_cf_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
+		ret = egdbus_folder_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting messageinfo: %s\n", error->message);
 			g_error_free (error);
@@ -434,7 +433,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Get Message */
-		ret = egdbus_folder_cf_call_get_message_sync (folder_proxy, uids[0], &msg, NULL, &error);
+		ret = egdbus_folder_call_get_message_sync (folder_proxy, uids[0], &msg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message: %s\n", error->message);
 			g_error_free (error);
@@ -445,7 +444,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Folder sync */
-		ret = egdbus_folder_cf_call_sync_sync (folder_proxy, FALSE, &fg, NULL, &error);
+		ret = egdbus_folder_call_sync_sync (folder_proxy, FALSE, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while syncing folder: %s\n", error->message);
 			g_error_free (error);
@@ -455,7 +454,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* getPermanentFlags */
-		ret = egdbus_folder_cf_call_get_permanent_flags_sync (folder_proxy, &flags, NULL, &error);
+		ret = egdbus_folder_call_get_permanent_flags_sync (folder_proxy, &flags, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting folder permanent flags : %s\n", error->message);
 			g_error_free (error);
@@ -465,7 +464,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* hasSummaryCapability */
-		ret = egdbus_folder_cf_call_has_summary_capability_sync (folder_proxy, &fg, NULL, &error);
+		ret = egdbus_folder_call_has_summary_capability_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while checking has summary capability: %s\n", error->message);
 			g_error_free (error);
@@ -475,7 +474,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* hasSearchCapability */
-		ret = egdbus_folder_cf_call_has_search_capability_sync (folder_proxy, &fg, NULL, &error);
+		ret = egdbus_folder_call_has_search_capability_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while checking has search capability: %s\n", error->message);
 			g_error_free (error);
@@ -485,7 +484,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Total count */
-		ret = egdbus_folder_cf_call_total_message_count_sync (folder_proxy, &i, NULL, &error);
+		ret = egdbus_folder_call_total_message_count_sync (folder_proxy, &i, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting total msg count: %s\n", error->message);
 			g_error_free (error);
@@ -495,7 +494,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Unread count */
-		ret = egdbus_folder_cf_call_unread_message_count_sync (folder_proxy, &i, NULL, &error);
+		ret = egdbus_folder_call_unread_message_count_sync (folder_proxy, &i, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting unread msg count: %s\n", error->message);
 			g_error_free (error);
@@ -505,7 +504,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Deleted count*/
-		ret = egdbus_folder_cf_call_deleted_message_count_sync (folder_proxy, &i, NULL, &error);
+		ret = egdbus_folder_call_deleted_message_count_sync (folder_proxy, &i, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting deleted msg count: %s\n", error->message);
 			g_error_free (error);
@@ -515,7 +514,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Expunge */
-		ret = egdbus_folder_cf_call_expunge_sync (folder_proxy, &fg, NULL, &error);
+		ret = egdbus_folder_call_expunge_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while expunging folder: %s\n", error->message);
 			g_error_free (error);
@@ -525,7 +524,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Refresh */
-		ret = egdbus_folder_cf_call_refresh_info_sync (folder_proxy, &fg, NULL, &error);
+		ret = egdbus_folder_call_refresh_info_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while refreshing folder: %s\n", error->message);
 			g_error_free (error);
@@ -535,7 +534,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Get UIDS */
-		egdbus_folder_cf_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
+		egdbus_folder_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
 		if (error) {
 			printf("Error while getting uids: %s\n", error->message);
 			g_error_free (error);
@@ -554,7 +553,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* get parent store */
-		ret = egdbus_folder_cf_call_get_parent_store_sync (folder_proxy, &name, NULL, &error);
+		ret = egdbus_folder_call_get_parent_store_sync (folder_proxy, &name, NULL, &error);
 		if (error) {
 			printf("Error while getting parent store: %s\n", error->message);
 			g_error_free (error);
@@ -565,19 +564,19 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Local Store*/
-		EGdbusFolderCF *local_folder_proxy;
+		EGdbusFolder *local_folder_proxy;
 		char *local_folder_proxy_path;
-		EGdbusStoreMS *local_store_proxy;
+		EGdbusStore *local_store_proxy;
 		char *local_store;
 
-		ret = egdbus_session_cs_call_get_local_store_sync (session_proxy, &local_store, NULL, &error);
+		ret = egdbus_session_call_get_local_store_sync (session_proxy, &local_store, NULL, &error);
 		if (error) {
 			printf("Error while getting local store: %s\n", error->message);
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Local store path: %s\n", local_store);
-			local_store_proxy = egdbus_store_ms_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+			local_store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							local_store,
@@ -588,7 +587,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 				printf("Created Local Store proxy\n");
 		}
 		/* Local Folder */
-		ret = egdbus_session_cs_call_get_local_folder_sync (session_proxy, "drafts", &local_folder_proxy_path, NULL, &error);
+		ret = egdbus_session_call_get_local_folder_sync (session_proxy, "drafts", &local_folder_proxy_path, NULL, &error);
 		if (error) {
 			printf("Error while getting local folder: %s\n", error->message);
 			g_error_free (error);
@@ -596,7 +595,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		} else {
 			printf("\n Got Local Folder Drafts %s\n", local_folder_proxy_path);
 		
-			local_folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+			local_folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							local_folder_proxy_path,
@@ -610,7 +609,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		/* append message */
 		char *retuid;
 		GVariant *gv = variant_from_info (info);
-		ret = egdbus_folder_cf_call_append_message_sync (local_folder_proxy, gv, msg, &retuid, &fg, NULL, &error);
+		ret = egdbus_folder_call_append_message_sync (local_folder_proxy, gv, msg, &retuid, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting appending msg: %s\n", error->message);
 			g_error_free (error);
@@ -620,7 +619,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 		}
 
 		/* Sync */
-		ret = egdbus_folder_cf_call_sync_sync (local_folder_proxy , FALSE, &fg, NULL, &error);
+		ret = egdbus_folder_call_sync_sync (local_folder_proxy , FALSE, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while syncing folder: %s\n", error->message);
 			g_error_free (error);
@@ -636,7 +635,7 @@ test_message_basics (char *folder_path, EGdbusFolderCF *folder_proxy)
 }
 
 static void
-folder_changed_cb (EGdbusFolderCF *folder_proxy, 
+folder_changed_cb (EGdbusFolder *folder_proxy, 
 		   const gchar *const *added,
 		   const gchar *const *removed,
 		   const gchar *const *changed,
@@ -679,16 +678,16 @@ folder_changed_cb (EGdbusFolderCF *folder_proxy,
 }
 
 static GList *
-parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
+parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 {
 	GList *l = NULL;
 	GVariantIter iter;
 	guint32 u1;
 	gint32 i1, i2;
 	gchar *str1, *str2, *str3;
-	EGdbusFolderCF *inbox_proxy;
+	EGdbusFolder *inbox_proxy;
 	char *inbox_path;
-	EGdbusFolderCF *folder_proxy;
+	EGdbusFolder *folder_proxy;
 	char *folder_proxy_path;
 	GError *error = NULL;
 	GVariant *cf_info;
@@ -699,14 +698,15 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 		return NULL;
 
 	g_variant_iter_init (&iter, var_changes);
-	while (g_variant_iter_next (&iter, "(sssuii)", &str1, &str2, &str3, &u1, &i1, &i2)) {
-		printf("uri: %s Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, str3, u1, i1, i2);
+	while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
+		printf("Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, u1, i1, i2);
 	}
 
 	/* Get Inbox folder */
-	if (!egdbus_store_ms_call_get_folder_sync (
+	if (!egdbus_store_call_get_folder_sync (
 		store_proxy, 
 		"INBOX", /* Pass the full name */
+		0,
 		&folder_proxy_path,
 		NULL, 
 		&error))
@@ -714,7 +714,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	
 	printf("Folder path for %s\n", folder_proxy_path);
 		
-	folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
+	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							folder_proxy_path,
@@ -728,7 +728,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 #if 1
 	/* Get Inbox API */
 	/* Most providers don't implement Get Inbox */
-	if (!egdbus_store_ms_call_get_inbox_sync (
+	if (!egdbus_store_call_get_inbox_sync (
 		store_proxy, 
 		&folder_proxy_path,
 		NULL, 
@@ -737,7 +737,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	
 	printf("INBOX path for %s\n", folder_proxy_path);
 	if (!error)
-	folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
+	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							folder_proxy_path,
@@ -747,20 +747,20 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 
 	error = NULL;
 	printf("Success in getting FolderProxy for INBOX ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
-# endif
+#endif
 #if 1	
 	/* Get Trash */
-	if (!egdbus_store_ms_call_get_trash_sync (
+	if (!egdbus_store_call_get_trash_sync (
 		store_proxy, 
 		&folder_proxy_path,
 		NULL, 
 		&error))
 		printf("Error while getting GET Trash: %s\n", error->message);
 	
-	printf("Trash path for %s\n", folder_proxy_path);
+	printf("Got Trash path for %s\n", folder_proxy_path);
 		
 	if (!error)
-	folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
+	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							folder_proxy_path,
@@ -771,17 +771,17 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	printf("Success in getting FolderProxy for TRASH ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
 	
 	/* Get Junk*/
-	if (!egdbus_store_ms_call_get_junk_sync (
+	if (!egdbus_store_call_get_junk_sync (
 		store_proxy, 
 		&folder_proxy_path,
 		NULL, 
 		&error))
 		printf("Error while getting GET Junk: %s\n", error->message);
 	
-	printf("Junk path for %s\n", folder_proxy_path);
+	printf("Got Junk path for %s\n", folder_proxy_path);
 	
 	if (!error)
-	folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
+	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							folder_proxy_path,
@@ -791,24 +791,25 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	error = NULL;
 	printf("Success in getting FolderProxy for JUNK ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
 
-# endif	
+#endif	
 
 	/* Create Folder */
-	if (!egdbus_store_ms_call_create_folder_sync (store_proxy, "", "ATestEmailServer", &cf_info, NULL, &error))
+	if (!egdbus_store_call_create_folder_sync (store_proxy, "", "ATestEmailServer", &cf_info, NULL, &error))
 		printf("Failed to create folder: %s \n", error->message);
 
 	if (error && error->message) 
 		g_error_free (error);
 	else {
 		g_variant_iter_init (&iter, cf_info);
-		while (g_variant_iter_next (&iter, "(sssuii)", &str1, &str2, &str3, &u1, &i1, &i2)) {
+		while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
 			new_folder_uri = str1;
-			printf("NEW FOLDER: uri: %s Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, str3, u1, i1, i2);
+			printf("NEW FOLDER: Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, u1, i1, i2);
 			/* */
 			/* Get the folder */
-			if (!egdbus_store_ms_call_get_folder_sync (
+			if (!egdbus_store_call_get_folder_sync (
 				store_proxy, 
-				str3, /* Pass the full name */
+				str2, /* Pass the full name */
+				0,
 				&folder_proxy_path,
 				NULL, 
 				&error))
@@ -816,7 +817,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	
 			printf("Folder path for %s\n", folder_proxy_path);
 		
-			folder_proxy = egdbus_folder_cf_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
+			folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							folder_proxy_path,
@@ -832,20 +833,20 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	error = NULL;
 
 	/* supports subscription ?*/ 
-	if (!egdbus_store_ms_call_supports_subscriptions_sync(store_proxy, &success, NULL, &error)) {
+	if (!egdbus_store_call_supports_subscriptions_sync(store_proxy, &success, NULL, &error)) {
 		printf("Unable to check sub: %s\n", error->message);
 		g_error_free (error);
 		error = NULL;
 	} else {
 		printf("Store supports subscription: %d\n", success);
 		/* Subscribe Folder */
-		if (!egdbus_store_ms_call_subscribe_folder_sync (store_proxy, "ATestEmailServer", &success, NULL, &error)) {
+		if (!egdbus_store_call_subscribe_folder_sync (store_proxy, "ATestEmailServer", &success, NULL, &error)) {
 			printf("Unable to subscribe: %s\n", error->message);
 			g_error_free (error);
 			error = NULL;
 		} else {
 			/* Can Refresh Folder */
-			if (!egdbus_store_ms_call_can_refresh_folder_sync (store_proxy, cf_info, &success, NULL, &error)) {
+			if (!egdbus_store_call_can_refresh_folder_sync (store_proxy, cf_info, &success, NULL, &error)) {
 				printf("Unable to check if can refresh: %s\n", error->message);
 				g_error_free (error);
 				error = NULL;
@@ -856,11 +857,11 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 
 			/* Transfer one msg */
 			char *uids[2], **retuids;
-			uids[0] = "13989";
-			uids[1] = "13942";
+			uids[0] = "52";
+			uids[1] = "53";
 			uids[2] = NULL;
 
-			if (!egdbus_folder_cf_call_transfer_messages_to_sync (inbox_proxy,  &uids, folder_proxy_path,  FALSE, &retuids, NULL, NULL))
+			if (!egdbus_folder_call_transfer_messages_to_sync (inbox_proxy,  &uids, folder_proxy_path,  FALSE, &retuids, NULL, NULL))
 				printf("\n Unable to copy \n");
 			else 
 				printf("\n COPIED %s\n", retuids[0] ? retuids[0] : "nil");
@@ -870,7 +871,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 #if 0
 			/* Unsubscribe Folder */
 			printf("Folder successfully subscribed: %d\n", success);
-			if (!egdbus_store_ms_call_unsubscribe_folder_sync (store_proxy, "ATestEmailServer", &success, NULL, &error)) {
+			if (!egdbus_store_call_unsubscribe_folder_sync (store_proxy, "ATestEmailServer", &success, NULL, &error)) {
 			printf("Unable to unsubscribe: %s\n", error->message);
 			g_error_free (error);
 			error = NULL;
@@ -885,7 +886,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 
 
 	/* Rename Folder */
-	if (!egdbus_store_ms_call_rename_folder_sync (store_proxy, "ATestEmailServer", "ANOTHERTestEmailServer", &success, NULL, &error))
+	if (!egdbus_store_call_rename_folder_sync (store_proxy, "ATestEmailServer", "ANOTHERTestEmailServer", &success, NULL, &error))
 		printf("Failed to rename folder: %s \n", error->message);
 
 	if (error && error->message) 
@@ -898,7 +899,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 
 #if 1
 	/* Delete folder */
-	if (!egdbus_store_ms_call_delete_folder_sync (store_proxy, "ANOTHERTestEmailServer", &success, NULL, &error))
+	if (!egdbus_store_call_delete_folder_sync (store_proxy, "ANOTHERTestEmailServer", &success, NULL, &error))
 		printf("Failed to delete folder: %s \n", error->message);
 
 	if (error && error->message) 
@@ -907,10 +908,10 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 		printf("SUCCESS, delete folder to ANOTHERTestEmailServer\n");
 	}
 	error = NULL;
-# endif
+#endif
 
 	/* Sync */
-	if (!egdbus_store_ms_call_sync_sync (store_proxy, FALSE, &success, NULL, &error)) {
+	if (!egdbus_store_call_sync_sync (store_proxy, FALSE, &success, NULL, &error)) {
 		printf("Unable to sync: %s\n", error->message);
 		g_error_free (error);
 		error = NULL;
@@ -919,7 +920,7 @@ parse_infos (EGdbusStoreMS *store_proxy, GVariant *var_changes)
 	}
 
 	/* Noop */
-	if (!egdbus_store_ms_call_noop_sync (store_proxy, &success, NULL, &error)) {
+	if (!egdbus_store_call_noop_sync (store_proxy, &success, NULL, &error)) {
 		printf("Unable to noop : %s\n", error->message);
 		g_error_free (error);
 		error = NULL;
@@ -940,49 +941,48 @@ print_info (GVariant *v, const char *operation)
 	guint32 u1;
 
 	g_variant_iter_init (&iter, v);
-	while (g_variant_iter_next (&iter, "(sssuii)", &str1, &str2, &str3, &u1, &i1, &i2)) {
-		if (!str1 || !*str1|| !str2 || !*str2|| !str3 || !*str3) {
+	while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
+		if (!str1 || !*str1|| !str2 || !*str2) {
 			break;
 		}
-		printf("\n\nSIGNAL: \n%s:::::::  uri: %s Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n\n\n", operation, str1, str2, str3, u1, i1, i2);
+		printf("\n\nSIGNAL: \n%s:::::::  Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n\n\n", operation, str1, str2, u1, i1, i2);
 	}
 
 }
 
 static void
-folder_opened_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
+folder_opened_cb (EGdbusStore *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder Opened");
 }
 static void
-folder_created_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
+folder_created_cb (EGdbusStore *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder Created");	
 }
 static void
-folder_deleted_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
+folder_deleted_cb (EGdbusStore *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder Deleted");
 	
 }
 static void
-folder_renamed_cb (EGdbusStoreMS *object, const char *oldname, GVariant *v, gpointer data)
+folder_renamed_cb (EGdbusStore *object, const char *oldname, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder Renamed");
 	printf("Old folder name: %s\n\n\n", oldname);
 	
 }
 static void
-folder_subscribed_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
+folder_subscribed_cb (EGdbusStore *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder Subscribed");
 }
 static void
-folder_unsubscribed_cb (EGdbusStoreMS *object, GVariant *v, gpointer data)
+folder_unsubscribed_cb (EGdbusStore *object, GVariant *v, gpointer data)
 {
 	print_info (v, "Folder UnSubscribed");	
 }
-#endif
 
 static gboolean
 start_test_client (gpointer foo)
@@ -1028,7 +1028,27 @@ start_test_client (gpointer foo)
 	if (!egdbus_session_call_get_service_sync (session_proxy, account->uid, &service, NULL, &error)) {
 		printf("Get Service failed: %s\n", error->message);
 	} else {
+		char *name;
 		printf("Get Service: Path: %s\n", service);
+
+		store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+							G_DBUS_PROXY_FLAGS_NONE,
+							E_MAIL_DATA_FACTORY_SERVICE_NAME,
+							service,
+							NULL, &error);
+		egdbus_store_call_get_display_name_sync (store_proxy, &name, NULL, &error);
+		printf("Display name: %s\n", name);
+		egdbus_store_call_get_user_data_dir_sync (store_proxy, &name, NULL, &error);
+		printf("User Data dir name: %s\n", name);
+		egdbus_store_call_get_user_cache_dir_sync (store_proxy, &name, NULL, &error);
+		printf("User Cache dir name: %s\n", name);
+		egdbus_store_call_get_name_sync (store_proxy, TRUE, &name, NULL, &error);
+		printf("Name: %s\n", name);
+		egdbus_store_call_get_uid_sync (store_proxy, &name, NULL, &error);
+		printf("UID: %s\n", name);
+		egdbus_store_call_get_url_sync (store_proxy, &name, NULL, &error);
+		printf("Url: %s\n", name);
+
 	}
 
 	/* Remove Service */
@@ -1046,22 +1066,65 @@ start_test_client (gpointer foo)
 		printf("Add Service Success : Path: %s\n", service);
 	}
 
-#if 0	
-	/* Get Store */
-	if (!egdbus_session_cs_call_get_store_sync (session_proxy, uri, &path, NULL, &error)) {
-		printf("Get store %s\n", error->message);
-	}
-
-	printf("PATH %s\n", path);
-
-	store_proxy = egdbus_store_ms_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+	store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
-							path,
+							service,
 							NULL, &error);
 	if (error)
 		printf("Failed to create store proxy %s\n", error->message);
+	else {
+		char *name;
 
+		printf("Created Service object\n");
+
+		printf("Registering signalhandlers\n\n");
+		g_signal_connect (store_proxy, "folder-opened", G_CALLBACK (folder_opened_cb), NULL);
+		g_signal_connect (store_proxy, "folder-created", G_CALLBACK (folder_created_cb), NULL);
+		g_signal_connect (store_proxy, "folder-deleted", G_CALLBACK (folder_deleted_cb), NULL);
+		g_signal_connect (store_proxy, "folder-renamed", G_CALLBACK (folder_renamed_cb), NULL);
+		g_signal_connect (store_proxy, "folder-subscribed", G_CALLBACK (folder_subscribed_cb), NULL);
+		g_signal_connect (store_proxy, "folder-unsubscribed", G_CALLBACK (folder_unsubscribed_cb), NULL);
+		
+		egdbus_store_call_get_display_name_sync (store_proxy, &name, NULL, &error);
+		printf("Display name: %s\n", name);
+		egdbus_store_call_get_user_data_dir_sync (store_proxy, &name, NULL, &error);
+		printf("User Data dir name: %s\n", name);
+		egdbus_store_call_get_user_cache_dir_sync (store_proxy, &name, NULL, &error);
+		printf("User Cache dir name: %s\n", name);
+		egdbus_store_call_get_name_sync (store_proxy, TRUE, &name, NULL, &error);
+		printf("Name: %s\n", name);
+		egdbus_store_call_get_uid_sync (store_proxy, &name, NULL, &error);
+		printf("UID: %s\n", name);
+		egdbus_store_call_get_url_sync (store_proxy, &name, NULL, &error);
+		printf("Url: %s\n", name);
+
+		/* Get SENT  folder */
+		if (!egdbus_session_call_get_folder_from_uri_sync (
+			session_proxy, 
+			account->sent_folder_uri, /* Pass the full name */
+			&path,
+			NULL, 
+			&error))
+			printf("Error while getting folder SENT: %s\n", error->message);
+		printf("Folder path for %s\n", path);
+		
+		folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+								G_DBUS_PROXY_FLAGS_NONE,
+								E_MAIL_DATA_FACTORY_SERVICE_NAME,
+								path,
+								NULL, &error);
+		printf("Success in getting FolderProxy for SENT ? %p %s\n", folder_proxy, error ? error->message : "Yeh!!!");
+
+		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, &infos, NULL, &error))
+			printf("Get Folder Info Error %s\n", error->message);
+		else
+
+		parse_infos (store_proxy, infos);
+
+
+	}
+#if 0	
 	/* Get Folder Info */
 	if (!egdbus_store_ms_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, &infos, NULL, &error))
 		printf("Error %s\n", error->message);
