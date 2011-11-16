@@ -194,7 +194,7 @@ info_from_variant (CamelFolder *folder, GVariant *vinfo)
 }
 
 #define VALUE_OR_NULL(x) x?x:""
-static GVariant *
+GVariant *
 variant_from_info (CamelMessageInfoBase *info)
 {
 	GVariant *v, *v1;
@@ -234,6 +234,7 @@ variant_from_info (CamelMessageInfoBase *info)
 			g_variant_builder_add (b1, "t", info->references->references[i].id.id);
 		}
 		v1 = g_variant_builder_end (b1);
+		g_variant_ref (v1);
 		g_variant_builder_unref (b1);
 	
 		g_variant_builder_add_value (builder, v1);
@@ -243,9 +244,12 @@ variant_from_info (CamelMessageInfoBase *info)
 		b1 = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
 		g_variant_builder_add (b1, "t", 0);
 		v1 = g_variant_builder_end (b1);
+		g_variant_ref (v1);
+
 		g_variant_builder_unref (b1);
 	
 		g_variant_builder_add_value (builder, v1);
+		g_variant_unref (v1);
 		
 
 	}
@@ -259,9 +263,12 @@ variant_from_info (CamelMessageInfoBase *info)
 	}
 	g_variant_builder_add (b1, "s", "");
 	v1 = g_variant_builder_end (b1);
+	g_variant_ref (v1);
+
 	g_variant_builder_unref (b1);
 	
 	g_variant_builder_add_value (builder, v1);
+	g_variant_unref (v1);
 
 	/* User Tags */
 	b1 = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
@@ -272,10 +279,13 @@ variant_from_info (CamelMessageInfoBase *info)
 		g_variant_builder_add (b2, "s", tags->value);
 		
 		v1 = g_variant_builder_end (b2);
+		g_variant_ref (v1);
+
 		g_variant_builder_unref (b2);
 
 		/* FIXME: Should we handle empty tags? Can it be empty? If it potential crasher ahead*/
 		g_variant_builder_add_value (b1, v1);
+		g_variant_unref (v1);
 
 		tags = tags->next;
 	}
@@ -284,15 +294,23 @@ variant_from_info (CamelMessageInfoBase *info)
 	g_variant_builder_add (b2, "s", "");
 	g_variant_builder_add (b2, "s", "");	
 	v1 = g_variant_builder_end (b2);
+	g_variant_ref (v1);
+
 	g_variant_builder_unref (b2);
 	g_variant_builder_add_value (b1, v1);
+	g_variant_unref (v1);
 
 	v1 = g_variant_builder_end (b1);
+	g_variant_ref (v1);
+
 	g_variant_builder_unref (b1);
 	
 	g_variant_builder_add_value (builder, v1);
+	g_variant_unref (v1);
 
 	v = g_variant_builder_end (builder);
+	g_variant_ref (v);
+
 	g_variant_builder_unref (builder);
 
 	return v;
@@ -338,7 +356,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 			info = info_from_variant (NULL, variant);
 			message_info_dump (info);
 			camel_message_info_free (info);
-			printf("\n\n");
+			printf("\n--End--\n");
 		}
 
 		/* Message flags */
@@ -439,7 +457,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 			g_error_free (error);
 			error = NULL;
 		} else {
-			printf("\n\n%s\n\n", msg);
+			printf("Get Message\n\n%d\n\n", strlen(msg));
 			/* g_free(msg); */
 		}
 
@@ -512,7 +530,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		} else {
 			printf("\n Deleted message count : %d\n", i);
 		}
-
+#if 0
 		/* Expunge */
 		ret = egdbus_folder_call_expunge_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
@@ -522,7 +540,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		} else {
 			printf("\nExpunging folder success: %d\n", fg);
 		}
-
+#endif
 		/* Refresh */
 		ret = egdbus_folder_call_refresh_info_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
@@ -856,7 +874,7 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 			}
 
 			/* Transfer one msg */
-			char *uids[2], **retuids;
+			char *uids[4], **retuids;
 			uids[0] = "52";
 			uids[1] = "53";
 			uids[2] = NULL;
@@ -951,9 +969,9 @@ print_info (GVariant *v, const char *operation)
 }
 
 static void
-folder_opened_cb (EGdbusStore *object, GVariant *v, gpointer data)
+folder_opened_cb (EGdbusStore *object, char *folder, gpointer data)
 {
-	print_info (v, "Folder Opened");
+	printf("Folder opened: %s\n", folder);
 }
 static void
 folder_created_cb (EGdbusStore *object, GVariant *v, gpointer data)
@@ -1017,6 +1035,7 @@ start_test_client (gpointer foo)
 		printf("List Services failed: %s\n", error->message);
 	} else {
 		printf("Services are: \n");
+		i=0;
 		while (services[i]) {
 			printf("\t%s\n", services[i]);
 			i++;

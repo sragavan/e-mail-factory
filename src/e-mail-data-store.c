@@ -1110,6 +1110,7 @@ store_folder_subscribed_cb (CamelStore *store,
 	GVariant *variant;
 
 	variant = variant_from_info (info);
+	ipc(printf("Emitting Folder subscribed: %s\n", info->full_name));		
 	egdbus_store_emit_folder_subscribed (priv->gdbus_object, variant);
 
 	g_variant_unref (variant);
@@ -1124,6 +1125,7 @@ store_folder_unsubscribed_cb (CamelStore *store,
 	GVariant *variant;
 
 	variant = variant_from_info (info);
+	ipc(printf("Emitting Folder unsubscribed: %s\n", info->full_name));		
 	egdbus_store_emit_folder_unsubscribed (priv->gdbus_object, variant);
 
 	g_variant_unref (variant);
@@ -1139,6 +1141,7 @@ store_folder_created_cb (CamelStore *store,
 	GVariant *variant;
 
 	variant = variant_from_info (info);
+	ipc(printf("Emitting Folder created: %s\n", info->full_name));		
 	egdbus_store_emit_folder_created (priv->gdbus_object, variant);
 
 	g_variant_unref (variant);
@@ -1160,6 +1163,7 @@ store_folder_opened_cb (CamelStore *store,
 	if (!efolder) /* Don't bother to return about folders that aren't being used by the client. */
 		return;
 	path = e_mail_data_folder_get_path (efolder);
+	ipc(printf("Emitting Folder opened: %s\n", path));
 	egdbus_store_emit_folder_opened (priv->gdbus_object, path);
 }
 
@@ -1172,6 +1176,7 @@ store_folder_deleted_cb (CamelStore *store,
 	GVariant *variant;
 
 	variant = variant_from_info (info);
+	ipc(printf("Emitting Folder deleted: %s\n", info->full_name));	
 	egdbus_store_emit_folder_deleted (priv->gdbus_object, variant);
 
 	g_variant_unref (variant);	
@@ -1187,6 +1192,7 @@ store_folder_renamed_cb (CamelStore *store,
 	GVariant *variant;
 
 	variant = variant_from_info (info);
+	ipc(printf("Emitting Folder renamed: %s %s\n", old_name, info->full_name));	
 	egdbus_store_emit_folder_renamed (priv->gdbus_object, old_name, variant);
 
 	g_variant_unref (variant);	
