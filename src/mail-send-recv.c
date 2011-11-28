@@ -185,7 +185,7 @@ static void
 receive_cancel (struct _send_info *info)
 {
 	if (info->state == SEND_ACTIVE) {
-		camel_operation_cancel (CAMEL_OPERATION (info->cancellable));
+		g_cancellable_cancel (info->cancellable);
 		info->state = SEND_CANCELLED;
 	}
 }
