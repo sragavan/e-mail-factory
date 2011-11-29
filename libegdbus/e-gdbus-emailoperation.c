@@ -170,13 +170,30 @@ static const _ExtendedGDBusMethodInfo _egdbus_operation_method_info_cancel =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_operation_method_info_is_cancelled_OUT_ARG_cancelled =
+{
+  {
+    -1,
+    "cancelled",
+    "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_operation_method_info_is_cancelled_OUT_ARG_pointers[] =
+{
+  &_egdbus_operation_method_info_is_cancelled_OUT_ARG_cancelled,
+  NULL
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_operation_method_info_is_cancelled =
 {
   {
     -1,
     "isCancelled",
     NULL,
-    NULL,
+    (GDBusArgInfo **) &_egdbus_operation_method_info_is_cancelled_OUT_ARG_pointers,
     NULL
   },
   "handle-is-cancelled",
@@ -571,6 +588,7 @@ egdbus_operation_call_is_cancelled (
 /**
  * egdbus_operation_call_is_cancelled_finish:
  * @proxy: A #EGdbusOperationProxy.
+ * @out_cancelled: (out): Return location for return parameter or %NULL to ignore.
  * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_operation_call_is_cancelled().
  * @error: Return location for error or %NULL.
  *
@@ -581,6 +599,7 @@ egdbus_operation_call_is_cancelled (
 gboolean
 egdbus_operation_call_is_cancelled_finish (
     EGdbusOperation *proxy,
+    gboolean *out_cancelled,
     GAsyncResult *res,
     GError **error)
 {
@@ -589,7 +608,8 @@ egdbus_operation_call_is_cancelled_finish (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "()");
+                 "(b)",
+                 out_cancelled);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -598,6 +618,7 @@ _out:
 /**
  * egdbus_operation_call_is_cancelled_sync:
  * @proxy: A #EGdbusOperationProxy.
+ * @out_cancelled: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -610,6 +631,7 @@ _out:
 gboolean
 egdbus_operation_call_is_cancelled_sync (
     EGdbusOperation *proxy,
+    gboolean *out_cancelled,
     GCancellable *cancellable,
     GError **error)
 {
@@ -624,7 +646,8 @@ egdbus_operation_call_is_cancelled_sync (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "()");
+                 "(b)",
+                 out_cancelled);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -652,6 +675,7 @@ egdbus_operation_complete_cancel (
  * egdbus_operation_complete_is_cancelled:
  * @object: A #EGdbusOperation.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @cancelled: Parameter to return.
  *
  * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Operation.isCancelled">isCancelled()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
@@ -660,10 +684,12 @@ egdbus_operation_complete_cancel (
 void
 egdbus_operation_complete_is_cancelled (
     EGdbusOperation *object,
-    GDBusMethodInvocation *invocation)
+    GDBusMethodInvocation *invocation,
+    gboolean cancelled)
 {
   g_dbus_method_invocation_return_value (invocation,
-    g_variant_new ("()"));
+    g_variant_new ("(b)",
+                   cancelled));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -13,7 +13,9 @@ evolution_mail_factory_SOURCES = 	\
 		e-dbus-manager.h	\
 		e-mail-data-session.h	\
 		e-mail-data-store.h	\
-		e-mail-data-folder.h
+		e-mail-data-folder.h	\
+		e-mail-data-operation.c	\
+		e-mail-data-operation.h
 
 noinst_PROGRAMS = test-email-client
 

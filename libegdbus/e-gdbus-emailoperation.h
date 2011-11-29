@@ -60,7 +60,8 @@ void egdbus_operation_complete_cancel (
 
 void egdbus_operation_complete_is_cancelled (
     EGdbusOperation *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    gboolean cancelled);
 
 
 
@@ -100,11 +101,13 @@ void egdbus_operation_call_is_cancelled (
 
 gboolean egdbus_operation_call_is_cancelled_finish (
     EGdbusOperation *proxy,
+    gboolean *out_cancelled,
     GAsyncResult *res,
     GError **error);
 
 gboolean egdbus_operation_call_is_cancelled_sync (
     EGdbusOperation *proxy,
+    gboolean *out_cancelled,
     GCancellable *cancellable,
     GError **error);
 

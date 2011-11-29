@@ -27,6 +27,8 @@ mail_debug_init ()
 				mail_debug_flag |= EMAIL_DEBUG_STORE;
 			else if (strcmp (tokens[i], "session") == 0)
 				mail_debug_flag |= EMAIL_DEBUG_SESSION;
+			else if (strcmp (tokens[i], "operation") == 0)
+				mail_debug_flag |= EMAIL_DEBUG_OPERATION;			
 			else if (strcmp (tokens[i], "micro") == 0)
 				mail_debug_flag |= EMAIL_DEBUG_MICRO;		
 			else if (strcmp (tokens[i], "ipc") == 0)

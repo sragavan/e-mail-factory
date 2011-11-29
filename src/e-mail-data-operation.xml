@@ -16,6 +16,7 @@
     <method name="cancel">
     </method>
     <method name="isCancelled">
+      <arg name="cancelled" type="b" direction="out"/>	    	    	    	    	    	    
     </method>
 
     <!-- Signals -->
