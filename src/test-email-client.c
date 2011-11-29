@@ -1136,7 +1136,7 @@ start_test_client (gpointer foo)
 				error = NULL;
 			}
 		}
-#if 0		
+	
 		/* Get SENT  folder */
 		if (!egdbus_session_call_get_folder_from_uri_sync (
 			session_proxy, 
@@ -1159,7 +1159,7 @@ start_test_client (gpointer foo)
 		else
 
 		parse_infos (store_proxy, infos);
-#endif
+
 
 	}
 
