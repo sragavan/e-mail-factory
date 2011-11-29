@@ -1020,6 +1020,154 @@ impl_Mail_getAuthTypes (EGdbusStore *object, GDBusMethodInvocation *invocation, 
 	return TRUE;
 }
 
+typedef struct _email_store_std_data {
+	EMailDataStore *mstore;
+	EGdbusStore *object;
+	GDBusMethodInvocation *invocation;
+	char *command;
+	GPtrArray *uids;
+	GPtrArray *folder_names;
+}EMailStoreStdData;
+
+static gint
+read_folder_names (gpointer ref_hash,
+		   gint ncol,
+		   gchar **cols,
+		   gchar **name)
+{
+	GList **list = ref_hash;
+
+	g_return_val_if_fail (ncol == 1, 0);
+
+	if (cols[0]) {
+		if (g_ascii_strncasecmp (cols[0], ".#evo", 5) != 0) /* Ignore vtrash & vjunk */
+			*list = g_list_prepend (*list, g_strdup (cols[0]));
+	}
+
+	return 0;
+}
+
+static gint
+read_uids_to_array_callback (gpointer sdata,
+                            gint ncol,
+                            gchar **cols,
+                            gchar **name)
+{
+	EMailStoreStdData *data = (EMailStoreStdData *)sdata;
+
+	g_return_val_if_fail (ncol == 2, 0);
+
+	if (cols[0] && cols[1]) {
+		g_ptr_array_add (data->folder_names, g_strdup(cols[0]));
+		g_ptr_array_add (data->uids, g_strdup(cols[1]));
+	}
+
+	return 0;
+}
+
+
+static gboolean
+sbs_operate (GObject *object, gpointer sdata, GError **error)
+{
+	EMailStoreStdData *data = (EMailStoreStdData *)sdata;
+	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(data->mstore);
+	CamelStore *store = (CamelStore *) object;
+	CamelDB *db;
+	GList *list = NULL;
+	GString *create_query;
+	
+
+	create_query = g_string_new ("CREATE VIEW AllFoldersView AS ");
+
+	/* Find the folder names first. */
+	db = store->cdb_r;
+	camel_db_select (db, "SELECT folder_name FROM folders", read_folder_names, &list, error);
+	if (list) {
+		gboolean once_tmp = FALSE;
+		gchar *select_query;
+
+		GList *tmp = list;
+		while (tmp) {
+			gchar *tbl_query;
+	
+			if (once_tmp)
+				g_string_append (create_query, "UNION ");
+
+			tbl_query = sqlite3_mprintf ("SELECT %Q AS folder_name, uid, subject, mail_from, mail_to, mail_cc, flags, part FROM %Q", tmp->data, tmp->data);
+
+			g_string_append (create_query, tbl_query);
+			if (!once_tmp)
+				once_tmp = TRUE;
+
+			sqlite3_free (tbl_query);
+			tmp=tmp->next;
+		}
+		camel_db_command (db, create_query->str, error);
+		g_string_free (create_query, TRUE);
+
+		/* Now that we have the view, just execute the command */
+		data->folder_names = g_ptr_array_new ();
+		data->uids = g_ptr_array_new ();
+		select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
+		camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
+		g_free (select_query);
+
+		/* Drop the VIEW */
+		camel_db_command (db, "DROP VIEW AllFoldersView", error);
+	}
+
+	return TRUE;
+}
+
+static void
+sbs_done (gboolean success, gpointer sdata, GError *error)
+{
+	EMailStoreStdData *data = (EMailStoreStdData *)sdata;
+	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(data->mstore);
+
+	if (error && error->message) {
+		g_warning ("SearchBySQL failed: %s: %s\n", priv->object_path, error->message);
+		g_dbus_method_invocation_return_gerror (data->invocation, error);		
+		ipc(printf("Search by SQL : %s failed: %s\n", priv->object_path, error->message));
+		return;
+	}
+
+	g_ptr_array_add (data->folder_names , NULL);
+	g_ptr_array_add (data->uids, NULL);
+
+	egdbus_store_complete_search_by_sql (data->object, data->invocation, (const gchar *const *)data->uids->pdata, (const gchar *const *)data->folder_names->pdata);
+
+	g_ptr_array_remove_index_fast (data->uids, data->uids->len-1);
+	g_ptr_array_remove_index_fast (data->folder_names, data->folder_names->len-1);
+
+	g_ptr_array_foreach (data->uids, (GFunc)g_free, NULL);
+	g_ptr_array_foreach (data->folder_names, (GFunc)g_free, NULL);
+
+	g_free (data->command);
+	g_ptr_array_free (data->folder_names, TRUE);
+	g_ptr_array_free (data->uids, TRUE);
+	g_free (data);
+}
+
+static gboolean
+impl_Mail_searchBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, EMailDataStore *mstore)
+{
+	EMailStoreStdData *data;
+	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
+
+	ipc(printf("Executing SQL command: %s\n", sql));
+
+	data = g_new0 (EMailStoreStdData, 1);
+	data->mstore = mstore;
+	data->invocation = invocation;
+	data->object = object;
+	data->command = g_strdup(sql);
+
+	mail_operate_on_object ((GObject *)priv->store, sbs_operate, sbs_done, data);
+
+	return TRUE;
+}
+
 static void
 e_mail_data_store_init (EMailDataStore *self)
 {
@@ -1066,6 +1214,8 @@ e_mail_data_store_init (EMailDataStore *self)
 	g_signal_connect (priv->gdbus_object, "handle-get-uid", G_CALLBACK (impl_Mail_getUid), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-url", G_CALLBACK (impl_Mail_getUrl), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-auth-types", G_CALLBACK (impl_Mail_getAuthTypes), self);
+	g_signal_connect (priv->gdbus_object, "handle-search-by-sql", G_CALLBACK (impl_Mail_searchBySql), self);
+
 }
 
 EMailDataStore*
