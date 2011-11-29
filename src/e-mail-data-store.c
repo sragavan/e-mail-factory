@@ -1025,6 +1025,8 @@ typedef struct _email_store_std_data {
 	EGdbusStore *object;
 	GDBusMethodInvocation *invocation;
 	char *command;
+	gboolean count;
+	guint result;
 	GPtrArray *uids;
 	GPtrArray *folder_names;
 }EMailStoreStdData;
@@ -1106,11 +1108,19 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 		g_string_free (create_query, TRUE);
 
 		/* Now that we have the view, just execute the command */
-		data->folder_names = g_ptr_array_new ();
-		data->uids = g_ptr_array_new ();
-		select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
-		camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
-		g_free (select_query);
+
+		if (data->count) {
+			select_query = g_strconcat("SELECT COUNT (*) from AllFoldersView WHERE ", data->command, NULL);
+			camel_db_count_message_info (db, select_query, &data->result, error);
+			g_free (select_query);
+
+		} else {
+			data->folder_names = g_ptr_array_new ();
+			data->uids = g_ptr_array_new ();
+			select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
+			camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
+			g_free (select_query);
+		}
 
 		/* Drop the VIEW */
 		camel_db_command (db, "DROP VIEW AllFoldersView", error);
@@ -1132,20 +1142,26 @@ sbs_done (gboolean success, gpointer sdata, GError *error)
 		return;
 	}
 
-	g_ptr_array_add (data->folder_names , NULL);
-	g_ptr_array_add (data->uids, NULL);
+	if (data->count) {
+		egdbus_store_complete_count_by_sql (data->object, data->invocation, data->result);
+	} else {
+		g_ptr_array_add (data->folder_names , NULL);
+		g_ptr_array_add (data->uids, NULL);
 
-	egdbus_store_complete_search_by_sql (data->object, data->invocation, (const gchar *const *)data->uids->pdata, (const gchar *const *)data->folder_names->pdata);
+		egdbus_store_complete_search_by_sql (data->object, data->invocation, (const gchar *const *)data->uids->pdata, (const gchar *const *)data->folder_names->pdata);
 
-	g_ptr_array_remove_index_fast (data->uids, data->uids->len-1);
-	g_ptr_array_remove_index_fast (data->folder_names, data->folder_names->len-1);
+		g_ptr_array_remove_index_fast (data->uids, data->uids->len-1);
+		g_ptr_array_remove_index_fast (data->folder_names, data->folder_names->len-1);
 
-	g_ptr_array_foreach (data->uids, (GFunc)g_free, NULL);
-	g_ptr_array_foreach (data->folder_names, (GFunc)g_free, NULL);
+		g_ptr_array_foreach (data->uids, (GFunc)g_free, NULL);
+		g_ptr_array_foreach (data->folder_names, (GFunc)g_free, NULL);
+	}
 
 	g_free (data->command);
-	g_ptr_array_free (data->folder_names, TRUE);
-	g_ptr_array_free (data->uids, TRUE);
+	if (!data->count) {
+		g_ptr_array_free (data->folder_names, TRUE);
+		g_ptr_array_free (data->uids, TRUE);
+	}
 	g_free (data);
 }
 
@@ -1162,6 +1178,27 @@ impl_Mail_searchBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, c
 	data->invocation = invocation;
 	data->object = object;
 	data->command = g_strdup(sql);
+	data->count = FALSE;
+
+	mail_operate_on_object ((GObject *)priv->store, sbs_operate, sbs_done, data);
+
+	return TRUE;
+}
+
+static gboolean
+impl_Mail_countBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, EMailDataStore *mstore)
+{
+	EMailStoreStdData *data;
+	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
+
+	ipc(printf("Executing SQL command: %s\n", sql));
+
+	data = g_new0 (EMailStoreStdData, 1);
+	data->mstore = mstore;
+	data->invocation = invocation;
+	data->object = object;
+	data->command = g_strdup(sql);
+	data->count = TRUE;
 
 	mail_operate_on_object ((GObject *)priv->store, sbs_operate, sbs_done, data);
 
@@ -1215,6 +1252,7 @@ e_mail_data_store_init (EMailDataStore *self)
 	g_signal_connect (priv->gdbus_object, "handle-get-url", G_CALLBACK (impl_Mail_getUrl), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-auth-types", G_CALLBACK (impl_Mail_getAuthTypes), self);
 	g_signal_connect (priv->gdbus_object, "handle-search-by-sql", G_CALLBACK (impl_Mail_searchBySql), self);
+	g_signal_connect (priv->gdbus_object, "handle-count-by-sql", G_CALLBACK (impl_Mail_countBySql), self);
 
 }
 

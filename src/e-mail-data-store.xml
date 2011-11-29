@@ -159,6 +159,11 @@
       <arg name="folder_names" type="as" direction="out"/>
     </method>  
 
+    <method name="countBySql">
+      <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="count" type="u" direction="out"/>
+    </method>  
+
     <!-- CamelStore signals -->
     <signal name="FolderOpened">
     	<arg name="folder" type="o"/>

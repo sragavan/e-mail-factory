@@ -34,6 +34,11 @@ struct _EGdbusStoreIface
     GDBusMethodInvocation *invocation,
     GVariant *arg_info);
 
+  gboolean (*handle_count_by_sql) (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_expression);
+
   gboolean (*handle_create_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
@@ -331,6 +336,11 @@ void egdbus_store_complete_search_by_sql (
     GDBusMethodInvocation *invocation,
     const gchar *const *uids,
     const gchar *const *folder_names);
+
+void egdbus_store_complete_count_by_sql (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    guint count);
 
 
 
@@ -898,6 +908,26 @@ gboolean egdbus_store_call_search_by_sql_sync (
     const gchar *arg_expression,
     gchar ***out_uids,
     gchar ***out_folder_names,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_store_call_count_by_sql (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_store_call_count_by_sql_finish (
+    EGdbusStore *proxy,
+    guint *out_count,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_store_call_count_by_sql_sync (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    guint *out_count,
     GCancellable *cancellable,
     GError **error);
 

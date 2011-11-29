@@ -1122,7 +1122,12 @@ start_test_client (gpointer foo)
 			char **folder_names;
 			char **uids;
 			int i;
-			egdbus_store_call_search_by_sql_sync (store_proxy, "subject LIKE '%test%'", &uids, &folder_names, NULL, &error);
+			int count; 
+
+			egdbus_store_call_count_by_sql_sync (store_proxy, "subject LIKE '%test%'", &count, NULL, &error);
+
+			printf("Number of mails: %d\n", count);
+			egdbus_store_call_search_by_sql_sync (store_proxy, "subject LIKE '%test%' LIMIT 2 OFFSET 5", &uids, &folder_names, NULL, &error);
 			if (!error) {
 				i=0;
 				printf("Search Result\n");
@@ -1136,7 +1141,7 @@ start_test_client (gpointer foo)
 				error = NULL;
 			}
 		}
-	
+#if 0	
 		/* Get SENT  folder */
 		if (!egdbus_session_call_get_folder_from_uri_sync (
 			session_proxy, 
@@ -1161,6 +1166,7 @@ start_test_client (gpointer foo)
 		parse_infos (store_proxy, infos);
 
 
+#endif
 	}
 
 	return FALSE;
