@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node SYSTEM "dbus.dtd">
+
+<!--
+  Author: Srinivasa Ragavan <sragavan@gnome.org>
+  Copyright (C) 2011 Intel Corporation
+-->
+
+<node>
+
+  <interface name="org.gnome.evolution.dataserver.mail.Operation">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="EMailDataOperation"/>
+    <annotation name="org.gtk.GDBus.Name" value="OP"/>
+
+    <!-- Camel Operation core APIs -->
+    <method name="cancel">
+    </method>
+    <method name="isCancelled">
+    </method>
+
+    <!-- Signals -->
+    <signal name="Status">
+      <arg name="description" type="s"/>
+      <arg name="percentage" type="i"/>
+    </signal>  
+    <signal name="Cancelled">
+    </signal>  
+
+  </interface>
+    
+</node>

@@ -19,7 +19,9 @@ libegdbus_mail_la_SOURCES =			\
 	e-gdbus-emailfolder.c			\
 	e-gdbus-emailsession.h			\
 	e-gdbus-emailstore.h			\
-	e-gdbus-emailfolder.h
+	e-gdbus-emailfolder.h			\
+	e-gdbus-emailoperation.c		\
+	e-gdbus-emailoperation.h
 
 
 libegdbus_mail_la_LIBADD =			\
