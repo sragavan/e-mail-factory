@@ -1285,6 +1285,65 @@ static const _ExtendedGDBusMethodInfo _egdbus_store_method_info_unsubscribe_fold
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_IN_ARG_expression =
+{
+  {
+    -1,
+    "expression",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_store_method_info_search_by_sql_IN_ARG_pointers[] =
+{
+  &_egdbus_store_method_info_search_by_sql_IN_ARG_expression,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_ARG_uids =
+{
+  {
+    -1,
+    "uids",
+    "as",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_ARG_folder_names =
+{
+  {
+    -1,
+    "folder_names",
+    "as",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_store_method_info_search_by_sql_OUT_ARG_pointers[] =
+{
+  &_egdbus_store_method_info_search_by_sql_OUT_ARG_uids,
+  &_egdbus_store_method_info_search_by_sql_OUT_ARG_folder_names,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_store_method_info_search_by_sql =
+{
+  {
+    -1,
+    "searchBySql",
+    (GDBusArgInfo **) &_egdbus_store_method_info_search_by_sql_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_store_method_info_search_by_sql_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-search-by-sql",
+  FALSE
+};
+
 static const _ExtendedGDBusMethodInfo * const _egdbus_store_method_info_pointers[] =
 {
   &_egdbus_store_method_info_get_display_name,
@@ -1314,6 +1373,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_store_method_info_pointers
   &_egdbus_store_method_info_is_folder_subscribed,
   &_egdbus_store_method_info_subscribe_folder,
   &_egdbus_store_method_info_unsubscribe_folder,
+  &_egdbus_store_method_info_search_by_sql,
   NULL
 };
 
@@ -1667,6 +1727,7 @@ egdbus_store_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_is_folder_subscribed: Handler for the #EGdbusStore::handle-is-folder-subscribed signal.
  * @handle_noop: Handler for the #EGdbusStore::handle-noop signal.
  * @handle_rename_folder: Handler for the #EGdbusStore::handle-rename-folder signal.
+ * @handle_search_by_sql: Handler for the #EGdbusStore::handle-search-by-sql signal.
  * @handle_set_display_name: Handler for the #EGdbusStore::handle-set-display-name signal.
  * @handle_set_password: Handler for the #EGdbusStore::handle-set-password signal.
  * @handle_subscribe_folder: Handler for the #EGdbusStore::handle-subscribe-folder signal.
@@ -2291,6 +2352,29 @@ egdbus_store_default_init (EGdbusStoreIface *iface)
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
     G_STRUCT_OFFSET (EGdbusStoreIface, handle_unsubscribe_folder),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+
+  /**
+   * EGdbusStore::handle-search-by-sql:
+   * @object: A #EGdbusStore.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_expression: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.searchBySql">searchBySql()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_store_complete_search_by_sql() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-search-by-sql",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusStoreIface, handle_search_by_sql),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
@@ -5248,6 +5332,116 @@ _out:
 }
 
 /**
+ * egdbus_store_call_search_by_sql:
+ * @proxy: A #EGdbusStoreProxy.
+ * @arg_expression: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.searchBySql">searchBySql()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_store_call_search_by_sql_finish() to get the result of the operation.
+ *
+ * See egdbus_store_call_search_by_sql_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_store_call_search_by_sql (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "searchBySql",
+    g_variant_new ("(s)",
+                   arg_expression),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_store_call_search_by_sql_finish:
+ * @proxy: A #EGdbusStoreProxy.
+ * @out_uids: (out): Return location for return parameter or %NULL to ignore.
+ * @out_folder_names: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_store_call_search_by_sql().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_store_call_search_by_sql().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_store_call_search_by_sql_finish (
+    EGdbusStore *proxy,
+    gchar ***out_uids,
+    gchar ***out_folder_names,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(^as^as)",
+                 out_uids,
+                 out_folder_names);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_store_call_search_by_sql_sync:
+ * @proxy: A #EGdbusStoreProxy.
+ * @arg_expression: Argument to pass with the method invocation.
+ * @out_uids: (out): Return location for return parameter or %NULL to ignore.
+ * @out_folder_names: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.searchBySql">searchBySql()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_store_call_search_by_sql() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_store_call_search_by_sql_sync (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    gchar ***out_uids,
+    gchar ***out_folder_names,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "searchBySql",
+    g_variant_new ("(s)",
+                   arg_expression),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(^as^as)",
+                 out_uids,
+                 out_folder_names);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_store_complete_get_display_name:
  * @object: A #EGdbusStore.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -5806,6 +6000,30 @@ egdbus_store_complete_unsubscribe_folder (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(b)",
                    success));
+}
+
+/**
+ * egdbus_store_complete_search_by_sql:
+ * @object: A #EGdbusStore.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @uids: Parameter to return.
+ * @folder_names: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.searchBySql">searchBySql()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_store_complete_search_by_sql (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *const *uids,
+    const gchar *const *folder_names)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(^as^as)",
+                   uids,
+                   folder_names));
 }
 
 /* ------------------------------------------------------------------------ */

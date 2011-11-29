@@ -125,6 +125,11 @@ struct _EGdbusStoreIface
     const gchar *arg_old_folder_name,
     const gchar *arg_new_folder_name);
 
+  gboolean (*handle_search_by_sql) (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_expression);
+
   gboolean (*handle_set_display_name) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
@@ -320,6 +325,12 @@ void egdbus_store_complete_unsubscribe_folder (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     gboolean success);
+
+void egdbus_store_complete_search_by_sql (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *const *uids,
+    const gchar *const *folder_names);
 
 
 
@@ -865,6 +876,28 @@ gboolean egdbus_store_call_unsubscribe_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
     gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_store_call_search_by_sql (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_store_call_search_by_sql_finish (
+    EGdbusStore *proxy,
+    gchar ***out_uids,
+    gchar ***out_folder_names,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_store_call_search_by_sql_sync (
+    EGdbusStore *proxy,
+    const gchar *arg_expression,
+    gchar ***out_uids,
+    gchar ***out_folder_names,
     GCancellable *cancellable,
     GError **error);
 
