@@ -782,6 +782,36 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_send_receive =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_send_mails_from_outbox_OUT_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_send_mails_from_outbox_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_send_mails_from_outbox_OUT_ARG_operation,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_send_mails_from_outbox =
+{
+  {
+    -1,
+    "sendMailsFromOutbox",
+    NULL,
+    (GDBusArgInfo **) &_egdbus_session_method_info_send_mails_from_outbox_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-send-mails-from-outbox",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_account_IN_ARG_uid =
 {
   {
@@ -799,13 +829,30 @@ static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_acc
   NULL
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_account_OUT_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_account_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_fetch_account_OUT_ARG_operation,
+  NULL
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_fetch_account =
 {
   {
     -1,
     "fetchAccount",
     (GDBusArgInfo **) &_egdbus_session_method_info_fetch_account_IN_ARG_pointers,
-    NULL,
+    (GDBusArgInfo **) &_egdbus_session_method_info_fetch_account_OUT_ARG_pointers,
     NULL
   },
   "handle-fetch-account",
@@ -902,6 +949,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointe
   &_egdbus_session_method_info_get_local_folder,
   &_egdbus_session_method_info_get_folder_from_uri,
   &_egdbus_session_method_info_send_receive,
+  &_egdbus_session_method_info_send_mails_from_outbox,
   &_egdbus_session_method_info_fetch_account,
   &_egdbus_session_method_info_fetch_old_messages,
   &_egdbus_session_method_info_cancel_operations,
@@ -1149,6 +1197,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_list_services: Handler for the #EGdbusSession::handle-list-services signal.
  * @handle_remove_service: Handler for the #EGdbusSession::handle-remove-service signal.
  * @handle_remove_services: Handler for the #EGdbusSession::handle-remove-services signal.
+ * @handle_send_mails_from_outbox: Handler for the #EGdbusSession::handle-send-mails-from-outbox signal.
  * @handle_send_receive: Handler for the #EGdbusSession::handle-send-receive signal.
  * @handle_set_network_available: Handler for the #EGdbusSession::handle-set-network-available signal.
  * @handle_set_online: Handler for the #EGdbusSession::handle-set-online signal.
@@ -1525,6 +1574,28 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
     G_STRUCT_OFFSET (EGdbusSessionIface, handle_send_receive),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
+   * EGdbusSession::handle-send-mails-from-outbox:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendMailsFromOutbox">sendMailsFromOutbox()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_send_mails_from_outbox() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-send-mails-from-outbox",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_send_mails_from_outbox),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
@@ -3409,6 +3480,104 @@ _out:
 }
 
 /**
+ * egdbus_session_call_send_mails_from_outbox:
+ * @proxy: A #EGdbusSessionProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendMailsFromOutbox">sendMailsFromOutbox()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_send_mails_from_outbox_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_send_mails_from_outbox_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_send_mails_from_outbox (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "sendMailsFromOutbox",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_send_mails_from_outbox_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_send_mails_from_outbox().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_send_mails_from_outbox().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_send_mails_from_outbox_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_send_mails_from_outbox_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendMailsFromOutbox">sendMailsFromOutbox()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_send_mails_from_outbox() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_send_mails_from_outbox_sync (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "sendMailsFromOutbox",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_session_call_fetch_account:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uid: Argument to pass with the method invocation.
@@ -3444,6 +3613,7 @@ egdbus_session_call_fetch_account (
 /**
  * egdbus_session_call_fetch_account_finish:
  * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
  * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_fetch_account().
  * @error: Return location for error or %NULL.
  *
@@ -3454,6 +3624,7 @@ egdbus_session_call_fetch_account (
 gboolean
 egdbus_session_call_fetch_account_finish (
     EGdbusSession *proxy,
+    gchar **out_operation,
     GAsyncResult *res,
     GError **error)
 {
@@ -3462,7 +3633,8 @@ egdbus_session_call_fetch_account_finish (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "()");
+                 "(o)",
+                 out_operation);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -3472,6 +3644,7 @@ _out:
  * egdbus_session_call_fetch_account_sync:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uid: Argument to pass with the method invocation.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -3485,6 +3658,7 @@ gboolean
 egdbus_session_call_fetch_account_sync (
     EGdbusSession *proxy,
     const gchar *arg_uid,
+    gchar **out_operation,
     GCancellable *cancellable,
     GError **error)
 {
@@ -3500,7 +3674,8 @@ egdbus_session_call_fetch_account_sync (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "()");
+                 "(o)",
+                 out_operation);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -4030,9 +4205,31 @@ egdbus_session_complete_send_receive (
 }
 
 /**
+ * egdbus_session_complete_send_mails_from_outbox:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @operation: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendMailsFromOutbox">sendMailsFromOutbox()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_send_mails_from_outbox (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   operation));
+}
+
+/**
  * egdbus_session_complete_fetch_account:
  * @object: A #EGdbusSession.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @operation: Parameter to return.
  *
  * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchAccount">fetchAccount()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
@@ -4041,10 +4238,12 @@ egdbus_session_complete_send_receive (
 void
 egdbus_session_complete_fetch_account (
     EGdbusSession *object,
-    GDBusMethodInvocation *invocation)
+    GDBusMethodInvocation *invocation,
+    const gchar *operation)
 {
   g_dbus_method_invocation_return_value (invocation,
-    g_variant_new ("()"));
+    g_variant_new ("(o)",
+                   operation));
 }
 
 /**

@@ -78,8 +78,12 @@
 
     <method name="sendReceive">
     </method>
+    <method name="sendMailsFromOutbox">
+      <arg name="operation" type="o" direction="out"/>	    
+    </method>    
     <method name="fetchAccount">
-      <arg name="uid" type="s" direction="in"/>	    
+      <arg name="uid" type="s" direction="in"/>	
+      <arg name="operation" type="o" direction="out"/>	    
     </method>
     
     <method name="fetchOldMessages">

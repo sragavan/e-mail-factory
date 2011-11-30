@@ -109,6 +109,10 @@ struct _EGdbusSessionIface
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
 
+  gboolean (*handle_send_mails_from_outbox) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation);
+
   gboolean (*handle_send_receive) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
@@ -228,9 +232,15 @@ void egdbus_session_complete_send_receive (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
 
+void egdbus_session_complete_send_mails_from_outbox (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation);
+
 void egdbus_session_complete_fetch_account (
     EGdbusSession *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *operation);
 
 void egdbus_session_complete_fetch_old_messages (
     EGdbusSession *object,
@@ -576,6 +586,24 @@ gboolean egdbus_session_call_send_receive_sync (
     GCancellable *cancellable,
     GError **error);
 
+void egdbus_session_call_send_mails_from_outbox (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_send_mails_from_outbox_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_send_mails_from_outbox_sync (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error);
+
 void egdbus_session_call_fetch_account (
     EGdbusSession *proxy,
     const gchar *arg_uid,
@@ -585,12 +613,14 @@ void egdbus_session_call_fetch_account (
 
 gboolean egdbus_session_call_fetch_account_finish (
     EGdbusSession *proxy,
+    gchar **out_operation,
     GAsyncResult *res,
     GError **error);
 
 gboolean egdbus_session_call_fetch_account_sync (
     EGdbusSession *proxy,
     const gchar *arg_uid,
+    gchar **out_operation,
     GCancellable *cancellable,
     GError **error);
 

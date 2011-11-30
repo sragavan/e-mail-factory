@@ -2,6 +2,7 @@
 
 #include "libemail-engine/e-mail-session.h"
 #include "e-mail-data-session.h"
+#include "e-mail-data-operation.h"
 #include "libemail-engine/e-mail-local.h"
 #include "e-mail-data-store.h"
 #include "e-gdbus-emailsession.h"
@@ -643,11 +644,34 @@ impl_Mail_sendReceive (EGdbusSession *object, GDBusMethodInvocation *invocation,
 }
 
 static gboolean
+impl_Mail_sendMailsFromOutbox (EGdbusSession *object, GDBusMethodInvocation *invocation, EMailDataSession *msession)
+{
+	GCancellable *ops;
+	EMailDataOperation *mops;
+	char *mops_path;
+
+	ipc(printf("Initiating Send which flushes mails from outbox\n"));
+
+	ops = mail_send (session);
+	mops = e_mail_data_operation_new ((CamelOperation *)ops);
+	mops_path = e_mail_data_operation_register_gdbus_object (mops, g_dbus_method_invocation_get_connection(invocation), NULL);
+
+	egdbus_session_complete_send_mails_from_outbox (object, invocation, mops_path);
+	g_free (mops_path);
+
+	return TRUE;
+}
+
+
+static gboolean
 impl_Mail_fetchAccount (EGdbusSession *object, GDBusMethodInvocation *invocation, char *uid, EMailDataSession *msession)
 {
 	EIterator *iter;
 	EAccountList *accounts;
 	EAccount *account;
+	GCancellable *ops;
+	EMailDataOperation *mops;
+	char *mops_path = NULL;
 	
 	accounts = e_get_account_list ();
 	for (iter = e_list_get_iterator ((EList *)accounts);
@@ -655,11 +679,13 @@ impl_Mail_fetchAccount (EGdbusSession *object, GDBusMethodInvocation *invocation
 	     e_iterator_next (iter)) {
 		account = (EAccount *) e_iterator_get (iter);
 		if (account->uid && strcmp (account->uid, uid) == 0) {
-			mail_receive_account (session, account);
+			ops = mail_receive_account (session, account);
+			mops = e_mail_data_operation_new ((CamelOperation *)ops);
+			mops_path = e_mail_data_operation_register_gdbus_object (mops, g_dbus_method_invocation_get_connection(invocation), NULL);
 		}
 	}
 
-	egdbus_session_complete_fetch_account (object, invocation);
+	egdbus_session_complete_fetch_account (object, invocation, mops_path ? mops_path : "");
 	return TRUE;
 }
 
@@ -795,6 +821,7 @@ e_mail_data_session_init (EMailDataSession *self)
 	g_signal_connect (priv->gdbus_object, "handle-add-password", G_CALLBACK (impl_Mail_addPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-find-password", G_CALLBACK (impl_Mail_findPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-send-receive", G_CALLBACK (impl_Mail_sendReceive), self);
+	g_signal_connect (priv->gdbus_object, "handle-send-mails-from-outbox", G_CALLBACK (impl_Mail_sendMailsFromOutbox), self);	
 	g_signal_connect (priv->gdbus_object, "handle-fetch-account", G_CALLBACK (impl_Mail_fetchAccount), self);
 //	g_signal_connect (priv->gdbus_object, "handle-fetch-old-messages", G_CALLBACK (impl_Mail_fetchOldMessages), self);
 	g_signal_connect (priv->gdbus_object, "handle-cancel-operations", G_CALLBACK (impl_Mail_cancelOperations), self);

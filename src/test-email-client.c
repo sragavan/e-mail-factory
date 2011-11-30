@@ -14,6 +14,7 @@
 #include "e-gdbus-emailsession.h"
 #include "e-gdbus-emailstore.h"
 #include "e-gdbus-emailfolder.h"
+#include "e-gdbus-emailoperation.h"
 
 #define E_MAIL_DATA_FACTORY_SERVICE_NAME \
 	"org.gnome.evolution.dataserver.Mail"
@@ -1002,6 +1003,18 @@ folder_unsubscribed_cb (EGdbusStore *object, GVariant *v, gpointer data)
 	print_info (v, "Folder UnSubscribed");	
 }
 
+static void
+ops_cancelled_cb (EGdbusOperation *ops, gpointer data)
+{
+	printf("Operation Cancelled\n");
+}
+
+static void
+ops_status_cb (EGdbusOperation *ops, char *desc, int percentage, gpointer data)
+{
+	printf("OPS STATUS (%d): %s\n", percentage, desc);
+}
+
 static gboolean
 start_test_client (gpointer foo)
 {
@@ -1010,6 +1023,7 @@ start_test_client (gpointer foo)
 	GError *error = NULL;
 	EGdbusStore *store_proxy;
 	EGdbusFolder *folder_proxy;
+	EGdbusOperation *ops_proxy;
 	char **services; 
 	char *service;
 	char *path;
@@ -1141,6 +1155,26 @@ start_test_client (gpointer foo)
 				error = NULL;
 			}
 		}
+
+		char *ops_path;
+		if (!egdbus_session_call_fetch_account_sync (
+			session_proxy,
+			account->uid, 
+			&ops_path,
+			NULL, 
+			&error)) 
+			printf("Operations path: %d\n", ops_path);
+		ops_proxy = egdbus_operation_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+								G_DBUS_PROXY_FLAGS_NONE,
+								E_MAIL_DATA_FACTORY_SERVICE_NAME,
+								ops_path,
+								NULL, &error);
+
+		printf("Success in getting OPS object? %p %s\n", ops_proxy, error ? error->message : "Yeh!!!");
+		g_signal_connect (ops_proxy, "cancelled", G_CALLBACK (ops_cancelled_cb), NULL);
+		g_signal_connect (ops_proxy, "status", G_CALLBACK (ops_status_cb), NULL);
+
+
 #if 0	
 		/* Get SENT  folder */
 		if (!egdbus_session_call_get_folder_from_uri_sync (
