@@ -1495,23 +1495,12 @@ static const _ExtendedGDBusArgInfo * const _egdbus_store_method_info_search_by_s
   NULL
 };
 
-static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_ARG_uids =
+static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_ARG_folder_uids =
 {
   {
     -1,
-    "uids",
-    "as",
-    NULL
-  },
-  FALSE
-};
-
-static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_ARG_folder_names =
-{
-  {
-    -1,
-    "folder_names",
-    "as",
+    "folder_uids",
+    "a(ss)",
     NULL
   },
   FALSE
@@ -1519,8 +1508,7 @@ static const _ExtendedGDBusArgInfo _egdbus_store_method_info_search_by_sql_OUT_A
 
 static const _ExtendedGDBusArgInfo * const _egdbus_store_method_info_search_by_sql_OUT_ARG_pointers[] =
 {
-  &_egdbus_store_method_info_search_by_sql_OUT_ARG_uids,
-  &_egdbus_store_method_info_search_by_sql_OUT_ARG_folder_names,
+  &_egdbus_store_method_info_search_by_sql_OUT_ARG_folder_uids,
   NULL
 };
 
@@ -5740,8 +5728,7 @@ egdbus_store_call_search_by_sql (
 /**
  * egdbus_store_call_search_by_sql_finish:
  * @proxy: A #EGdbusStoreProxy.
- * @out_uids: (out): Return location for return parameter or %NULL to ignore.
- * @out_folder_names: (out): Return location for return parameter or %NULL to ignore.
+ * @out_folder_uids: (out): Return location for return parameter or %NULL to ignore.
  * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_store_call_search_by_sql().
  * @error: Return location for error or %NULL.
  *
@@ -5752,8 +5739,7 @@ egdbus_store_call_search_by_sql (
 gboolean
 egdbus_store_call_search_by_sql_finish (
     EGdbusStore *proxy,
-    gchar ***out_uids,
-    gchar ***out_folder_names,
+    GVariant **out_folder_uids,
     GAsyncResult *res,
     GError **error)
 {
@@ -5762,9 +5748,8 @@ egdbus_store_call_search_by_sql_finish (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "(^as^as)",
-                 out_uids,
-                 out_folder_names);
+                 "(@a(ss))",
+                 out_folder_uids);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -5775,8 +5760,7 @@ _out:
  * @proxy: A #EGdbusStoreProxy.
  * @arg_expression: Argument to pass with the method invocation.
  * @arg_ops: Argument to pass with the method invocation.
- * @out_uids: (out): Return location for return parameter or %NULL to ignore.
- * @out_folder_names: (out): Return location for return parameter or %NULL to ignore.
+ * @out_folder_uids: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -5791,8 +5775,7 @@ egdbus_store_call_search_by_sql_sync (
     EGdbusStore *proxy,
     const gchar *arg_expression,
     const gchar *arg_ops,
-    gchar ***out_uids,
-    gchar ***out_folder_names,
+    GVariant **out_folder_uids,
     GCancellable *cancellable,
     GError **error)
 {
@@ -5809,9 +5792,8 @@ egdbus_store_call_search_by_sql_sync (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "(^as^as)",
-                 out_uids,
-                 out_folder_names);
+                 "(@a(ss))",
+                 out_folder_uids);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -6492,8 +6474,7 @@ egdbus_store_complete_unsubscribe_folder (
  * egdbus_store_complete_search_by_sql:
  * @object: A #EGdbusStore.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
- * @uids: Parameter to return.
- * @folder_names: Parameter to return.
+ * @folder_uids: Parameter to return.
  *
  * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.searchBySql">searchBySql()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
@@ -6503,13 +6484,11 @@ void
 egdbus_store_complete_search_by_sql (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *const *uids,
-    const gchar *const *folder_names)
+    GVariant *folder_uids)
 {
   g_dbus_method_invocation_return_value (invocation,
-    g_variant_new ("(^as^as)",
-                   uids,
-                   folder_names));
+    g_variant_new ("(@a(ss))",
+                   folder_uids));
 }
 
 /**

@@ -1184,19 +1184,35 @@ start_test_client (gpointer foo)
 			char **uids;
 			int i;
 			int count; 
+			GVariant *folder_uids;
 
 			ops = create_operation (&ops_path);
 			egdbus_store_call_count_by_sql_sync (store_proxy, "subject LIKE '%test%'", ops_path, &count, NULL, &error);
 
 			printf("Number of mails: %d\n", count);
-			egdbus_store_call_search_by_sql_sync (store_proxy, "subject LIKE '%test%' LIMIT 2 OFFSET 5", ops_path, &uids, &folder_names, NULL, &error);
+			egdbus_store_call_search_by_sql_sync (store_proxy, "subject LIKE '%test%'", ops_path, &folder_uids, NULL, &error);
 			if (!error) {
-				i=0;
+				GVariantIter aiter;
+				GVariant *aitem;
+
 				printf("Search Result\n");
-				while (folder_names[i] && uids[i]) {
-					printf("%s : %s\n", folder_names[i], uids[i]);
-					i++;
-				}
+			      	g_variant_iter_init (&aiter, folder_uids);
+	
+ 			     	while ((aitem = g_variant_iter_next_value (&aiter))) {
+					GVariantIter siter;
+					GVariant *sitem;
+					char *fname, *uid;
+		
+					g_variant_iter_init (&siter, aitem);
+					sitem = g_variant_iter_next_value (&siter);
+					fname = g_strdup (g_variant_get_string (sitem, NULL));
+					sitem = g_variant_iter_next_value (&siter);
+					uid = g_strdup (g_variant_get_string (sitem, NULL));
+					printf("%s: %s\n", fname, uid);
+					g_free (fname);
+					g_free (uid);
+			        }
+
 			} else {
 				printf("Error while searchbysql : %s \n", error->message);
 				g_error_free (error);
@@ -1211,7 +1227,7 @@ start_test_client (gpointer foo)
 			&ops_path,
 			NULL, 
 			&error)) 
-			printf("Operations path: %d\n", ops_path);
+			printf("Operations path: %s\n", ops_path);
 		ops_proxy = egdbus_operation_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 								G_DBUS_PROXY_FLAGS_NONE,
 								E_MAIL_DATA_FACTORY_SERVICE_NAME,

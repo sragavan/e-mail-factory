@@ -168,9 +168,8 @@
     <!-- Search across using sqlite -->
     <method name="searchBySql">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
-      <arg name="uids" type="as" direction="out"/>
       <arg name="ops" type="o" direction="in"/>	    
-      <arg name="folder_names" type="as" direction="out"/>
+      <arg name="folder_uids" type="a(ss)" direction="out"/>
     </method>  
 
     <method name="countBySql">

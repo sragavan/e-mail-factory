@@ -1058,8 +1058,7 @@ typedef struct _email_store_std_data {
 	char *command;
 	gboolean count;
 	guint result;
-	GPtrArray *uids;
-	GPtrArray *folder_names;
+	GVariantBuilder *folder_uids_builder;
 }EMailStoreStdData;
 
 static gint
@@ -1091,8 +1090,7 @@ read_uids_to_array_callback (gpointer sdata,
 	g_return_val_if_fail (ncol == 2, 0);
 
 	if (cols[0] && cols[1]) {
-		g_ptr_array_add (data->folder_names, g_strdup(cols[0]));
-		g_ptr_array_add (data->uids, g_strdup(cols[1]));
+		g_variant_builder_add (data->folder_uids_builder , "(ss)", cols[0], cols[1]);
 	}
 
 	return 0;
@@ -1146,8 +1144,7 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 			g_free (select_query);
 
 		} else {
-			data->folder_names = g_ptr_array_new ();
-			data->uids = g_ptr_array_new ();
+			data->folder_uids_builder = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
 			select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
 			camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
 			g_free (select_query);
@@ -1176,23 +1173,17 @@ sbs_done (gboolean success, gpointer sdata, GError *error)
 	if (data->count) {
 		egdbus_store_complete_count_by_sql (data->object, data->invocation, data->result);
 	} else {
-		g_ptr_array_add (data->folder_names , NULL);
-		g_ptr_array_add (data->uids, NULL);
+		GVariant *folder_uids;
 
-		egdbus_store_complete_search_by_sql (data->object, data->invocation, (const gchar *const *)data->uids->pdata, (const gchar *const *)data->folder_names->pdata);
+		folder_uids = g_variant_builder_end (data->folder_uids_builder);
+		g_variant_ref (folder_uids);
+		g_variant_builder_unref (data->folder_uids_builder);
 
-		g_ptr_array_remove_index_fast (data->uids, data->uids->len-1);
-		g_ptr_array_remove_index_fast (data->folder_names, data->folder_names->len-1);
-
-		g_ptr_array_foreach (data->uids, (GFunc)g_free, NULL);
-		g_ptr_array_foreach (data->folder_names, (GFunc)g_free, NULL);
+		egdbus_store_complete_search_by_sql (data->object, data->invocation, folder_uids);
+		g_variant_unref (folder_uids);
 	}
 
 	g_free (data->command);
-	if (!data->count) {
-		g_ptr_array_free (data->folder_names, TRUE);
-		g_ptr_array_free (data->uids, TRUE);
-	}
 	g_free (data);
 }
 

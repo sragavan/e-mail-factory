@@ -349,8 +349,7 @@ void egdbus_store_complete_unsubscribe_folder (
 void egdbus_store_complete_search_by_sql (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *const *uids,
-    const gchar *const *folder_names);
+    GVariant *folder_uids);
 
 void egdbus_store_complete_count_by_sql (
     EGdbusStore *object,
@@ -940,8 +939,7 @@ void egdbus_store_call_search_by_sql (
 
 gboolean egdbus_store_call_search_by_sql_finish (
     EGdbusStore *proxy,
-    gchar ***out_uids,
-    gchar ***out_folder_names,
+    GVariant **out_folder_uids,
     GAsyncResult *res,
     GError **error);
 
@@ -949,8 +947,7 @@ gboolean egdbus_store_call_search_by_sql_sync (
     EGdbusStore *proxy,
     const gchar *arg_expression,
     const gchar *arg_ops,
-    gchar ***out_uids,
-    gchar ***out_folder_names,
+    GVariant **out_folder_uids,
     GCancellable *cancellable,
     GError **error);
 
