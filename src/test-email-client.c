@@ -717,6 +717,7 @@ folder_changed_cb (EGdbusFolder *folder_proxy,
 	}
 	printf("\n");
 
+	i=0;
 	printf("Folder: changed uids:\t");
 	while (changed[i]) {
 		printf("%s\t", changed[i]);
@@ -724,6 +725,7 @@ folder_changed_cb (EGdbusFolder *folder_proxy,
 	}
 	printf("\n");
 
+	i=0;
 	printf("Folder: recent uids:\t");
 	while (recent[i]) {
 		printf("%s\t", recent[i]);
