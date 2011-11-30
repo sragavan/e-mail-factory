@@ -11,6 +11,11 @@
     <annotation name="org.gtk.GDBus.Name" value="CS"/>
     <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="EMailDataSession"/>
 
+    <!-- CreateMailOperationHandler -->
+    <method name="createMailOperation">
+      <arg name="operation" type="o" direction="out"/>
+    </method>
+
     <!-- Camel Session's Native APIs -->
     <method name="addService">
       <arg name="uid" type="s" direction="in"/>
@@ -73,6 +78,7 @@
     </method>
     <method name="getFolderFromUri">
       <arg name="uri" type="s" direction="in"/>	    
+      <arg name="ops" type="o" direction="in"/>
       <arg name="folder" type="o" direction="out"/>
     </method>
 

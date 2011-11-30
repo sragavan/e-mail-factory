@@ -47,6 +47,10 @@ struct _EGdbusSessionIface
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
 
+  gboolean (*handle_create_mail_operation) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation);
+
   gboolean (*handle_fetch_account) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
@@ -66,7 +70,8 @@ struct _EGdbusSessionIface
   gboolean (*handle_get_folder_from_uri) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_uri);
+    const gchar *arg_uri,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_local_folder) (
     EGdbusSession *object,
@@ -157,6 +162,11 @@ guint egdbus_session_override_properties (GObjectClass *klass, guint property_id
 
 
 /* D-Bus method call completion functions: */
+void egdbus_session_complete_create_mail_operation (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation);
+
 void egdbus_session_complete_add_service (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
@@ -278,6 +288,24 @@ void egdbus_session_emit_get_password (
 
 
 /* D-Bus method calls: */
+void egdbus_session_call_create_mail_operation (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_create_mail_operation_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_create_mail_operation_sync (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error);
+
 void egdbus_session_call_add_service (
     EGdbusSession *proxy,
     const gchar *arg_uid,
@@ -553,6 +581,7 @@ gboolean egdbus_session_call_get_local_folder_sync (
 void egdbus_session_call_get_folder_from_uri (
     EGdbusSession *proxy,
     const gchar *arg_uri,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -566,6 +595,7 @@ gboolean egdbus_session_call_get_folder_from_uri_finish (
 gboolean egdbus_session_call_get_folder_from_uri_sync (
     EGdbusSession *proxy,
     const gchar *arg_uri,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error);

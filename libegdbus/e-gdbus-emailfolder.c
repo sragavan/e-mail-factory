@@ -157,6 +157,23 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for org.gnome.evolution.dataserver.mail.Folder ---- */
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_refresh_info_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_refresh_info_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_refresh_info_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_refresh_info_OUT_ARG_success =
 {
   {
@@ -179,7 +196,7 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_refresh_info =
   {
     -1,
     "refreshInfo",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_refresh_info_IN_ARG_pointers,
     (GDBusArgInfo **) &_egdbus_folder_method_info_refresh_info_OUT_ARG_pointers,
     NULL
   },
@@ -198,9 +215,21 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_sync_IN_ARG_expung
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_sync_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_sync_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_sync_IN_ARG_expunge,
+  &_egdbus_folder_method_info_sync_IN_ARG_ops,
   NULL
 };
 
@@ -245,9 +274,21 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_sync_message_IN_AR
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_sync_message_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_sync_message_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_sync_message_IN_ARG_uid,
+  &_egdbus_folder_method_info_sync_message_IN_ARG_ops,
   NULL
 };
 
@@ -281,6 +322,23 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_sync_message =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_expunge_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_expunge_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_expunge_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_expunge_OUT_ARG_success =
 {
   {
@@ -303,7 +361,7 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_expunge =
   {
     -1,
     "expunge",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_expunge_IN_ARG_pointers,
     (GDBusArgInfo **) &_egdbus_folder_method_info_expunge_OUT_ARG_pointers,
     NULL
   },
@@ -1067,10 +1125,22 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_append_message_IN_
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_append_message_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_append_message_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_append_message_IN_ARG_info,
   &_egdbus_folder_method_info_append_message_IN_ARG_message,
+  &_egdbus_folder_method_info_append_message_IN_ARG_ops,
   NULL
 };
 
@@ -1171,9 +1241,21 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_get_message_IN_ARG
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_get_message_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_get_message_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_get_message_IN_ARG_uid,
+  &_egdbus_folder_method_info_get_message_IN_ARG_ops,
   NULL
 };
 
@@ -1207,6 +1289,23 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_get_message =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_get_quota_info_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_get_quota_info_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_get_quota_info_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_get_quota_info_OUT_ARG_quotainfo =
 {
   {
@@ -1229,7 +1328,7 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_get_quota_info 
   {
     -1,
     "getQuotaInfo",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_get_quota_info_IN_ARG_pointers,
     (GDBusArgInfo **) &_egdbus_folder_method_info_get_quota_info_OUT_ARG_pointers,
     NULL
   },
@@ -1248,9 +1347,21 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_by_expressi
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_by_expression_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_search_by_expression_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_search_by_expression_IN_ARG_expression,
+  &_egdbus_folder_method_info_search_by_expression_IN_ARG_ops,
   NULL
 };
 
@@ -1317,11 +1428,23 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_sort_by_exp
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_sort_by_expression_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_search_sort_by_expression_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_search_sort_by_expression_IN_ARG_expression,
   &_egdbus_folder_method_info_search_sort_by_expression_IN_ARG_sort,
   &_egdbus_folder_method_info_search_sort_by_expression_IN_ARG_ascending,
+  &_egdbus_folder_method_info_search_sort_by_expression_IN_ARG_ops,
   NULL
 };
 
@@ -1377,10 +1500,22 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_by_uids_IN_
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_search_by_uids_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_search_by_uids_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_search_by_uids_IN_ARG_expression,
   &_egdbus_folder_method_info_search_by_uids_IN_ARG_searchuids,
+  &_egdbus_folder_method_info_search_by_uids_IN_ARG_ops,
   NULL
 };
 
@@ -1508,11 +1643,23 @@ static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_transfer_messages_
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_transfer_messages_to_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_transfer_messages_to_IN_ARG_pointers[] =
 {
   &_egdbus_folder_method_info_transfer_messages_to_IN_ARG_uids,
   &_egdbus_folder_method_info_transfer_messages_to_IN_ARG_destfolder,
   &_egdbus_folder_method_info_transfer_messages_to_IN_ARG_deleteoriginals,
+  &_egdbus_folder_method_info_transfer_messages_to_IN_ARG_ops,
   NULL
 };
 
@@ -1546,12 +1693,29 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_transfer_messag
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_prepare_summary_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_prepare_summary_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_prepare_summary_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_prepare_summary =
 {
   {
     -1,
     "prepareSummary",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_prepare_summary_IN_ARG_pointers,
     NULL,
     NULL
   },
@@ -1559,12 +1723,29 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_prepare_summary
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_freeze_folder_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_freeze_folder_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_freeze_folder_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_freeze_folder =
 {
   {
     -1,
     "freezeFolder",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_freeze_folder_IN_ARG_pointers,
     NULL,
     NULL
   },
@@ -1572,12 +1753,29 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_freeze_folder =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_thaw_folder_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_thaw_folder_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_thaw_folder_IN_ARG_ops,
+  NULL
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_thaw_folder =
 {
   {
     -1,
     "thawFolder",
-    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_thaw_folder_IN_ARG_pointers,
     NULL,
     NULL
   },
@@ -1811,6 +2009,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * EGdbusFolder::handle-refresh-info:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.refreshInfo">refreshInfo()</link> D-Bus method.
    *
@@ -1826,14 +2025,15 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-sync:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_expunge: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.sync">sync()</link> D-Bus method.
    *
@@ -1849,14 +2049,15 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_BOOLEAN);
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_BOOLEAN, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-sync-message:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_uid: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.syncMessage">syncMessage()</link> D-Bus method.
    *
@@ -1872,13 +2073,14 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-expunge:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.expunge">expunge()</link> D-Bus method.
    *
@@ -1894,8 +2096,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-get-display-name:
@@ -2338,6 +2540,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * @invocation: A #GDBusMethodInvocation.
    * @arg_info: Argument passed by remote caller.
    * @arg_message: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.AppendMessage">AppendMessage()</link> D-Bus method.
    *
@@ -2353,8 +2556,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    3,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_VARIANT, G_TYPE_STRING);
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_VARIANT, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-get-uids:
@@ -2383,6 +2586,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_uid: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.getMessage">getMessage()</link> D-Bus method.
    *
@@ -2398,13 +2602,14 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-get-quota-info:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.getQuotaInfo">getQuotaInfo()</link> D-Bus method.
    *
@@ -2420,14 +2625,15 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-search-by-expression:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_expression: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.searchByExpression">searchByExpression()</link> D-Bus method.
    *
@@ -2443,8 +2649,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-search-sort-by-expression:
@@ -2453,6 +2659,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * @arg_expression: Argument passed by remote caller.
    * @arg_sort: Argument passed by remote caller.
    * @arg_ascending: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.searchSortByExpression">searchSortByExpression()</link> D-Bus method.
    *
@@ -2468,8 +2675,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    4,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+    5,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-search-by-uids:
@@ -2477,6 +2684,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * @invocation: A #GDBusMethodInvocation.
    * @arg_expression: Argument passed by remote caller.
    * @arg_searchuids: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.searchByUids">searchByUids()</link> D-Bus method.
    *
@@ -2492,8 +2700,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    3,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRV);
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRV, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-get-message-info:
@@ -2525,6 +2733,7 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
    * @arg_uids: Argument passed by remote caller.
    * @arg_destfolder: Argument passed by remote caller.
    * @arg_deleteoriginals: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.transferMessagesTo">transferMessagesTo()</link> D-Bus method.
    *
@@ -2540,13 +2749,14 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    4,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRV, G_TYPE_STRING, G_TYPE_BOOLEAN);
+    5,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRV, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-prepare-summary:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.prepareSummary">prepareSummary()</link> D-Bus method.
    *
@@ -2562,13 +2772,14 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-freeze-folder:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.freezeFolder">freezeFolder()</link> D-Bus method.
    *
@@ -2584,13 +2795,14 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-thaw-folder:
    * @object: A #EGdbusFolder.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.thawFolder">thawFolder()</link> D-Bus method.
    *
@@ -2606,8 +2818,8 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    1,
-    G_TYPE_DBUS_METHOD_INVOCATION);
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /* GObject signals for received D-Bus signals: */
   /**
@@ -2661,6 +2873,7 @@ egdbus_folder_emit_folder_changed (
 /**
  * egdbus_folder_call_refresh_info:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -2674,13 +2887,15 @@ egdbus_folder_emit_folder_changed (
 void
 egdbus_folder_call_refresh_info (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "refreshInfo",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2721,6 +2936,7 @@ _out:
 /**
  * egdbus_folder_call_refresh_info_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_success: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -2734,6 +2950,7 @@ _out:
 gboolean
 egdbus_folder_call_refresh_info_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -2741,7 +2958,8 @@ egdbus_folder_call_refresh_info_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "refreshInfo",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2760,6 +2978,7 @@ _out:
  * egdbus_folder_call_sync:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expunge: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -2774,14 +2993,16 @@ void
 egdbus_folder_call_sync (
     EGdbusFolder *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "sync",
-    g_variant_new ("(b)",
-                   arg_expunge),
+    g_variant_new ("(bo)",
+                   arg_expunge,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2823,6 +3044,7 @@ _out:
  * egdbus_folder_call_sync_sync:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expunge: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_success: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -2837,6 +3059,7 @@ gboolean
 egdbus_folder_call_sync_sync (
     EGdbusFolder *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -2844,8 +3067,9 @@ egdbus_folder_call_sync_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "sync",
-    g_variant_new ("(b)",
-                   arg_expunge),
+    g_variant_new ("(bo)",
+                   arg_expunge,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2864,6 +3088,7 @@ _out:
  * egdbus_folder_call_sync_message:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_uid: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -2878,14 +3103,16 @@ void
 egdbus_folder_call_sync_message (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "syncMessage",
-    g_variant_new ("(s)",
-                   arg_uid),
+    g_variant_new ("(so)",
+                   arg_uid,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2927,6 +3154,7 @@ _out:
  * egdbus_folder_call_sync_message_sync:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_uid: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_success: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -2941,6 +3169,7 @@ gboolean
 egdbus_folder_call_sync_message_sync (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -2948,8 +3177,9 @@ egdbus_folder_call_sync_message_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "syncMessage",
-    g_variant_new ("(s)",
-                   arg_uid),
+    g_variant_new ("(so)",
+                   arg_uid,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -2967,6 +3197,7 @@ _out:
 /**
  * egdbus_folder_call_expunge:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -2980,13 +3211,15 @@ _out:
 void
 egdbus_folder_call_expunge (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "expunge",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -3027,6 +3260,7 @@ _out:
 /**
  * egdbus_folder_call_expunge_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_success: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -3040,6 +3274,7 @@ _out:
 gboolean
 egdbus_folder_call_expunge_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -3047,7 +3282,8 @@ egdbus_folder_call_expunge_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "expunge",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5001,6 +5237,7 @@ _out:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_info: Argument to pass with the method invocation.
  * @arg_message: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5016,15 +5253,17 @@ egdbus_folder_call_append_message (
     EGdbusFolder *proxy,
     GVariant *arg_info,
     const gchar *arg_message,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "AppendMessage",
-    g_variant_new ("(@(sssssssuutttiatasa(ss))s)",
+    g_variant_new ("(@(sssssssuutttiatasa(ss))so)",
                    arg_info,
-                   arg_message),
+                   arg_message,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5070,6 +5309,7 @@ _out:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_info: Argument to pass with the method invocation.
  * @arg_message: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_appendeduid: (out): Return location for return parameter or %NULL to ignore.
  * @out_success: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
@@ -5086,6 +5326,7 @@ egdbus_folder_call_append_message_sync (
     EGdbusFolder *proxy,
     GVariant *arg_info,
     const gchar *arg_message,
+    const gchar *arg_ops,
     gchar **out_appendeduid,
     gboolean *out_success,
     GCancellable *cancellable,
@@ -5094,9 +5335,10 @@ egdbus_folder_call_append_message_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "AppendMessage",
-    g_variant_new ("(@(sssssssuutttiatasa(ss))s)",
+    g_variant_new ("(@(sssssssuutttiatasa(ss))so)",
                    arg_info,
-                   arg_message),
+                   arg_message,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5214,6 +5456,7 @@ _out:
  * egdbus_folder_call_get_message:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_uid: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5228,14 +5471,16 @@ void
 egdbus_folder_call_get_message (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "getMessage",
-    g_variant_new ("(s)",
-                   arg_uid),
+    g_variant_new ("(so)",
+                   arg_uid,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5277,6 +5522,7 @@ _out:
  * egdbus_folder_call_get_message_sync:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_uid: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_message: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5291,6 +5537,7 @@ gboolean
 egdbus_folder_call_get_message_sync (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     gchar **out_message,
     GCancellable *cancellable,
     GError **error)
@@ -5298,8 +5545,9 @@ egdbus_folder_call_get_message_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "getMessage",
-    g_variant_new ("(s)",
-                   arg_uid),
+    g_variant_new ("(so)",
+                   arg_uid,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5317,6 +5565,7 @@ _out:
 /**
  * egdbus_folder_call_get_quota_info:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5330,13 +5579,15 @@ _out:
 void
 egdbus_folder_call_get_quota_info (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "getQuotaInfo",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5377,6 +5628,7 @@ _out:
 /**
  * egdbus_folder_call_get_quota_info_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_quotainfo: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5390,6 +5642,7 @@ _out:
 gboolean
 egdbus_folder_call_get_quota_info_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GVariant **out_quotainfo,
     GCancellable *cancellable,
     GError **error)
@@ -5397,7 +5650,8 @@ egdbus_folder_call_get_quota_info_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "getQuotaInfo",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5416,6 +5670,7 @@ _out:
  * egdbus_folder_call_search_by_expression:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expression: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5430,14 +5685,16 @@ void
 egdbus_folder_call_search_by_expression (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "searchByExpression",
-    g_variant_new ("(s)",
-                   arg_expression),
+    g_variant_new ("(so)",
+                   arg_expression,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5479,6 +5736,7 @@ _out:
  * egdbus_folder_call_search_by_expression_sync:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expression: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_uids: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5493,6 +5751,7 @@ gboolean
 egdbus_folder_call_search_by_expression_sync (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     gchar ***out_uids,
     GCancellable *cancellable,
     GError **error)
@@ -5500,8 +5759,9 @@ egdbus_folder_call_search_by_expression_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "searchByExpression",
-    g_variant_new ("(s)",
-                   arg_expression),
+    g_variant_new ("(so)",
+                   arg_expression,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5522,6 +5782,7 @@ _out:
  * @arg_expression: Argument to pass with the method invocation.
  * @arg_sort: Argument to pass with the method invocation.
  * @arg_ascending: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5538,16 +5799,18 @@ egdbus_folder_call_search_sort_by_expression (
     const gchar *arg_expression,
     const gchar *arg_sort,
     gboolean arg_ascending,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "searchSortByExpression",
-    g_variant_new ("(ssb)",
+    g_variant_new ("(ssbo)",
                    arg_expression,
                    arg_sort,
-                   arg_ascending),
+                   arg_ascending,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5591,6 +5854,7 @@ _out:
  * @arg_expression: Argument to pass with the method invocation.
  * @arg_sort: Argument to pass with the method invocation.
  * @arg_ascending: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_uids: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5607,6 +5871,7 @@ egdbus_folder_call_search_sort_by_expression_sync (
     const gchar *arg_expression,
     const gchar *arg_sort,
     gboolean arg_ascending,
+    const gchar *arg_ops,
     gchar ***out_uids,
     GCancellable *cancellable,
     GError **error)
@@ -5614,10 +5879,11 @@ egdbus_folder_call_search_sort_by_expression_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "searchSortByExpression",
-    g_variant_new ("(ssb)",
+    g_variant_new ("(ssbo)",
                    arg_expression,
                    arg_sort,
-                   arg_ascending),
+                   arg_ascending,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5637,6 +5903,7 @@ _out:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expression: Argument to pass with the method invocation.
  * @arg_searchuids: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5652,15 +5919,17 @@ egdbus_folder_call_search_by_uids (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
     const gchar *const *arg_searchuids,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "searchByUids",
-    g_variant_new ("(s^as)",
+    g_variant_new ("(s^aso)",
                    arg_expression,
-                   arg_searchuids),
+                   arg_searchuids,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5703,6 +5972,7 @@ _out:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_expression: Argument to pass with the method invocation.
  * @arg_searchuids: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_resultuids: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5718,6 +5988,7 @@ egdbus_folder_call_search_by_uids_sync (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
     const gchar *const *arg_searchuids,
+    const gchar *arg_ops,
     gchar ***out_resultuids,
     GCancellable *cancellable,
     GError **error)
@@ -5725,9 +5996,10 @@ egdbus_folder_call_search_by_uids_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "searchByUids",
-    g_variant_new ("(s^as)",
+    g_variant_new ("(s^aso)",
                    arg_expression,
-                   arg_searchuids),
+                   arg_searchuids,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5852,6 +6124,7 @@ _out:
  * @arg_uids: Argument to pass with the method invocation.
  * @arg_destfolder: Argument to pass with the method invocation.
  * @arg_deleteoriginals: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5868,16 +6141,18 @@ egdbus_folder_call_transfer_messages_to (
     const gchar *const *arg_uids,
     const gchar *arg_destfolder,
     gboolean arg_deleteoriginals,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "transferMessagesTo",
-    g_variant_new ("(^asob)",
+    g_variant_new ("(^asobo)",
                    arg_uids,
                    arg_destfolder,
-                   arg_deleteoriginals),
+                   arg_deleteoriginals,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5921,6 +6196,7 @@ _out:
  * @arg_uids: Argument to pass with the method invocation.
  * @arg_destfolder: Argument to pass with the method invocation.
  * @arg_deleteoriginals: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_returnuids: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -5937,6 +6213,7 @@ egdbus_folder_call_transfer_messages_to_sync (
     const gchar *const *arg_uids,
     const gchar *arg_destfolder,
     gboolean arg_deleteoriginals,
+    const gchar *arg_ops,
     gchar ***out_returnuids,
     GCancellable *cancellable,
     GError **error)
@@ -5944,10 +6221,11 @@ egdbus_folder_call_transfer_messages_to_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "transferMessagesTo",
-    g_variant_new ("(^asob)",
+    g_variant_new ("(^asobo)",
                    arg_uids,
                    arg_destfolder,
-                   arg_deleteoriginals),
+                   arg_deleteoriginals,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -5965,6 +6243,7 @@ _out:
 /**
  * egdbus_folder_call_prepare_summary:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -5978,13 +6257,15 @@ _out:
 void
 egdbus_folder_call_prepare_summary (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "prepareSummary",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -6022,6 +6303,7 @@ _out:
 /**
  * egdbus_folder_call_prepare_summary_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -6034,13 +6316,15 @@ _out:
 gboolean
 egdbus_folder_call_prepare_summary_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error)
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "prepareSummary",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -6057,6 +6341,7 @@ _out:
 /**
  * egdbus_folder_call_freeze_folder:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -6070,13 +6355,15 @@ _out:
 void
 egdbus_folder_call_freeze_folder (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "freezeFolder",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -6114,6 +6401,7 @@ _out:
 /**
  * egdbus_folder_call_freeze_folder_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -6126,13 +6414,15 @@ _out:
 gboolean
 egdbus_folder_call_freeze_folder_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error)
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "freezeFolder",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -6149,6 +6439,7 @@ _out:
 /**
  * egdbus_folder_call_thaw_folder:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -6162,13 +6453,15 @@ _out:
 void
 egdbus_folder_call_thaw_folder (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "thawFolder",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -6206,6 +6499,7 @@ _out:
 /**
  * egdbus_folder_call_thaw_folder_sync:
  * @proxy: A #EGdbusFolderProxy.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
@@ -6218,13 +6512,15 @@ _out:
 gboolean
 egdbus_folder_call_thaw_folder_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error)
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "thawFolder",
-    g_variant_new ("()"),
+    g_variant_new ("(o)",
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,

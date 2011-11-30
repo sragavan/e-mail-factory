@@ -58,6 +58,7 @@
     </method>
 
     <method name="getAuthTypes">
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="authtypes" type="a(sssb)" direction="out"/>
     </method>
 
@@ -68,6 +69,7 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
       <arg name="full_name" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>      
+      <arg name="ops" type="o" direction="in"/>	          
       <arg name="folder" type="o" direction="out"/>
     </method>
 
@@ -88,44 +90,53 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
       <arg name="full_name" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	          
       <arg name="infos" type="a(ssuii)" direction="out"/>
       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="CamelFolderInfoArrayVariant"/>            
     </method>
 
     <!-- getInbox isn't implemented by non-local providers. Prevent using it. -->
     <method name="getInbox">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="folder" type="o" direction="out"/>
     </method>
     <method name="getJunk">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="folder" type="o" direction="out"/>
     </method>
     <method name="getTrash">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="folder" type="o" direction="out"/>
     </method>
 
     <method name="createFolder">
       <arg name="parent_name" type="s" direction="in"/>
       <arg name="folder_name" type="s" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="info" type="a(ssuii)" direction="out"/>	
       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="CamelFolderInfoArrayVariant"/>            
     </method>
 
     <method name="deleteFolder">
       <arg name="folder_name" type="s" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
     
     <method name="renameFolder">
       <arg name="old_folder_name" type="s" direction="in"/>
       <arg name="new_folder_name" type="s" direction="in"/>	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
 
     <method name="sync">
       <arg name="expunge" type="b" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
     <method name="noop">
+      <arg name="ops" type="o" direction="in"/>	          
       <arg name="success" type="b" direction="out"/>	    
     </method>
     <method name="canRefreshFolder">
@@ -144,11 +155,13 @@
     </method>
     <method name="subscribeFolder">
       <arg name="folder_name" type="s" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
   
     <method name="unsubscribeFolder">
       <arg name="folder_name" type="s" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
 
@@ -156,11 +169,13 @@
     <method name="searchBySql">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
       <arg name="uids" type="as" direction="out"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="folder_names" type="as" direction="out"/>
     </method>  
 
     <method name="countBySql">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="count" type="u" direction="out"/>
     </method>  
 

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "e-mail-data-store.h"
 #include "e-mail-data-folder.h"
+#include "e-mail-data-session.h"
 #include "e-gdbus-emailstore.h"
 #include "libemail-engine/mail-ops.h"
 #include "utils.h"
@@ -11,6 +12,12 @@
 #define micro(x) if (mail_debug_log(EMAIL_DEBUG_STORE|EMAIL_DEBUG_MICRO)) x;
 #define ipc(x) if (mail_debug_log(EMAIL_DEBUG_STORE|EMAIL_DEBUG_IPC)) x;
 
+
+#define GET_OPS_FROM_PATH ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path); \
+			if (!ops) {	\
+				g_warning ("Unable to get CamelOperation for path: %s\n", ops_path); \
+				ops = camel_operation_new (); \
+			}
 
 G_DEFINE_TYPE (EMailDataStore, e_mail_data_store, G_TYPE_OBJECT)
 
@@ -211,13 +218,13 @@ handle_get_folder_info_cb (CamelStore *store,
 }
 
 static gboolean
-impl_Mail_getFolderInfo (EGdbusStore *object, GDBusMethodInvocation *invocation, char *top, guint32 flags, EMailDataStore *mstore)
+impl_Mail_getFolderInfo (EGdbusStore *object, GDBusMethodInvocation *invocation, char *top, guint32 flags, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	GFIData *gfi_data = g_new0 (GFIData, 1);
 	GCancellable *ops;
 
-	ops = camel_operation_new ();
+	GET_OPS_FROM_PATH;
 	gfi_data->object = object;
 	gfi_data->invocation = invocation;
 	gfi_data->mstore = mstore;
@@ -309,7 +316,7 @@ handle_mail_get_folder (CamelStore *store,
 }
 
 static gboolean
-impl_Mail_getFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const gchar *full_name, guint32 flags, EMailDataStore *mstore)
+impl_Mail_getFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const gchar *full_name, guint32 flags, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	CamelFolder *folder;
@@ -323,7 +330,9 @@ impl_Mail_getFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, con
 
 	if (folder == NULL) {
 		char *new_name = g_strdup (full_name);
-		GCancellable *ops = camel_operation_new ();
+		GCancellable *ops;
+
+		GET_OPS_FROM_PATH;
 
 		send_data = g_new0 (EMailGetFolderData, 1);
 		send_data->mstore = mstore;
@@ -350,11 +359,13 @@ impl_Mail_getFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, con
 }
 
 static gboolean
-impl_Mail_getInbox (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+impl_Mail_getInbox (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailGetFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailGetFolderData, 1);
 	send_data->mstore = mstore;
@@ -372,11 +383,13 @@ impl_Mail_getInbox (EGdbusStore *object, GDBusMethodInvocation *invocation, EMai
 }
 
 static gboolean
-impl_Mail_getTrash (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+impl_Mail_getTrash (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailGetFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailGetFolderData, 1);
 	send_data->mstore = mstore;
@@ -394,11 +407,13 @@ impl_Mail_getTrash (EGdbusStore *object, GDBusMethodInvocation *invocation, EMai
 }
 
 static gboolean
-impl_Mail_getJunk (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+impl_Mail_getJunk (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailGetFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailGetFolderData, 1);
 	send_data->mstore = mstore;
@@ -462,11 +477,13 @@ handle_create_folder_cb (CamelStore *store,
 }
 
 static gboolean
-impl_Mail_createFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *parent, const char *folder_name, EMailDataStore *mstore)
+impl_Mail_createFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *parent, const char *folder_name, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailCDRFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -510,11 +527,13 @@ handle_delete_folder_cb (CamelStore *store,
 }
 
 static gboolean
-impl_Mail_deleteFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *folder_name, EMailDataStore *mstore)
+impl_Mail_deleteFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *folder_name, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailCDRFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -558,11 +577,13 @@ handle_rename_folder_cb (CamelStore *store,
 
 
 static gboolean
-impl_Mail_renameFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *old_name, const char *new_name, EMailDataStore *mstore)
+impl_Mail_renameFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *old_name, const char *new_name, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailCDRFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -602,11 +623,13 @@ handle_mail_sync (CamelStore *store,
 }
 
 static gboolean
-impl_Mail_sync (EGdbusStore *object, GDBusMethodInvocation *invocation, gboolean expunge, EMailDataStore *mstore)
+impl_Mail_sync (EGdbusStore *object, GDBusMethodInvocation *invocation, gboolean expunge, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailCDRFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -647,11 +670,13 @@ handle_mail_noop (CamelStore *store,
 
 
 static gboolean
-impl_Mail_noop (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+impl_Mail_noop (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailCDRFolderData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -782,11 +807,13 @@ impl_Mail_isFolderSubscribed (EGdbusStore *object, GDBusMethodInvocation *invoca
 }
 
 static gboolean
-impl_Mail_subscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, char *folder, EMailDataStore *mstore)
+impl_Mail_subscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, char *folder, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailFolderSubData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailFolderSubData, 1);
 	send_data->mstore = mstore;
@@ -803,11 +830,13 @@ impl_Mail_subscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocatio
 }
 
 static gboolean
-impl_Mail_unsubscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, char *folder, EMailDataStore *mstore)
+impl_Mail_unsubscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, char *folder, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailFolderSubData *send_data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailFolderSubData, 1);
 	send_data->mstore = mstore;
@@ -1002,11 +1031,13 @@ handle_get_auth_types (CamelService *service, GAsyncResult *result, EMailCDRFold
 }
 
 static gboolean
-impl_Mail_getAuthTypes (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+impl_Mail_getAuthTypes (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
 	EMailCDRFolderData *send_data;
+
+	GET_OPS_FROM_PATH;
 
 	send_data = g_new0 (EMailCDRFolderData, 1);
 	send_data->mstore = mstore;
@@ -1166,10 +1197,13 @@ sbs_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_searchBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, EMailDataStore *mstore)
+impl_Mail_searchBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailStoreStdData *data;
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	ipc(printf("Executing SQL command: %s\n", sql));
 
@@ -1180,19 +1214,21 @@ impl_Mail_searchBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, c
 	data->command = g_strdup(sql);
 	data->count = FALSE;
 
-	mail_operate_on_object ((GObject *)priv->store, sbs_operate, sbs_done, data);
+	mail_operate_on_object ((GObject *)priv->store, (GCancellable *)ops, sbs_operate, sbs_done, data);
 
 	return TRUE;
 }
 
 static gboolean
-impl_Mail_countBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, EMailDataStore *mstore)
+impl_Mail_countBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, const char *sql, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailStoreStdData *data;
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
+	GCancellable *ops;
 
+	GET_OPS_FROM_PATH;
 	ipc(printf("Executing SQL command: %s\n", sql));
-
+	
 	data = g_new0 (EMailStoreStdData, 1);
 	data->mstore = mstore;
 	data->invocation = invocation;
@@ -1200,7 +1236,7 @@ impl_Mail_countBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, co
 	data->command = g_strdup(sql);
 	data->count = TRUE;
 
-	mail_operate_on_object ((GObject *)priv->store, sbs_operate, sbs_done, data);
+	mail_operate_on_object ((GObject *)priv->store, (GCancellable *)ops, sbs_operate, sbs_done, data);
 
 	return TRUE;
 }

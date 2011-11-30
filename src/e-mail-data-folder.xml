@@ -13,18 +13,22 @@
 
     <!-- Sync APIs -->
     <method name="refreshInfo">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="success" type="b" direction="out"/>	    	    
     </method>
     <method name="sync">
       <arg name="expunge" type="b" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
     <method name="syncMessage">
       <arg name="uid" type="s" direction="in"/>
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="success" type="b" direction="out"/>	    
     </method>
 
     <method name="expunge">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="success" type="b" direction="out"/>	    	    
     </method>
 
@@ -118,7 +122,7 @@
       <arg name="info" type="(sssssssuutttiatasa(ss))" direction="in"/>	
       <!-- FIXME: Move to FDs instead of passing message as a string -->
       <arg name="message" type="s" direction="in"/>	    	          	    
-	
+      <arg name="ops" type="o" direction="in"/>	    	
       <arg name="appendeduid" type="s" direction="out"/>	    	          	    
       <arg name="success" type="b" direction="out"/>	    	                
       <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="CamelMessageInfoVariant"/>                  
@@ -128,31 +132,37 @@
     </method>        
     <method name="getMessage">
       <arg name="uid" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="message" type="s" direction="out"/>	    	    	    	    
     </method>      
     <!--    
     <method name="fetchOldMessages">
       <arg name="count" type="i" direction="in"/>	    	    
+      <arg name="ops" type="o" direction="in"/>	          
       <arg name="success" type="b" direction="out"/>	    	                
     </method>
     -->
     <method name="getQuotaInfo">
+      <arg name="ops" type="o" direction="in"/>	    	    
       <arg name="quotainfo" type="a(stt)" direction="out"/>	    	    	    	    	    
     </method>
 
     <method name="searchByExpression">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="uids" type="as" direction="out"/>	    	    	    	    
     </method>  
     <method name="searchSortByExpression">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
       <arg name="sort" type="s" direction="in"/>	    	    	    	    	    
       <arg name="ascending" type="b" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="uids" type="as" direction="out"/>	    	    	    	    
     </method>      
     <method name="searchByUids">
       <arg name="expression" type="s" direction="in"/>	    	    	    	    	    
       <arg name="searchuids" type="as" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="resultuids" type="as" direction="out"/>	    	    	    	    
     </method>  
     <method name="getMessageInfo">
@@ -165,13 +175,17 @@
       <arg name="uids" type="as" direction="in"/>	    	    	    	    	    
       <arg name="destfolder" type="o" direction="in"/>
       <arg name="deleteoriginals" type="b" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
       <arg name="returnuids" type="as" direction="out"/>	    	    	    	    	    
     </method>        
     <method name="prepareSummary">
+      <arg name="ops" type="o" direction="in"/>	    	    
     </method>        
     <method name="freezeFolder">
+      <arg name="ops" type="o" direction="in"/>	    	    
     </method>        
     <method name="thawFolder">
+      <arg name="ops" type="o" direction="in"/>	    	    
     </method>        
 
     <!-- Signals -->

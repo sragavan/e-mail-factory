@@ -14,6 +14,12 @@
 #define micro(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_MICRO)) x;
 #define ipc(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_IPC)) x;
 
+#define GET_OPS_FROM_PATH ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path); \
+			if (!ops) {	\
+				g_warning ("Unable to get CamelOperation for path: %s\n", ops_path); \
+				ops = camel_operation_new (); \
+			}
+
 extern EMailSession *session;
 extern EMailDataSession *data_session;
 
@@ -116,11 +122,13 @@ handle_refresh_info_done (CamelFolder *folder,
 }
 
 static gboolean
-impl_Mail_refreshInfo (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_refreshInfo (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderStdData *data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderStdData, 1);
 	data->mfolder = mfolder;
@@ -165,11 +173,13 @@ handle_sync_done (CamelFolder *folder,
 }
 
 static gboolean
-impl_Mail_sync (EGdbusFolder *object, GDBusMethodInvocation *invocation, gboolean expunge, EMailDataFolder *mfolder)
+impl_Mail_sync (EGdbusFolder *object, GDBusMethodInvocation *invocation, gboolean expunge, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderStdData *data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderStdData, 1);
 	data->mfolder = mfolder;
@@ -209,11 +219,13 @@ handle_sync_msg_done (CamelFolder *folder,
 }
 
 static gboolean
-impl_Mail_syncMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *uid, EMailDataFolder *mfolder)
+impl_Mail_syncMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *uid, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderStdData *data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderStdData, 1);
 	data->mfolder = mfolder;
@@ -254,11 +266,13 @@ handle_expunge_done (CamelFolder *folder,
 }
 
 static gboolean
-impl_Mail_expunge (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_expunge (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderStdData *data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderStdData, 1);
 	data->mfolder = mfolder;
@@ -431,7 +445,7 @@ impl_Mail_getPermanentFlags (EGdbusFolder *object, GDBusMethodInvocation *invoca
 
 	ipc(printf("Get Permanent flags %s\n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, gpf_operate, gpf_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, gpf_operate, gpf_done, data);
 
 	return TRUE;
 }
@@ -476,7 +490,7 @@ impl_Mail_hasSummaryCapability (EGdbusFolder *object, GDBusMethodInvocation *inv
 
 	ipc(printf("Has Summary capability %s : \n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, hsuc_operate, hsuc_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, hsuc_operate, hsuc_done, data);
 
 	return TRUE;
 }
@@ -522,7 +536,7 @@ impl_Mail_hasSearchCapability (EGdbusFolder *object, GDBusMethodInvocation *invo
 
 	ipc(printf("Has search capability : %s \n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, hsec_operate, hsec_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, hsec_operate, hsec_done, data);
 
 	return TRUE;
 }
@@ -583,7 +597,7 @@ impl_Mail_getMessageFlags (EGdbusFolder *object, GDBusMethodInvocation *invocati
 
 	ipc(printf("Get message flags: %s : %s \n", priv->path, data->uid));
 	
-	mail_operate_on_object ((GObject *)priv->folder, gmf_operate, gmf_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, gmf_operate, gmf_done, data);
 
 	return TRUE;
 }
@@ -633,7 +647,7 @@ impl_Mail_setMessageFlags (EGdbusFolder *object, GDBusMethodInvocation *invocati
 	data->set = set;
 
 	ipc(printf("Set message flags: %s : %s \n", priv->path, data->uid));
-	mail_operate_on_object ((GObject *)priv->folder, smf_operate, smf_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, smf_operate, smf_done, data);
 
 	return TRUE;
 }
@@ -683,7 +697,7 @@ impl_Mail_getMessageUserFlag (EGdbusFolder *object, GDBusMethodInvocation *invoc
 
 	ipc(printf("Get message user flag: %s : %s %s\n", priv->path, data->uid, name));
 	
-	mail_operate_on_object ((GObject *)priv->folder, gmuf_operate, gmuf_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, gmuf_operate, gmuf_done, data);
 
 	return TRUE;
 }
@@ -736,7 +750,7 @@ impl_Mail_setMessageUserFlag (EGdbusFolder *object, GDBusMethodInvocation *invoc
 
 	ipc(printf("Set message user flag: %s : %s %s\n", priv->path, data->uid, name));
 	
-	mail_operate_on_object ((GObject *)priv->folder, smuf_operate, smuf_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, smuf_operate, smuf_done, data);
 
 	return TRUE;
 }
@@ -790,7 +804,7 @@ impl_Mail_getMessageUserTag (EGdbusFolder *object, GDBusMethodInvocation *invoca
 
 	ipc(printf("Get message user tag: %s : %s %s\n", priv->path, data->uid, name));
 	
-	mail_operate_on_object ((GObject *)priv->folder, gmut_operate, gmut_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, gmut_operate, gmut_done, data);
 
 	return TRUE;
 }
@@ -845,7 +859,7 @@ impl_Mail_setMessageUserTag (EGdbusFolder *object, GDBusMethodInvocation *invoca
 
 	ipc(printf("set message user tag: %s : %s %s:%s\n", priv->path, uid, name, value));
 
-	mail_operate_on_object ((GObject *)priv->folder, smut_operate, smut_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, NULL, smut_operate, smut_done, data);
 
 	return TRUE;
 }
@@ -1004,6 +1018,7 @@ typedef struct _email_folder_msg_data {
 	CamelMimeMessage *message;
 	char *uid;
 	char *msg_buf;
+	GCancellable *ops;
 }EMailFolderMessageData;
 
 
@@ -1046,13 +1061,15 @@ app_msg_done (CamelFolder *folder,
 
 
 static gboolean
-impl_Mail_appendMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, GVariant *vinfo, const char *message, EMailDataFolder *mfolder)
+impl_Mail_appendMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, GVariant *vinfo, const char *message, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderMessageData *data;
 	CamelStream *stream;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
 	GError *error = NULL;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderMessageData, 1);
 	data->mfolder = mfolder;	
@@ -1107,11 +1124,10 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	CamelMimeFilter *charenc = NULL;
 	static const char *charset = NULL;
 	GConfClient *gconf;
-	GCancellable *ops = camel_operation_new ();
 	CamelFolder *folder = (CamelFolder *) object;
 
 	/* FIXME we should somehow get the right operation and pass it */
-	msg = camel_folder_get_message_sync (folder, data->uid, ops, error);
+	msg = camel_folder_get_message_sync (folder, data->uid, data->ops, error);
 
 	if (!msg) {
 		g_warning ("Unable to fetch message: %s in %s\n", data->uid, camel_folder_get_full_name (folder));
@@ -1140,7 +1156,7 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	g_object_unref (charenc);
 	g_object_unref (stream);
 
-	camel_data_wrapper_decode_to_stream_sync ((CamelDataWrapper *)msg, filter_stream, ops, NULL);
+	camel_data_wrapper_decode_to_stream_sync ((CamelDataWrapper *)msg, filter_stream, data->ops, NULL);
 	array = camel_stream_mem_get_byte_array ((CamelStreamMem *)stream);
 	data->msg_buf = g_strndup ((gchar *) array->data, array->len);
 
@@ -1173,20 +1189,24 @@ app_getmsg_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_getMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *uid, EMailDataFolder *mfolder)
+impl_Mail_getMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *uid, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderMessageData *data;
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderMessageData, 1);
 	data->mfolder = mfolder;	
 	data->object = object;
 	data->invocation = invocation;
 	data->uid = g_strdup (uid);
-	
+	data->ops = ops;
+
 	ipc(printf("Get message: %s : %s\n", priv->path, uid));
 
-	mail_operate_on_object ((GObject *)priv->folder, app_getmsg_operate, app_getmsg_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, app_getmsg_operate, app_getmsg_done, data);
 	
 
 	return TRUE;
@@ -1235,11 +1255,13 @@ app_getquota_done (CamelFolder *folder,
 }
 
 static gboolean
-impl_Mail_getQuotaInfo (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_getQuotaInfo (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderMessageData *data;
-	GCancellable *ops = camel_operation_new ();
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderMessageData, 1);
 	data->mfolder = mfolder;	
@@ -1265,6 +1287,7 @@ typedef struct _email_folder_search_data {
 	gboolean ascending;
 	GPtrArray *query_uids;
 	GPtrArray *result_uids;
+	GCancellable *ops;
 }EMailFolderSearchData;
 
 static gboolean
@@ -1304,21 +1327,24 @@ search_expr_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_searchByExpression (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, EMailDataFolder *mfolder)
+impl_Mail_searchByExpression (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderSearchData *data;
+	GCancellable *ops;
 
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderSearchData, 1);
 	data->object = object;
 	data->mfolder = mfolder;	
 	data->invocation = invocation;
 	data->query = g_strdup (expression);
-	
+	data->ops = ops;
+
 	ipc(printf("Search by expr : %s : %s\n", priv->path, expression));
 
-	mail_operate_on_object ((GObject *)priv->folder, search_expr_operate, search_expr_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, search_expr_operate, search_expr_done, data);
 	
 
 	return TRUE;
@@ -1415,11 +1441,13 @@ search_sort_expr_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_searchSortByExpression (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, const char *sort, gboolean ascending, EMailDataFolder *mfolder)
+impl_Mail_searchSortByExpression (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, const char *sort, gboolean ascending, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderSearchData *data;
+	GCancellable *ops;
 
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderSearchData, 1);
 	data->object = object;
@@ -1428,9 +1456,10 @@ impl_Mail_searchSortByExpression (EGdbusFolder *object, GDBusMethodInvocation *i
 	data->query = g_strdup (expression);
 	data->sort = g_strdup (sort);
 	data->ascending = ascending;
+	data->ops = ops;
 	ipc(printf("Search Sort by expr : %s : %s: %s: %d\n", priv->path, expression, sort, ascending));
 
-	mail_operate_on_object ((GObject *)priv->folder, search_sort_expr_operate, search_sort_expr_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, search_sort_expr_operate, search_sort_expr_done, data);
 	
 
 	return TRUE;
@@ -1475,12 +1504,14 @@ search_uids_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_searchByUids (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, const char **uids, EMailDataFolder *mfolder)
+impl_Mail_searchByUids (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *expression, const char **uids, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
 	EMailFolderSearchData *data;
 	int i;
+	GCancellable *ops;
 
+	GET_OPS_FROM_PATH;
 	
 	data = g_new0 (EMailFolderSearchData, 1);
 	data->object = object;
@@ -1488,13 +1519,14 @@ impl_Mail_searchByUids (EGdbusFolder *object, GDBusMethodInvocation *invocation,
 	data->invocation = invocation;
 	data->query = g_strdup (expression);
 	data->query_uids = g_ptr_array_new ();
+	data->ops = ops;
 	for (i=0; uids && uids[i]; i++) {
 		g_ptr_array_add (data->query_uids, (gpointer) camel_pstring_strdup(uids[i]));
 	}
 	
 	ipc(printf("Search in uids: %s: %s in %d\n", priv->path, expression, data->query_uids->len));
 
-	mail_operate_on_object ((GObject *)priv->folder, search_uids_operate, search_uids_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, search_uids_operate, search_uids_done, data);
 	
 
 	return TRUE;
@@ -1668,8 +1700,8 @@ impl_Mail_getMessageInfo (EGdbusFolder *object, GDBusMethodInvocation *invocatio
 	data->uid = g_strdup (uid);
 
 	ipc(printf("Mail get message info: %s uid: %s\n", priv->path, uid));
-
-	mail_operate_on_object ((GObject *)priv->folder, gmi_operate, gmi_done, data);
+	/* We won't pass a cancellable object here. */
+	mail_operate_on_object ((GObject *)priv->folder, NULL, gmi_operate, gmi_done, data);
 	
 
 	return TRUE;
@@ -1685,19 +1717,19 @@ typedef struct _email_folder_transfer_data {
 	GPtrArray *uids;
 	GPtrArray *return_uids;
 	gboolean delete_originals;
+	GCancellable *ops;
 }EMailFolderTransferData;
 
 static gboolean
 transfer_operate (GObject *object, gpointer sdata, GError **error)
 {
 	EMailFolderTransferData *data = (EMailFolderTransferData *)sdata;
-	GCancellable *ops = camel_operation_new ();
 	CamelFolder *folder = (CamelFolder *) object;
 
 	/* FIXME we should somehow get the right operation and pass it */
 	data->dest_folder = e_mail_session_get_folder_from_path (data_session, data->object_path);
 	
-	return camel_folder_transfer_messages_to_sync (folder, data->uids, data->dest_folder, data->delete_originals, &data->return_uids, ops, error);
+	return camel_folder_transfer_messages_to_sync (folder, data->uids, data->dest_folder, data->delete_originals, &data->return_uids, data->ops, error);
 }
 
 static void
@@ -1740,17 +1772,22 @@ transfer_done (gboolean success, gpointer sdata, GError *error)
 
 
 static gboolean
-impl_Mail_transferMessagesTo (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char **uids, const char *object_path, gboolean delete_originals, EMailDataFolder *mfolder)
+impl_Mail_transferMessagesTo (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char **uids, const char *object_path, gboolean delete_originals, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);	
 	EMailFolderTransferData *data = g_new0 (EMailFolderTransferData, 1);
 	int i;
+	GCancellable *ops;
 
+	GET_OPS_FROM_PATH;
+	
 	data->object = object;
 	data->invocation = invocation;
 	data->mfolder = mfolder;
 	data->object_path = g_strdup (object_path);
 	data->uids = g_ptr_array_new ();
+	data->ops = ops;
+
 	for (i=0; uids && uids[i]; i++) {
 		g_ptr_array_add (data->uids, g_strdup(uids[i]));
 	}
@@ -1758,7 +1795,7 @@ impl_Mail_transferMessagesTo (EGdbusFolder *object, GDBusMethodInvocation *invoc
 
 	ipc(printf("Transfer messages from %s: to %s: len %d\n", priv->path, object_path, data->uids->len));
 
-	mail_operate_on_object ((GObject *)priv->folder, transfer_operate, transfer_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, transfer_operate, transfer_done, data);
 
 	return TRUE;
 }
@@ -1805,18 +1842,22 @@ fetch_old_done (gboolean success, gpointer sdata, GError *error)
 
 static 
 gboolean
-impl_Mail_fetchOldMessages (EGdbusFolder *object, GDBusMethodInvocation *invocation, int count, EMailDataFolder *mfolder)
+impl_Mail_fetchOldMessages (EGdbusFolder *object, GDBusMethodInvocation *invocation, int count, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailFolderFetchData *data;
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);	
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data = g_new0 (EMailFolderFetchData, 1);
 	data->mfolder = mfolder;
 	data->invocation = invocation;
 	data->object = object;
 	data->count = count;
+	data->ops = ops;
 
-	mail_operate_on_object ((GObject *)priv->folder, fetch_old_operate, fetch_old_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, fetch_old_operate, fetch_old_done, data);
 
 	return TRUE;
 }
@@ -1856,18 +1897,22 @@ ps_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_prepareSummary (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_prepareSummary (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);	
 	EMailFolderTransferData *data = g_new0 (EMailFolderTransferData, 1);
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data->object = object;
 	data->invocation = invocation;
 	data->mfolder = mfolder;
+	data->ops = ops;
 
 	ipc(printf("Prepare folder summary %s: \n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, ps_operate, ps_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, ps_operate, ps_done, data);
 
 	return TRUE;
 }
@@ -1904,18 +1949,22 @@ freeze_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_freezeFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_freezeFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);	
 	EMailFolderTransferData *data = g_new0 (EMailFolderTransferData, 1);
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data->object = object;
 	data->invocation = invocation;
 	data->mfolder = mfolder;
+	data->ops = ops;
 
 	ipc(printf("Freeze Folder %s: \n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, freeze_operate, freeze_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, freeze_operate, freeze_done, data);
 
 	return TRUE;
 }
@@ -1952,18 +2001,22 @@ thaw_done (gboolean success, gpointer sdata, GError *error)
 }
 
 static gboolean
-impl_Mail_thawFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+impl_Mail_thawFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *ops_path, EMailDataFolder *mfolder)
 {
 	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);	
 	EMailFolderTransferData *data = g_new0 (EMailFolderTransferData, 1);
+	GCancellable *ops;
+
+	GET_OPS_FROM_PATH;
 
 	data->object = object;
 	data->invocation = invocation;
 	data->mfolder = mfolder;
+	data->ops = ops;
 
 	ipc(printf("Folder Thaw %s: \n", priv->path));
 
-	mail_operate_on_object ((GObject *)priv->folder, thaw_operate, thaw_done, data);
+	mail_operate_on_object ((GObject *)priv->folder, ops, thaw_operate, thaw_done, data);
 
 	return TRUE;
 }

@@ -157,6 +157,36 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for org.gnome.evolution.dataserver.mail.Session ---- */
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_create_mail_operation_OUT_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_create_mail_operation_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_create_mail_operation_OUT_ARG_operation,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_create_mail_operation =
+{
+  {
+    -1,
+    "createMailOperation",
+    NULL,
+    (GDBusArgInfo **) &_egdbus_session_method_info_create_mail_operation_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-create-mail-operation",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_session_method_info_add_service_IN_ARG_uid =
 {
   {
@@ -733,9 +763,21 @@ static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_folder_from_u
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_folder_from_uri_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_folder_from_uri_IN_ARG_pointers[] =
 {
   &_egdbus_session_method_info_get_folder_from_uri_IN_ARG_uri,
+  &_egdbus_session_method_info_get_folder_from_uri_IN_ARG_ops,
   NULL
 };
 
@@ -933,6 +975,7 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_cancel_operati
 
 static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointers[] =
 {
+  &_egdbus_session_method_info_create_mail_operation,
   &_egdbus_session_method_info_add_service,
   &_egdbus_session_method_info_remove_service,
   &_egdbus_session_method_info_get_service,
@@ -1184,6 +1227,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_add_password: Handler for the #EGdbusSession::handle-add-password signal.
  * @handle_add_service: Handler for the #EGdbusSession::handle-add-service signal.
  * @handle_cancel_operations: Handler for the #EGdbusSession::handle-cancel-operations signal.
+ * @handle_create_mail_operation: Handler for the #EGdbusSession::handle-create-mail-operation signal.
  * @handle_fetch_account: Handler for the #EGdbusSession::handle-fetch-account signal.
  * @handle_fetch_old_messages: Handler for the #EGdbusSession::handle-fetch-old-messages signal.
  * @handle_find_password: Handler for the #EGdbusSession::handle-find-password signal.
@@ -1214,6 +1258,28 @@ static void
 egdbus_session_default_init (EGdbusSessionIface *iface)
 {
   /* GObject signals for incoming D-Bus method calls: */
+  /**
+   * EGdbusSession::handle-create-mail-operation:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.createMailOperation">createMailOperation()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_create_mail_operation() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-create-mail-operation",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_create_mail_operation),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
   /**
    * EGdbusSession::handle-add-service:
    * @object: A #EGdbusSession.
@@ -1541,6 +1607,7 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
    * @object: A #EGdbusSession.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_uri: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getFolderFromUri">getFolderFromUri()</link> D-Bus method.
    *
@@ -1556,8 +1623,8 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusSession::handle-send-receive:
@@ -1849,6 +1916,104 @@ egdbus_session_emit_get_password (
     const gchar *arg_key)
 {
   g_signal_emit_by_name (object, "get-password", arg_title, arg_prompt, arg_key);
+}
+
+/**
+ * egdbus_session_call_create_mail_operation:
+ * @proxy: A #EGdbusSessionProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.createMailOperation">createMailOperation()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_create_mail_operation_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_create_mail_operation_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_create_mail_operation (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "createMailOperation",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_create_mail_operation_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_create_mail_operation().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_create_mail_operation().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_create_mail_operation_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_create_mail_operation_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.createMailOperation">createMailOperation()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_create_mail_operation() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_create_mail_operation_sync (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "createMailOperation",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
 }
 
 /**
@@ -3287,6 +3452,7 @@ _out:
  * egdbus_session_call_get_folder_from_uri:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uri: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -3301,14 +3467,16 @@ void
 egdbus_session_call_get_folder_from_uri (
     EGdbusSession *proxy,
     const gchar *arg_uri,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "getFolderFromUri",
-    g_variant_new ("(s)",
-                   arg_uri),
+    g_variant_new ("(so)",
+                   arg_uri,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -3350,6 +3518,7 @@ _out:
  * egdbus_session_call_get_folder_from_uri_sync:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uri: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @out_folder: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -3364,6 +3533,7 @@ gboolean
 egdbus_session_call_get_folder_from_uri_sync (
     EGdbusSession *proxy,
     const gchar *arg_uri,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error)
@@ -3371,8 +3541,9 @@ egdbus_session_call_get_folder_from_uri_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "getFolderFromUri",
-    g_variant_new ("(s)",
-                   arg_uri),
+    g_variant_new ("(so)",
+                   arg_uri,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -3881,6 +4052,27 @@ egdbus_session_call_cancel_operations_sync (
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
+}
+
+/**
+ * egdbus_session_complete_create_mail_operation:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @operation: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.createMailOperation">createMailOperation()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_create_mail_operation (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   operation));
 }
 
 /**

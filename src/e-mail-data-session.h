@@ -6,6 +6,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 #include <camel/camel.h>
+#include "e-mail-data-operation.h"
 
 G_BEGIN_DECLS
 
@@ -51,6 +52,9 @@ void e_mail_session_emit_send_receive_completed (EMailDataSession *msession);
 void e_mail_session_emit_account_added (EMailDataSession *msession, const char *uid);
 void e_mail_session_emit_account_removed (EMailDataSession *msession, const char *uid);
 void e_mail_session_emit_account_changed (EMailDataSession *msession, const char *uid);
+
+CamelOperation * e_mail_data_session_get_camel_operation (const char *mops_path);
+EMailDataOperation * e_mail_data_sessoin_get_mail_operation (CamelOperation *ops);
 
 
 G_END_DECLS

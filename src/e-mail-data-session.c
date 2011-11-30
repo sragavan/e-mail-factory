@@ -18,6 +18,7 @@
 #include <string.h>
 
 extern EMailSession *session;
+extern EMailDataSession *data_session;
 #define micro(x) if (mail_debug_log(EMAIL_DEBUG_SESSION|EMAIL_DEBUG_MICRO)) x;
 #define ipc(x) if (mail_debug_log(EMAIL_DEBUG_SESSION|EMAIL_DEBUG_IPC)) x;
 
@@ -43,6 +44,11 @@ struct _EMailDataSessionPrivate
 	GMutex *connections_lock;
 	/* This is a hash of client addresses to GList* of EDataBooks */
 	GHashTable *connections;
+
+	GMutex *cops_lock;
+	GHashTable *cops;
+	GMutex *mops_lock;
+	GHashTable *mops;
 
 	guint exit_timeout;
 	
@@ -575,13 +581,18 @@ get_folder_done (EMailSession *session, GAsyncResult *result, EMailGetStoreData 
 }
 
 static gboolean
-impl_Mail_getFolderFromUri (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uri, EMailDataSession *msession)
+impl_Mail_getFolderFromUri (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uri, const char *ops_path, EMailDataSession *msession)
 {
 	//EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
 	EMailGetStoreData *data = g_new0(EMailGetStoreData, 1);
 	GCancellable *ops;
 
-	ops = camel_operation_new();
+	ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path);
+	if (!ops) {
+		g_warning ("Unable to get CamelOperation for path: %s\n", ops_path);
+		ops = camel_operation_new ();
+	}
+
 	data->invocation = invocation;
 	data->msession = msession;
 	data->object = object;
@@ -749,6 +760,31 @@ impl_Mail_cancelOperations (EGdbusSession *object, GDBusMethodInvocation *invoca
 	return TRUE;
 }
 
+static gboolean
+impl_Mail_createMailOperation (EGdbusSession *object, GDBusMethodInvocation *invocation, EMailDataSession *msession)
+{
+	GCancellable *ops;
+	EMailDataOperation *mops;
+	char *mops_path;
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
+
+	ipc(printf("Creating Mail Operation handler\n"));
+	ops = camel_operation_new ();
+	mops = e_mail_data_operation_new ((CamelOperation *)ops);
+	mops_path = e_mail_data_operation_register_gdbus_object (mops, g_dbus_method_invocation_get_connection(invocation), NULL);
+	g_mutex_lock (priv->cops_lock);
+	g_hash_table_insert (priv->cops, ops, mops);
+	g_mutex_unlock (priv->cops_lock);
+	g_mutex_lock (priv->mops_lock);
+	g_hash_table_insert (priv->mops, mops_path, mops);
+	g_mutex_unlock (priv->mops_lock);
+
+	g_object_unref (ops);
+	egdbus_session_complete_create_mail_operation (object, invocation, mops_path);
+
+	return TRUE;
+}
+
 static void
 e_mail_data_session_get_property (GObject *object, guint property_id,
                               GValue *value, GParamSpec *pspec)
@@ -802,6 +838,7 @@ e_mail_data_session_init (EMailDataSession *self)
 	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(self);
 
 	priv->gdbus_object = egdbus_session_skeleton_new ();
+	g_signal_connect (priv->gdbus_object, "handle-create-mail-operation", G_CALLBACK (impl_Mail_createMailOperation), self);	
 	g_signal_connect (priv->gdbus_object, "handle-add-service", G_CALLBACK (impl_Mail_addService), self);
 	g_signal_connect (priv->gdbus_object, "handle-remove-service", G_CALLBACK (impl_Mail_removeService), self);
 	
@@ -840,8 +877,18 @@ e_mail_data_session_init (EMailDataSession *self)
 		g_str_hash, g_str_equal,
 		(GDestroyNotify) g_free,
 		(GDestroyNotify) NULL);
-	
-	
+
+	priv->mops_lock = g_mutex_new ();
+	/* Key = object_path, Value = MailOperation */
+	priv->mops = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	priv->cops_lock = g_mutex_new ();
+	/* Key = CamelOperation Value = MailOperation */
+	priv->cops = g_hash_table_new_full (
+		g_direct_hash, g_direct_equal,
+		(GDestroyNotify) NULL,
+		(GDestroyNotify) NULL);
+
 }
 
 EMailDataSession*
@@ -960,5 +1007,27 @@ e_mail_session_emit_account_changed (EMailDataSession *msession, const char *uid
 	egdbus_session_emit_account_changed (priv->gdbus_object, uid);
 }
 
+CamelOperation *
+e_mail_data_session_get_camel_operation (const char *mops_path)
+{
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(data_session);
+	EMailDataOperation *mops;
 
+	/* if the path isn't asked for, then lets create a operation for local usage. */
+	if (!mops_path || !*mops_path)
+		return (CamelOperation *)camel_operation_new ();
+
+	mops = g_hash_table_lookup (priv->mops, mops_path);
+
+	return e_mail_data_operation_get_camel_operation (mops);
+	
+}
+
+EMailDataOperation *
+e_mail_data_sessoin_get_mail_operation (CamelOperation *ops)
+{
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(data_session);
+
+	return g_hash_table_lookup (priv->cops, ops);
+}
 

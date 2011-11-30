@@ -161,6 +161,23 @@ e_mail_data_operation_new (CamelOperation *operation)
   return moperation;
 }
 
+CamelOperation *
+e_mail_data_operation_get_camel_operation (EMailDataOperation *mops)
+{
+	EMailDataOperationPrivate *priv = DATA_OPERATION_PRIVATE(mops);
+
+	return priv->operation;
+}
+
+const char *
+e_mail_data_operation_get_path (EMailDataOperation *mops)
+{
+	EMailDataOperationPrivate *priv = DATA_OPERATION_PRIVATE(mops);
+
+	return priv->object_path;
+}
+
+
 static void
 op_status_cb (CamelOperation *operation,
 	      const gchar *what,

@@ -37,22 +37,26 @@ struct _EGdbusStoreIface
   gboolean (*handle_count_by_sql) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_expression);
+    const gchar *arg_expression,
+    const gchar *arg_ops);
 
   gboolean (*handle_create_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_parent_name,
-    const gchar *arg_folder_name);
+    const gchar *arg_folder_name,
+    const gchar *arg_ops);
 
   gboolean (*handle_delete_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_folder_name);
+    const gchar *arg_folder_name,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_auth_types) (
     EGdbusStore *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_display_name) (
     EGdbusStore *object,
@@ -62,21 +66,25 @@ struct _EGdbusStoreIface
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_full_name,
-    guint arg_flags);
+    guint arg_flags,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_folder_info) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_full_name,
-    guint arg_flags);
+    guint arg_flags,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_inbox) (
     EGdbusStore *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_junk) (
     EGdbusStore *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_name) (
     EGdbusStore *object,
@@ -97,7 +105,8 @@ struct _EGdbusStoreIface
 
   gboolean (*handle_get_trash) (
     EGdbusStore *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_uid) (
     EGdbusStore *object,
@@ -122,18 +131,21 @@ struct _EGdbusStoreIface
 
   gboolean (*handle_noop) (
     EGdbusStore *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_rename_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_old_folder_name,
-    const gchar *arg_new_folder_name);
+    const gchar *arg_new_folder_name,
+    const gchar *arg_ops);
 
   gboolean (*handle_search_by_sql) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_expression);
+    const gchar *arg_expression,
+    const gchar *arg_ops);
 
   gboolean (*handle_set_display_name) (
     EGdbusStore *object,
@@ -148,7 +160,8 @@ struct _EGdbusStoreIface
   gboolean (*handle_subscribe_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_folder_name);
+    const gchar *arg_folder_name,
+    const gchar *arg_ops);
 
   gboolean (*handle_supports_subscriptions) (
     EGdbusStore *object,
@@ -157,12 +170,14 @@ struct _EGdbusStoreIface
   gboolean (*handle_sync) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    gboolean arg_expunge);
+    gboolean arg_expunge,
+    const gchar *arg_ops);
 
   gboolean (*handle_unsubscribe_folder) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_folder_name);
+    const gchar *arg_folder_name,
+    const gchar *arg_ops);
 
   void (*folder_created) (
     EGdbusStore *object,
@@ -575,6 +590,7 @@ gboolean egdbus_store_call_get_url_sync (
 
 void egdbus_store_call_get_auth_types (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -587,6 +603,7 @@ gboolean egdbus_store_call_get_auth_types_finish (
 
 gboolean egdbus_store_call_get_auth_types_sync (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GVariant **out_authtypes,
     GCancellable *cancellable,
     GError **error);
@@ -595,6 +612,7 @@ void egdbus_store_call_get_folder (
     EGdbusStore *proxy,
     const gchar *arg_full_name,
     guint arg_flags,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -609,6 +627,7 @@ gboolean egdbus_store_call_get_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_full_name,
     guint arg_flags,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error);
@@ -617,6 +636,7 @@ void egdbus_store_call_get_folder_info (
     EGdbusStore *proxy,
     const gchar *arg_full_name,
     guint arg_flags,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -631,12 +651,14 @@ gboolean egdbus_store_call_get_folder_info_sync (
     EGdbusStore *proxy,
     const gchar *arg_full_name,
     guint arg_flags,
+    const gchar *arg_ops,
     GVariant **out_infos,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_store_call_get_inbox (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -649,12 +671,14 @@ gboolean egdbus_store_call_get_inbox_finish (
 
 gboolean egdbus_store_call_get_inbox_sync (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_store_call_get_junk (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -667,12 +691,14 @@ gboolean egdbus_store_call_get_junk_finish (
 
 gboolean egdbus_store_call_get_junk_sync (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_store_call_get_trash (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -685,6 +711,7 @@ gboolean egdbus_store_call_get_trash_finish (
 
 gboolean egdbus_store_call_get_trash_sync (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     gchar **out_folder,
     GCancellable *cancellable,
     GError **error);
@@ -693,6 +720,7 @@ void egdbus_store_call_create_folder (
     EGdbusStore *proxy,
     const gchar *arg_parent_name,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -707,6 +735,7 @@ gboolean egdbus_store_call_create_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_parent_name,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     GVariant **out_info,
     GCancellable *cancellable,
     GError **error);
@@ -714,6 +743,7 @@ gboolean egdbus_store_call_create_folder_sync (
 void egdbus_store_call_delete_folder (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -727,6 +757,7 @@ gboolean egdbus_store_call_delete_folder_finish (
 gboolean egdbus_store_call_delete_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -735,6 +766,7 @@ void egdbus_store_call_rename_folder (
     EGdbusStore *proxy,
     const gchar *arg_old_folder_name,
     const gchar *arg_new_folder_name,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -749,6 +781,7 @@ gboolean egdbus_store_call_rename_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_old_folder_name,
     const gchar *arg_new_folder_name,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -756,6 +789,7 @@ gboolean egdbus_store_call_rename_folder_sync (
 void egdbus_store_call_sync (
     EGdbusStore *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -769,12 +803,14 @@ gboolean egdbus_store_call_sync_finish (
 gboolean egdbus_store_call_sync_sync (
     EGdbusStore *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_store_call_noop (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -787,6 +823,7 @@ gboolean egdbus_store_call_noop_finish (
 
 gboolean egdbus_store_call_noop_sync (
     EGdbusStore *proxy,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -852,6 +889,7 @@ gboolean egdbus_store_call_is_folder_subscribed_sync (
 void egdbus_store_call_subscribe_folder (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -865,6 +903,7 @@ gboolean egdbus_store_call_subscribe_folder_finish (
 gboolean egdbus_store_call_subscribe_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -872,6 +911,7 @@ gboolean egdbus_store_call_subscribe_folder_sync (
 void egdbus_store_call_unsubscribe_folder (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -885,6 +925,7 @@ gboolean egdbus_store_call_unsubscribe_folder_finish (
 gboolean egdbus_store_call_unsubscribe_folder_sync (
     EGdbusStore *proxy,
     const gchar *arg_folder_name,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -892,6 +933,7 @@ gboolean egdbus_store_call_unsubscribe_folder_sync (
 void egdbus_store_call_search_by_sql (
     EGdbusStore *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -906,6 +948,7 @@ gboolean egdbus_store_call_search_by_sql_finish (
 gboolean egdbus_store_call_search_by_sql_sync (
     EGdbusStore *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     gchar ***out_uids,
     gchar ***out_folder_names,
     GCancellable *cancellable,
@@ -914,6 +957,7 @@ gboolean egdbus_store_call_search_by_sql_sync (
 void egdbus_store_call_count_by_sql (
     EGdbusStore *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -927,6 +971,7 @@ gboolean egdbus_store_call_count_by_sql_finish (
 gboolean egdbus_store_call_count_by_sql_sync (
     EGdbusStore *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     guint *out_count,
     GCancellable *cancellable,
     GError **error);

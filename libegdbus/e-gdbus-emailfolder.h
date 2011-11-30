@@ -33,7 +33,8 @@ struct _EGdbusFolderIface
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
     GVariant *arg_info,
-    const gchar *arg_message);
+    const gchar *arg_message,
+    const gchar *arg_ops);
 
   gboolean (*handle_deleted_message_count) (
     EGdbusFolder *object,
@@ -41,11 +42,13 @@ struct _EGdbusFolderIface
 
   gboolean (*handle_expunge) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_freeze_folder) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_description) (
     EGdbusFolder *object,
@@ -62,7 +65,8 @@ struct _EGdbusFolderIface
   gboolean (*handle_get_message) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_uid);
+    const gchar *arg_uid,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_message_flags) (
     EGdbusFolder *object,
@@ -96,7 +100,8 @@ struct _EGdbusFolderIface
 
   gboolean (*handle_get_quota_info) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_get_uids) (
     EGdbusFolder *object,
@@ -112,29 +117,34 @@ struct _EGdbusFolderIface
 
   gboolean (*handle_prepare_summary) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_refresh_info) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_search_by_expression) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_expression);
+    const gchar *arg_expression,
+    const gchar *arg_ops);
 
   gboolean (*handle_search_by_uids) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_expression,
-    const gchar *const *arg_searchuids);
+    const gchar *const *arg_searchuids,
+    const gchar *arg_ops);
 
   gboolean (*handle_search_sort_by_expression) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_expression,
     const gchar *arg_sort,
-    gboolean arg_ascending);
+    gboolean arg_ascending,
+    const gchar *arg_ops);
 
   gboolean (*handle_set_description) (
     EGdbusFolder *object,
@@ -175,16 +185,19 @@ struct _EGdbusFolderIface
   gboolean (*handle_sync) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
-    gboolean arg_expunge);
+    gboolean arg_expunge,
+    const gchar *arg_ops);
 
   gboolean (*handle_sync_message) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
-    const gchar *arg_uid);
+    const gchar *arg_uid,
+    const gchar *arg_ops);
 
   gboolean (*handle_thaw_folder) (
     EGdbusFolder *object,
-    GDBusMethodInvocation *invocation);
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_ops);
 
   gboolean (*handle_total_message_count) (
     EGdbusFolder *object,
@@ -195,7 +208,8 @@ struct _EGdbusFolderIface
     GDBusMethodInvocation *invocation,
     const gchar *const *arg_uids,
     const gchar *arg_destfolder,
-    gboolean arg_deleteoriginals);
+    gboolean arg_deleteoriginals,
+    const gchar *arg_ops);
 
   gboolean (*handle_unread_message_count) (
     EGdbusFolder *object,
@@ -400,6 +414,7 @@ void egdbus_folder_emit_folder_changed (
 /* D-Bus method calls: */
 void egdbus_folder_call_refresh_info (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -412,6 +427,7 @@ gboolean egdbus_folder_call_refresh_info_finish (
 
 gboolean egdbus_folder_call_refresh_info_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -419,6 +435,7 @@ gboolean egdbus_folder_call_refresh_info_sync (
 void egdbus_folder_call_sync (
     EGdbusFolder *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -432,6 +449,7 @@ gboolean egdbus_folder_call_sync_finish (
 gboolean egdbus_folder_call_sync_sync (
     EGdbusFolder *proxy,
     gboolean arg_expunge,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -439,6 +457,7 @@ gboolean egdbus_folder_call_sync_sync (
 void egdbus_folder_call_sync_message (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -452,12 +471,14 @@ gboolean egdbus_folder_call_sync_message_finish (
 gboolean egdbus_folder_call_sync_message_sync (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_folder_call_expunge (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -470,6 +491,7 @@ gboolean egdbus_folder_call_expunge_finish (
 
 gboolean egdbus_folder_call_expunge_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
@@ -844,6 +866,7 @@ void egdbus_folder_call_append_message (
     EGdbusFolder *proxy,
     GVariant *arg_info,
     const gchar *arg_message,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -859,6 +882,7 @@ gboolean egdbus_folder_call_append_message_sync (
     EGdbusFolder *proxy,
     GVariant *arg_info,
     const gchar *arg_message,
+    const gchar *arg_ops,
     gchar **out_appendeduid,
     gboolean *out_success,
     GCancellable *cancellable,
@@ -885,6 +909,7 @@ gboolean egdbus_folder_call_get_uids_sync (
 void egdbus_folder_call_get_message (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -898,12 +923,14 @@ gboolean egdbus_folder_call_get_message_finish (
 gboolean egdbus_folder_call_get_message_sync (
     EGdbusFolder *proxy,
     const gchar *arg_uid,
+    const gchar *arg_ops,
     gchar **out_message,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_folder_call_get_quota_info (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -916,6 +943,7 @@ gboolean egdbus_folder_call_get_quota_info_finish (
 
 gboolean egdbus_folder_call_get_quota_info_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GVariant **out_quotainfo,
     GCancellable *cancellable,
     GError **error);
@@ -923,6 +951,7 @@ gboolean egdbus_folder_call_get_quota_info_sync (
 void egdbus_folder_call_search_by_expression (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -936,6 +965,7 @@ gboolean egdbus_folder_call_search_by_expression_finish (
 gboolean egdbus_folder_call_search_by_expression_sync (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
+    const gchar *arg_ops,
     gchar ***out_uids,
     GCancellable *cancellable,
     GError **error);
@@ -945,6 +975,7 @@ void egdbus_folder_call_search_sort_by_expression (
     const gchar *arg_expression,
     const gchar *arg_sort,
     gboolean arg_ascending,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -960,6 +991,7 @@ gboolean egdbus_folder_call_search_sort_by_expression_sync (
     const gchar *arg_expression,
     const gchar *arg_sort,
     gboolean arg_ascending,
+    const gchar *arg_ops,
     gchar ***out_uids,
     GCancellable *cancellable,
     GError **error);
@@ -968,6 +1000,7 @@ void egdbus_folder_call_search_by_uids (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
     const gchar *const *arg_searchuids,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -982,6 +1015,7 @@ gboolean egdbus_folder_call_search_by_uids_sync (
     EGdbusFolder *proxy,
     const gchar *arg_expression,
     const gchar *const *arg_searchuids,
+    const gchar *arg_ops,
     gchar ***out_resultuids,
     GCancellable *cancellable,
     GError **error);
@@ -1011,6 +1045,7 @@ void egdbus_folder_call_transfer_messages_to (
     const gchar *const *arg_uids,
     const gchar *arg_destfolder,
     gboolean arg_deleteoriginals,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -1026,12 +1061,14 @@ gboolean egdbus_folder_call_transfer_messages_to_sync (
     const gchar *const *arg_uids,
     const gchar *arg_destfolder,
     gboolean arg_deleteoriginals,
+    const gchar *arg_ops,
     gchar ***out_returnuids,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_folder_call_prepare_summary (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -1043,11 +1080,13 @@ gboolean egdbus_folder_call_prepare_summary_finish (
 
 gboolean egdbus_folder_call_prepare_summary_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_folder_call_freeze_folder (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -1059,11 +1098,13 @@ gboolean egdbus_folder_call_freeze_folder_finish (
 
 gboolean egdbus_folder_call_freeze_folder_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error);
 
 void egdbus_folder_call_thaw_folder (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -1075,6 +1116,7 @@ gboolean egdbus_folder_call_thaw_folder_finish (
 
 gboolean egdbus_folder_call_thaw_folder_sync (
     EGdbusFolder *proxy,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GError **error);
 
