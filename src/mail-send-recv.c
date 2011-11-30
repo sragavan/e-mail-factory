@@ -46,6 +46,9 @@
 
 #include "mail-send-recv.h"
 
+/* We would need it sometime. */
+extern EMailDataSession *data_session;
+
 #define d(x)
 
 #define E_FILTER_SOURCE_INCOMING "incoming" /* performed on incoming email */
@@ -960,6 +963,8 @@ auto_account_removed (EAccountList *eal,
 		g_source_remove (info->timeout_id);
 		info->timeout_id = 0;
 	}
+	if (data_session)
+		e_mail_session_emit_account_removed (data_session, ea->uid);		
 }
 
 static void
@@ -1008,6 +1013,8 @@ auto_account_added (EAccountList *eal,
 		G_OBJECT (ea), "mail-autoreceive", info,
 		(GDestroyNotify) auto_account_finalized);
 	auto_account_commit (info);
+	if (data_session)
+		e_mail_session_emit_account_added (data_session, ea->uid);	
 }
 
 static void
@@ -1020,6 +1027,8 @@ auto_account_changed (EAccountList *eal,
 	g_return_if_fail (info != NULL);
 
 	auto_account_commit (info);
+	if (data_session)
+		e_mail_session_emit_account_changed (data_session, ea->uid);	
 }
 
 static void
