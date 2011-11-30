@@ -156,7 +156,7 @@ e_mail_data_operation_new (CamelOperation *operation)
 
   moperation = g_object_new (EMAIL_TYPE_DATA_OPERATION, NULL);
   priv = DATA_OPERATION_PRIVATE (moperation);
-  priv->operation = operation;
+  priv->operation = g_object_ref (operation);
 
   return moperation;
 }

@@ -1183,7 +1183,7 @@ mail_receive_account (EMailSession *session,
 		g_return_val_if_reached (NULL);
 	}
 
-	return g_object_ref (info->cancellable);
+	return info->cancellable;
 }
 
 GCancellable *
@@ -1256,5 +1256,5 @@ mail_send (EMailSession *session)
 		receive_status, info,
 		receive_done, info);
 
-	return g_object_ref (info->cancellable);
+	return info->cancellable;
 }
