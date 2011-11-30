@@ -43,6 +43,7 @@
 #include "libemail-utils/mail-mt.h"
 #include "libemail-engine/mail-ops.h"
 #include "libemail-engine/mail-tools.h"
+#include "e-mail-data-session.h"
 
 #include "mail-send-recv.h"
 
@@ -1101,7 +1102,7 @@ mail_autoreceive_init (EMailSession *session)
 
 /* We setup the download info's in a hashtable, if we later
  * need to build the gui, we insert them in to add them. */
-void
+GCancellable *
 mail_receive_account (EMailSession *session,
                       EAccount *account)
 {
@@ -1116,7 +1117,7 @@ mail_receive_account (EMailSession *session,
 	info = g_hash_table_lookup (data->active, account->uid);
 
 	if (info != NULL)
-		return;
+		return info->cancellable;
 
 	url = camel_url_new (account->source->url, NULL);
 	if (url != NULL) {
@@ -1125,7 +1126,7 @@ mail_receive_account (EMailSession *session,
 	}
 
 	if (type == SEND_INVALID || type == SEND_SEND)
-		return;
+		return NULL;
 
 	info = g_malloc0 (sizeof (*info));
 	info->type = type;
@@ -1148,7 +1149,7 @@ mail_receive_account (EMailSession *session,
 	service = camel_session_get_service (
 		CAMEL_SESSION (session), account->uid);
 
-	g_return_if_fail (CAMEL_IS_SERVICE (service));
+	g_return_val_if_fail (CAMEL_IS_SERVICE (service), NULL);
 
 	switch (info->type) {
 	case SEND_RECEIVE:
@@ -1179,11 +1180,13 @@ mail_receive_account (EMailSession *session,
 		receive_update_got_store (CAMEL_STORE (service), info);
 		break;
 	default:
-		g_return_if_reached ();
+		g_return_val_if_reached (NULL);
 	}
+
+	return g_object_ref (info->cancellable);
 }
 
-void
+GCancellable *
 mail_send (EMailSession *session)
 {
 	CamelFolder *local_outbox;
@@ -1197,14 +1200,14 @@ mail_send (EMailSession *session)
 
 	account = e_get_default_transport ();
 	if (account == NULL || account->transport->url == NULL)
-		return;
+		return NULL;
 
 	data = setup_send_data ();
 	info = g_hash_table_lookup (data->active, SEND_URI_KEY);
 	if (info != NULL) {
 		info->again++;
 		d(printf("send of %s still in progress\n", transport->url));
-		return;
+		return info->cancellable;
 	}
 
 	d(printf("starting non-interactive send of '%s'\n", transport->url));
@@ -1216,7 +1219,7 @@ mail_send (EMailSession *session)
 	}
 
 	if (type == SEND_INVALID)
-		return;
+		return NULL;
 
 	transport_uid = g_strconcat (account->uid, "-transport", NULL);
 
@@ -1225,7 +1228,7 @@ mail_send (EMailSession *session)
 	info->session = g_object_ref (session);
 	info->service_uid = g_strdup (transport_uid);
 	info->keep_on_server = FALSE;
-	info->cancellable = NULL;
+	info->cancellable = camel_operation_new();
 	info->data = data;
 	info->state = SEND_ACTIVE;
 	info->timeout_id = 0;
@@ -1242,7 +1245,7 @@ mail_send (EMailSession *session)
 
 	g_free (transport_uid);
 
-	g_return_if_fail (CAMEL_IS_TRANSPORT (service));
+	g_return_val_if_fail (CAMEL_IS_TRANSPORT (service), NULL);
 
 	mail_send_queue (
 		session, local_outbox,
@@ -1252,4 +1255,6 @@ mail_send (EMailSession *session)
 		receive_get_folder, info,
 		receive_status, info,
 		receive_done, info);
+
+	return g_object_ref (info->cancellable);
 }

@@ -35,10 +35,10 @@ void 		mail_send_receive		(EMailSession *session);
 void		mail_receive			(EMailSession *session);
 
 /* receive a single account */
-void		mail_receive_account		(EMailSession *session,
+GCancellable *	mail_receive_account		(EMailSession *session,
 						 EAccount *account);
 
-void		mail_send			(EMailSession *session);
+GCancellable *	mail_send			(EMailSession *session);
 
 /* setup auto receive stuff */
 void		mail_autoreceive_init		(EMailSession *session);
