@@ -106,7 +106,7 @@ handle_refresh_info_done (CamelFolder *folder,
 	GError *error = NULL;
 	gboolean status;
 
-	//status = camel_folder_refresh_info_finish (folder, result, &error);
+	status = camel_folder_refresh_info_finish (folder, result, &error);
 	if (error && error->message) {
 		g_warning ("Unable to refresh folder: %s\n", error->message);
 
@@ -137,9 +137,9 @@ impl_Mail_refreshInfo (EGdbusFolder *object, GDBusMethodInvocation *invocation, 
 
 	ipc(printf("Mail refresh info %s\n", priv->path));
 
-//	camel_folder_refresh_info (priv->folder,
-//		G_PRIORITY_DEFAULT, ops,
-//		(GAsyncReadyCallback) handle_refresh_info_done, data);
+	camel_folder_refresh_info (priv->folder,
+		G_PRIORITY_DEFAULT, ops,
+		(GAsyncReadyCallback) handle_refresh_info_done, data);
 
 	/* NOTE: We don't want refreshInfo to be a blocking dbus call. */
 	egdbus_folder_complete_refresh_info (object, invocation, TRUE);
