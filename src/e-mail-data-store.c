@@ -1147,6 +1147,7 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 			data->folder_uids_builder = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
 			select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
 			camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
+			g_variant_builder_add (data->folder_uids_builder , "(ss)", "", "");
 			g_free (select_query);
 		}
 
