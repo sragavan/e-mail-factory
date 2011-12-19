@@ -2,7 +2,6 @@
 
 #include <glib/gi18n.h>
 #include <gconf/gconf-client.h>
-#include "libemail-engine/e-mail-local.h"
 #include "e-mail-data-folder.h"
 #include "e-mail-data-session.h"
 #include "e-gdbus-emailfolder.h"
@@ -1045,7 +1044,8 @@ app_msg_done (CamelFolder *folder,
 	
 	ipc(printf("Apppend message: %s success: %s\n", priv->path, data->uid ? data->uid : ""));
 
-	outbox = e_mail_local_get_folder (E_MAIL_LOCAL_FOLDER_OUTBOX);
+	outbox = e_mail_session_get_local_folder (
+		E_MAIL_SESSION (session), E_MAIL_LOCAL_FOLDER_OUTBOX);
 	if (priv->folder == outbox) {
 		/* We just appended to OUTBOX. Issue a Send command */
 		micro(printf("Append to Outbox, so issuing a send command\n"));

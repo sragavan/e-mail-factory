@@ -32,7 +32,6 @@
 #include "libemail-utils/mail-mt.h"
 #include "libemail-engine/mail-config.h"
 #include "libemail-engine/mail-ops.h"
-#include "libemail-engine/e-mail-store.h"
 
 #include "mail-send-recv.h"
 #include "e-dbus-manager.h"
@@ -67,8 +66,6 @@ start_mail_engine ()
 	mail_msg_init ();
 
 	
-	e_mail_store_init (session, data_dir);
-
 	g_free(data_dir);
 
 	mail_autoreceive_init (session);

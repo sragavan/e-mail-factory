@@ -35,7 +35,6 @@
 #include "libemail-utils/gconf-bridge.h"
 
 #include "libemail-engine/e-mail-folder-utils.h"
-#include "libemail-engine/e-mail-local.h"
 #include "libemail-engine/e-mail-session.h"
 
 #include "libemail-engine/e-mail-utils.h"
@@ -163,7 +162,7 @@ free_send_info (struct _send_info *info)
 }
 
 static struct _send_data *
-setup_send_data (void)
+setup_send_data (EMailSession *session)
 {
 	struct _send_data *data;
 
@@ -174,8 +173,9 @@ setup_send_data (void)
 			g_str_hash, g_str_equal,
 			(GDestroyNotify) NULL,
 			(GDestroyNotify) free_folder_info);
-		data->inbox = e_mail_local_get_folder (
-			E_MAIL_LOCAL_FOLDER_LOCAL_INBOX);
+		data->inbox =
+			e_mail_session_get_local_folder (
+			session, E_MAIL_LOCAL_FOLDER_LOCAL_INBOX);
 		g_object_ref (data->inbox);
 		data->active = g_hash_table_new_full (
 			g_str_hash, g_str_equal,
@@ -389,7 +389,7 @@ build_infra (EMailSession *session,
 		camel_folder_get_deleted_message_count (outbox)) == 0)
 		num_sources--;
 
-	data = setup_send_data ();
+	data = setup_send_data (session);
 
 	row = 0;
 	iter = e_list_get_iterator ((EList *) accounts);
@@ -567,9 +567,9 @@ receive_done (gpointer data)
 		CamelService *service;
 
 		session = info->session;
-
-		local_outbox = e_mail_local_get_folder (
-			E_MAIL_LOCAL_FOLDER_OUTBOX);
+		local_outbox =
+			e_mail_session_get_local_folder (
+			session, E_MAIL_LOCAL_FOLDER_OUTBOX);
 
 		service = camel_session_get_service (
 			CAMEL_SESSION (session),
@@ -837,7 +837,6 @@ receive_update_got_store (CamelStore *store,
 	if (store) {
 		mail_folder_cache_note_store (
 			folder_cache,
-			CAMEL_SESSION (session),
 			store, info->cancellable,
 			receive_update_got_folderinfo, info);
 	} else {
@@ -867,7 +866,10 @@ send_receive (EMailSession *session,
 
 	accounts = e_get_account_list ();
 
-	local_outbox = e_mail_local_get_folder (E_MAIL_LOCAL_FOLDER_OUTBOX);
+	local_outbox =
+		e_mail_session_get_local_folder (
+		session, E_MAIL_LOCAL_FOLDER_OUTBOX);
+
 	data = build_infra (
 		session, accounts,
 		local_outbox, account, allow_send);
@@ -1113,7 +1115,7 @@ mail_receive_account (EMailSession *session,
 	CamelURL *url;
 	send_info_t type = SEND_INVALID;
 
-	data = setup_send_data ();
+	data = setup_send_data (session);
 	info = g_hash_table_lookup (data->active, account->uid);
 
 	if (info != NULL)
@@ -1164,8 +1166,9 @@ mail_receive_account (EMailSession *session,
 		break;
 	case SEND_SEND:
 		/* todo, store the folder in info? */
-		local_outbox = e_mail_local_get_folder (
-			E_MAIL_LOCAL_FOLDER_OUTBOX);
+		local_outbox =
+			e_mail_session_get_local_folder (
+			session, E_MAIL_LOCAL_FOLDER_OUTBOX);
 		mail_send_queue (
 			info->session,
 			local_outbox,
@@ -1202,7 +1205,7 @@ mail_send (EMailSession *session)
 	if (account == NULL || account->transport->url == NULL)
 		return NULL;
 
-	data = setup_send_data ();
+	data = setup_send_data (session);
 	info = g_hash_table_lookup (data->active, SEND_URI_KEY);
 	if (info != NULL) {
 		info->again++;
@@ -1238,7 +1241,9 @@ mail_send (EMailSession *session)
 	g_hash_table_insert (data->active, (gpointer) SEND_URI_KEY, info);
 
 	/* todo, store the folder in info? */
-	local_outbox = e_mail_local_get_folder (E_MAIL_LOCAL_FOLDER_OUTBOX);
+	local_outbox =
+		e_mail_session_get_local_folder (
+		session, E_MAIL_LOCAL_FOLDER_OUTBOX);
 
 	service = camel_session_get_service (
 		CAMEL_SESSION (session), transport_uid);

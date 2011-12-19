@@ -3,7 +3,6 @@
 #include "libemail-engine/e-mail-session.h"
 #include "e-mail-data-session.h"
 #include "e-mail-data-operation.h"
-#include "libemail-engine/e-mail-local.h"
 #include "e-mail-data-store.h"
 #include "e-gdbus-emailsession.h"
 #include <camel/camel.h>
@@ -253,11 +252,15 @@ impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 static gboolean
 impl_Mail_removeService (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uid, EMailDataSession *msession)
 {
-	//EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
-	gboolean success;
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
+	gboolean success = TRUE;
+	CamelService *service;
 
-	success = camel_session_remove_service (CAMEL_SESSION(session), uid);
+	service = g_hash_table_lookup (priv->stores, uid);
+	camel_session_remove_service (CAMEL_SESSION(session), service);
 	ipc (printf("EMailDataSession: Remove Service: Success %d  for uid %s\n", success, uid));
+
+	success = g_hash_table_remove (priv->stores, uid);
 
 	egdbus_session_complete_remove_service (object, invocation, success);
 	return TRUE;
@@ -400,7 +403,7 @@ impl_Mail_getLocalStore (EGdbusSession *object, GDBusMethodInvocation *invocatio
 		priv->exit_timeout = 0;
 	}
 	
-	store = e_mail_local_get_store ();
+	store = e_mail_session_get_local_store (E_MAIL_SESSION (session));
 
 	g_mutex_lock (priv->stores_lock);
 	g_mutex_lock (priv->datastores_lock);
@@ -468,8 +471,8 @@ impl_Mail_getLocalFolder (EGdbusSession *object, GDBusMethodInvocation *invocati
 	else 
 		ftype = E_MAIL_LOCAL_FOLDER_LOCAL_INBOX;
 	
-	folder = e_mail_local_get_folder (ftype);
-	store = e_mail_local_get_store ();
+	folder = e_mail_session_get_local_folder (E_MAIL_SESSION (session), ftype);
+	store = e_mail_session_get_local_store (E_MAIL_SESSION (session));
 
 	g_mutex_lock (priv->stores_lock);
 	g_mutex_lock (priv->datastores_lock);
