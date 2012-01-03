@@ -37,6 +37,7 @@ void		mail_receive			(EMailSession *session);
 /* receive a single account */
 GCancellable *	mail_receive_account		(EMailSession *session,
 						 EAccount *account);
+GCancellable *	mail_receive_service		(CamelService *service);
 
 GCancellable *	mail_send			(EMailSession *session);
 
