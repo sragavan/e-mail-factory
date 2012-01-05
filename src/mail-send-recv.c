@@ -38,6 +38,7 @@
 #include "libemail-engine/e-mail-session.h"
 
 #include "libemail-engine/e-mail-utils.h"
+#include "libemail-engine/e-mail-enums.h"
 #include "libemail-engine/mail-folder-cache.h"
 #include "libemail-utils/mail-mt.h"
 #include "libemail-engine/mail-ops.h"
