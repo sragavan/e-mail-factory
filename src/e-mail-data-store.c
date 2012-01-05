@@ -1107,6 +1107,8 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 	GList *list = NULL;
 	GString *create_query;
 	
+	/* Per store lock makes sense, as the same query on a different store has no issues. */
+	camel_store_lock (store, CAMEL_STORE_FOLDER_LOCK);
 
 	create_query = g_string_new ("CREATE VIEW AllFoldersView AS ");
 
@@ -1155,6 +1157,7 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 		camel_db_command (db, "DROP VIEW AllFoldersView", error);
 	}
 
+	camel_store_unlock (store, CAMEL_STORE_FOLDER_LOCK);
 	return TRUE;
 }
 
