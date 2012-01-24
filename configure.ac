@@ -16,6 +16,7 @@ AC_INIT(evolution-mail-factory, evolution_mail_factory_version)
 AM_INIT_AUTOMAKE(e-mail-factory, evolution_mail_factory_version)
 AC_CONFIG_HEADERS(config.h)
 #AC_CONFIG_SRCDIR(libe-mail-factory/e-mail-factory.cpp)
+AC_CONFIG_MACRO_DIR([m4])
 
 # Check for programs
 AC_PROG_LIBTOOL

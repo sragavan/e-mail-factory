@@ -3,7 +3,7 @@ bin_PROGRAMS = evolution-mail-factory
 evolution_mail_factory_SOURCES = 	\
 		main.c			\
 		mail-send-recv.c	\
-		mail-send-recv.h	\		
+		mail-send-recv.h	\
 		utils.c			\
 		utils.h			\
 		e-dbus-manager.c	\
