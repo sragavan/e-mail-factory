@@ -1,8 +1,8 @@
-
+#include <glib/gi18n.h>
 #include <string.h>
 #include <glib.h>
 #include "utils.h"
-
+#include "libemail-utils/mail-mt.h"
 /* 
  * EDS_MAIL_DEBUG should be a CSV
  * export EDS_MAIL_DEBUG=folder,store,session,micro,ipc
