@@ -1126,7 +1126,7 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 			if (once_tmp)
 				g_string_append (create_query, "UNION ");
 
-			tbl_query = sqlite3_mprintf ("SELECT %Q AS folder_name, uid, subject, mail_from, mail_to, mail_cc, read, deleted, important, junk, attachment, part FROM %Q", tmp->data, tmp->data);
+			tbl_query = sqlite3_mprintf ("SELECT %Q AS folder_name, uid, subject, mail_from, mail_to, mail_cc, dsent, read, deleted, important, junk, attachment, part FROM %Q", tmp->data, tmp->data);
 
 			g_string_append (create_query, tbl_query);
 			if (!once_tmp)
