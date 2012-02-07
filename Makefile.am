@@ -1,5 +1,5 @@
 EXTRA_DIST = autogen.sh	
-SUBDIRS = libegdbus src 
+SUBDIRS = libegdbus src po
 
 DISTCHECK_CONFIGURE_FLAGS=
 

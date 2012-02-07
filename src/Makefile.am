@@ -32,7 +32,9 @@ test_email_client_LDADD = \
 		$(E_MAIL_FACTORY_LIBS)				
 
 
-desktopentry_DATA = evolution-mail-factory.desktop
+desktopentry_in_files = evolution-mail-factory.desktop.in
+desktopentry_DATA = $(desktopentry_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 
 evolution_mail_factory_CPPFLAGS = \
@@ -51,7 +53,7 @@ servicedir = $(datadir)/dbus-1/services
 service_DATA = $(service_in_files:.service.in=.service)
 
 
-EXTRA_DIST = $(service_in_files)
+EXTRA_DIST = $(service_in_files) $(desktopentry_in_files)
 
 CLEANFILES = *~ evolution-mail-factory.desktop $(service_DATA)
 

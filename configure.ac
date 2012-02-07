@@ -24,6 +24,8 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
 
+IT_PROG_INTLTOOL([0.36.3])
+
 # enable pkg-config
 PKG_PROG_PKG_CONFIG
 
@@ -42,7 +44,7 @@ AC_SUBST(E_MAIL_GDBUS_UTILS_LIBS)
 
 
 # i18n
-ALL_LINGUAS="en_US"
+ALL_LINGUAS=""
 AC_SUBST(ALL_LINGUAS)
 AM_GLIB_GNU_GETTEXT
 AC_DEFINE(GETTEXT_PACKAGE, ["e-mail-factory"], [Package name for gettext])
@@ -67,6 +69,7 @@ AC_OUTPUT([
 Makefile
 libegdbus/Makefile
 src/Makefile
+po/Makefile.in
 src/evolution-mail-factory.desktop
 src/org.gnome.evolution.dataserver.Mail.service
 ])

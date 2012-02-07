@@ -1,7 +1,7 @@
 [Desktop Entry]
-Version=@VERSION@
-Name=EvolutionMailFactory
-Comment=Evolution Mail Data server
+Version=0.1.1
+_Name=EvolutionMailFactory
+_Comment=Evolution Mail Data server
 Exec=evolution-mail-factory
 Categories=Application
 Icon=evolution-mail-factory32

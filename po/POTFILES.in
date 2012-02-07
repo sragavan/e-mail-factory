@@ -1,0 +1,11 @@
+src/e-dbus-manager.c
+src/e-mail-data-folder.c
+src/e-mail-data-operation.c
+src/e-mail-data-session.c
+src/e-mail-data-store.c
+src/mail-send-recv.c
+src/main.c
+src/test-email-client.c
+src/utils.c
+# files added by intltool-prepare
+src/evolution-mail-factory.desktop.in
