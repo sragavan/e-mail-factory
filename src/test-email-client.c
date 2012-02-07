@@ -787,6 +787,16 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 	printf("Success in getting FolderProxy? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
 	inbox_proxy = folder_proxy;
 	inbox_path = g_strdup (folder_proxy_path);
+
+	/* Fetch One set of old messages */
+	ops = create_operation (&ops_path);
+	egdbus_folder_call_fetch_messages_sync (inbox_proxy, "old", 10, ops_path, &success, NULL, &error);
+	if (error)
+		printf("Fetch old error: %s\n", error->message);
+	else
+		printf("Fetch old success\n");
+
+	
 	
 #if 1
 	/* Get Inbox API */
@@ -1222,6 +1232,7 @@ start_test_client (gpointer foo)
 			}
 		}
 
+#if 0		
 		char *ops_path;
 		if (!egdbus_session_call_fetch_account_sync (
 			session_proxy,
@@ -1239,7 +1250,7 @@ start_test_client (gpointer foo)
 		printf("Success in getting OPS object? %p %s\n", ops_proxy, error ? error->message : "Yeh!!!");
 		g_signal_connect (ops_proxy, "cancelled", G_CALLBACK (ops_cancelled_cb), NULL);
 		g_signal_connect (ops_proxy, "status", G_CALLBACK (ops_status_cb), NULL);
-
+#endif
 
 #if 1
 		/* Get SENT  folder */

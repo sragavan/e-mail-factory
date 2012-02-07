@@ -1111,6 +1111,58 @@ impl_Mail_getUids (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMai
 	return TRUE;
 }
 
+/* Fetch Messages */
+static void
+handle_fetch_msgs_done (CamelFolder *folder,
+			GAsyncResult *result,
+			EMailFolderStdData *data)
+{
+	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(data->mfolder);
+	GError *error = NULL;
+	gboolean status;
+
+	status = camel_folder_fetch_messages_finish (folder, result, &error);
+	if (error && error->message) {
+		g_warning ("Unable to fetch messages: %s\n", error->message);
+
+		g_dbus_method_invocation_return_gerror (data->invocation, error);
+		ipc(printf("Fetch messages failed: %s : %s \n", priv->path, error->message));
+	
+		return;
+	}
+
+	ipc(printf("Fetch Messages success: %s\n", priv->path));
+	egdbus_folder_complete_fetch_messages (data->object, data->invocation, status);
+	g_free (data);
+}
+
+static gboolean
+impl_Mail_fetchMessages (EGdbusFolder *object, GDBusMethodInvocation *invocation, const char *type, int limit, const char *ops_path, EMailDataFolder *mfolder)
+{
+	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
+	EMailFolderStdData *data;
+	GCancellable *ops;
+	CamelFetchType ftype;
+	GET_OPS_FROM_PATH;
+
+	if (type && (type[0] == 'o' || type[0] == 'O'))
+		ftype = CAMEL_FETCH_OLD_MESSAGES;
+	else
+		ftype = CAMEL_FETCH_NEW_MESSAGES;
+
+	data = g_new0 (EMailFolderStdData, 1);
+	data->mfolder = mfolder;
+	data->invocation = invocation;
+	data->object = object;
+
+	ipc(printf("Fetch Messages %s: \n", priv->path));
+	camel_folder_fetch_messages (priv->folder, ftype, limit,
+		G_PRIORITY_DEFAULT, ops,
+		(GAsyncReadyCallback) handle_fetch_msgs_done, data);
+
+	return TRUE;
+}  
+
 /* Get Message */
 /* FIXME: We should get this passed via FD than as a string */
 static gboolean
@@ -1674,6 +1726,12 @@ gmi_done (gboolean success, gpointer sdata, GError *error)
 		g_dbus_method_invocation_return_gerror (data->invocation, error);		
 		ipc(printf("Get message info: %s failed: %s\n", priv->path, error->message));
 		return;
+	} else if (!data->info) {
+		/* We are having a strange situation. */
+		ipc(printf("Get ParentStore : %s failed\n", priv->path));
+		
+		g_dbus_method_invocation_return_dbus_error (data->invocation, G_DBUS_ERROR_FAILED, _("Unable to get message info"));
+		return ;		
 	}
 
 	variant = variant_from_info (data->info);
@@ -2060,6 +2118,7 @@ e_mail_data_folder_init (EMailDataFolder *self)
 	g_signal_connect (priv->gdbus_object, "handle-get-parent-store", G_CALLBACK (impl_Mail_getParentStore), self);
 	g_signal_connect (priv->gdbus_object, "handle-append-message", G_CALLBACK (impl_Mail_appendMessage), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-uids", G_CALLBACK (impl_Mail_getUids), self);
+	g_signal_connect (priv->gdbus_object, "handle-fetch-messages", G_CALLBACK (impl_Mail_fetchMessages), self);	
 	g_signal_connect (priv->gdbus_object, "handle-get-message", G_CALLBACK (impl_Mail_getMessage), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-quota-info", G_CALLBACK (impl_Mail_getQuotaInfo), self);	
 	g_signal_connect (priv->gdbus_object, "handle-search-by-expression", G_CALLBACK (impl_Mail_searchByExpression), self);

@@ -256,7 +256,7 @@ handle_mail_get_folder (CamelStore *store,
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
 	EMailDataFolder *efolder = NULL;
 	char *path;
-	CamelFolder *folder;
+	CamelFolder *folder=NULL;
 	GError *error = NULL;
 
 	if (send_data->folder_name)

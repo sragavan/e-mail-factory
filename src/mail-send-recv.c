@@ -1009,6 +1009,7 @@ auto_timeout (gpointer data)
 
 	service = camel_session_get_service (
 		CAMEL_SESSION (session), info->account->uid);
+	printf("Timeout for %s\n", info->account->uid);
 	g_return_val_if_fail (CAMEL_IS_SERVICE (service), TRUE);
 
 
@@ -1016,6 +1017,14 @@ auto_timeout (gpointer data)
 		mail_receive_service (service);
 
 	return TRUE;
+}
+
+static gboolean
+auto_timeout_once (gpointer data)
+{
+	auto_timeout (data);
+
+	return FALSE;
 }
 
 static void
@@ -1119,7 +1128,8 @@ auto_online (EMailSession *session)
 		info = g_object_get_data (
 			G_OBJECT (account), "mail-autoreceive");
 		if (info && (info->timeout_id || can_update_all))
-			auto_timeout (info);
+			g_idle_add (auto_timeout_once, info);
+			//auto_timeout (info);
 	}
 
 	if (iter)

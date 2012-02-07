@@ -1289,6 +1289,77 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_get_message =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_fetch_messages_IN_ARG_type =
+{
+  {
+    -1,
+    "type",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_fetch_messages_IN_ARG_limit =
+{
+  {
+    -1,
+    "limit",
+    "i",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_fetch_messages_IN_ARG_ops =
+{
+  {
+    -1,
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_fetch_messages_IN_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_fetch_messages_IN_ARG_type,
+  &_egdbus_folder_method_info_fetch_messages_IN_ARG_limit,
+  &_egdbus_folder_method_info_fetch_messages_IN_ARG_ops,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_fetch_messages_OUT_ARG_more =
+{
+  {
+    -1,
+    "more",
+    "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_fetch_messages_OUT_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_fetch_messages_OUT_ARG_more,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_fetch_messages =
+{
+  {
+    -1,
+    "fetchMessages",
+    (GDBusArgInfo **) &_egdbus_folder_method_info_fetch_messages_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_fetch_messages_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-fetch-messages",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_get_quota_info_IN_ARG_ops =
 {
   {
@@ -1811,6 +1882,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_folder_method_info_pointer
   &_egdbus_folder_method_info_append_message,
   &_egdbus_folder_method_info_get_uids,
   &_egdbus_folder_method_info_get_message,
+  &_egdbus_folder_method_info_fetch_messages,
   &_egdbus_folder_method_info_get_quota_info,
   &_egdbus_folder_method_info_search_by_expression,
   &_egdbus_folder_method_info_search_sort_by_expression,
@@ -1964,6 +2036,7 @@ egdbus_folder_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_append_message: Handler for the #EGdbusFolder::handle-append-message signal.
  * @handle_deleted_message_count: Handler for the #EGdbusFolder::handle-deleted-message-count signal.
  * @handle_expunge: Handler for the #EGdbusFolder::handle-expunge signal.
+ * @handle_fetch_messages: Handler for the #EGdbusFolder::handle-fetch-messages signal.
  * @handle_freeze_folder: Handler for the #EGdbusFolder::handle-freeze-folder signal.
  * @handle_get_description: Handler for the #EGdbusFolder::handle-get-description signal.
  * @handle_get_display_name: Handler for the #EGdbusFolder::handle-get-display-name signal.
@@ -2604,6 +2677,31 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     G_TYPE_BOOLEAN,
     3,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
+
+  /**
+   * EGdbusFolder::handle-fetch-messages:
+   * @object: A #EGdbusFolder.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_type: Argument passed by remote caller.
+   * @arg_limit: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.fetchMessages">fetchMessages()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_folder_complete_fetch_messages() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-fetch-messages",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusFolderIface, handle_fetch_messages),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING);
 
   /**
    * EGdbusFolder::handle-get-quota-info:
@@ -5563,6 +5661,122 @@ _out:
 }
 
 /**
+ * egdbus_folder_call_fetch_messages:
+ * @proxy: A #EGdbusFolderProxy.
+ * @arg_type: Argument to pass with the method invocation.
+ * @arg_limit: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.fetchMessages">fetchMessages()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_folder_call_fetch_messages_finish() to get the result of the operation.
+ *
+ * See egdbus_folder_call_fetch_messages_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_folder_call_fetch_messages (
+    EGdbusFolder *proxy,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "fetchMessages",
+    g_variant_new ("(sio)",
+                   arg_type,
+                   arg_limit,
+                   arg_ops),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_folder_call_fetch_messages_finish:
+ * @proxy: A #EGdbusFolderProxy.
+ * @out_more: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_folder_call_fetch_messages().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_folder_call_fetch_messages().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_folder_call_fetch_messages_finish (
+    EGdbusFolder *proxy,
+    gboolean *out_more,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_more);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_folder_call_fetch_messages_sync:
+ * @proxy: A #EGdbusFolderProxy.
+ * @arg_type: Argument to pass with the method invocation.
+ * @arg_limit: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
+ * @out_more: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.fetchMessages">fetchMessages()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_folder_call_fetch_messages() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_folder_call_fetch_messages_sync (
+    EGdbusFolder *proxy,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    gboolean *out_more,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "fetchMessages",
+    g_variant_new ("(sio)",
+                   arg_type,
+                   arg_limit,
+                   arg_ops),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_more);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_folder_call_get_quota_info:
  * @proxy: A #EGdbusFolderProxy.
  * @arg_ops: Argument to pass with the method invocation.
@@ -7066,6 +7280,27 @@ egdbus_folder_complete_get_message (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(s)",
                    message));
+}
+
+/**
+ * egdbus_folder_complete_fetch_messages:
+ * @object: A #EGdbusFolder.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @more: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.fetchMessages">fetchMessages()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_folder_complete_fetch_messages (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation,
+    gboolean more)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   more));
 }
 
 /**

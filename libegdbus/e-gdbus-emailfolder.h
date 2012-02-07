@@ -45,6 +45,13 @@ struct _EGdbusFolderIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_ops);
 
+  gboolean (*handle_fetch_messages) (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops);
+
   gboolean (*handle_freeze_folder) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
@@ -356,6 +363,11 @@ void egdbus_folder_complete_get_message (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
     const gchar *message);
+
+void egdbus_folder_complete_fetch_messages (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation,
+    gboolean more);
 
 void egdbus_folder_complete_get_quota_info (
     EGdbusFolder *object,
@@ -925,6 +937,30 @@ gboolean egdbus_folder_call_get_message_sync (
     const gchar *arg_uid,
     const gchar *arg_ops,
     gchar **out_message,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_folder_call_fetch_messages (
+    EGdbusFolder *proxy,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_folder_call_fetch_messages_finish (
+    EGdbusFolder *proxy,
+    gboolean *out_more,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_folder_call_fetch_messages_sync (
+    EGdbusFolder *proxy,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    gboolean *out_more,
     GCancellable *cancellable,
     GError **error);
 

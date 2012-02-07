@@ -130,11 +130,18 @@
     <method name="getUids">
       <arg name="uids" type="as" direction="out"/>	    	    	    	    
     </method>        
+
     <method name="getMessage">
       <arg name="uid" type="s" direction="in"/>	    	    	    	    	    
       <arg name="ops" type="o" direction="in"/>	    
       <arg name="message" type="s" direction="out"/>	    	    	    	    
     </method>      
+    <method name="fetchMessages">
+      <arg name="type" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="limit" type="i" direction="in"/>	    
+      <arg name="ops" type="o" direction="in"/>	    		    
+      <arg name="more" type="b" direction="out"/>	    	    	    	    
+    </method>          
     <!--    
     <method name="fetchOldMessages">
       <arg name="count" type="i" direction="in"/>	    	    
