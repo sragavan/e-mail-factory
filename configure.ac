@@ -5,7 +5,7 @@ AC_PREREQ(2.61)
 # even micro numbers indicate released versions
 m4_define(evolution_mail_factory_version_major, 0)
 m4_define(evolution_mail_factory_version_minor, 1)
-m4_define(evolution_mail_factory_version_micro, 1)
+m4_define(evolution_mail_factory_version_micro, 2)
 
 m4_define([evolution_mail_factory_version],
           [evolution_mail_factory_version_major.evolution_mail_factory_version_minor.evolution_mail_factory_version_micro])
