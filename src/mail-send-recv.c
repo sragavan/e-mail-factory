@@ -32,7 +32,6 @@
 #include "libedataserver/e-account-list.h"
 
 #include "libemail-utils/e-account-utils.h"
-#include "libemail-utils/gconf-bridge.h"
 
 #include "libemail-engine/e-mail-folder-utils.h"
 #include "libemail-engine/e-mail-session.h"
