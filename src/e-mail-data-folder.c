@@ -10,6 +10,7 @@
 #include "libemail-engine/mail-ops.h"
 #include "utils.h"
 
+
 #define micro(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_MICRO)) x;
 #define ipc(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_IPC)) x;
 
@@ -1018,6 +1019,9 @@ typedef struct _email_folder_msg_data {
 	char *uid;
 	char *msg_buf;
 	GCancellable *ops;
+	GUnixFDList *fd_list;
+	gboolean by_fd;
+	int fd_index;
 }EMailFolderMessageData;
 
 
@@ -1177,6 +1181,11 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	static const char *charset = NULL;
 	GConfClient *gconf;
 	CamelFolder *folder = (CamelFolder *) object;
+	int pipe_fd;
+
+	GOutputStream *unix_output_stream;
+	GOutputStream *buffered_output_stream;
+	GDataOutputStream *data_output_stream;
 
 	/* FIXME we should somehow get the right operation and pass it */
 	msg = camel_folder_get_message_sync (folder, data->uid, data->ops, error);
@@ -1186,9 +1195,32 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 		return FALSE;
 	}
 
-	stream = camel_stream_mem_new ();
-	filter_stream = camel_stream_filter_new (stream);
+        if (data->by_fd) {
+		int index;
+            
+		pipe_fd = g_unix_fd_list_get (data->fd_list, data->fd_index, error);
+		if (pipe_fd == -1) {
+			printf("Error getting fd %s\n", (*error)->message);
+			return FALSE;
+		}
+	    
+		printf("PIPE FD is %d\n", pipe_fd);
 
+		unix_output_stream = g_unix_output_stream_new (pipe_fd, TRUE);
+		buffered_output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
+                                                                                64 * 1024);
+		data_output_stream = g_data_output_stream_new (buffered_output_stream);
+		g_data_output_stream_set_byte_order (G_DATA_OUTPUT_STREAM (data_output_stream),
+                                                 G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+                    
+		stream = camel_stream_vfs_new_with_stream (data_output_stream);
+		g_object_ref (data_output_stream);
+        } else {
+		stream = camel_stream_mem_new ();
+        }
+
+	filter_stream = camel_stream_filter_new (stream);
+	
 	if (!charset)  {
 		gboolean ret = FALSE;
 		gconf = gconf_client_get_default ();
@@ -1209,11 +1241,17 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	g_object_unref (stream);
 
 	camel_data_wrapper_decode_to_stream_sync ((CamelDataWrapper *)msg, filter_stream, data->ops, NULL);
-	array = camel_stream_mem_get_byte_array ((CamelStreamMem *)stream);
-	data->msg_buf = g_strndup ((gchar *) array->data, array->len);
+        if (!data->by_fd) {
+		array = camel_stream_mem_get_byte_array ((CamelStreamMem *)stream);
+		data->msg_buf = g_strndup ((gchar *) array->data, array->len);
+	}
 
+        camel_stream_flush (filter_stream, NULL, NULL);
 	g_object_unref (filter_stream);
 	g_object_unref (msg);
+	g_object_unref (data_output_stream);
+	g_object_unref (buffered_output_stream);
+	g_object_unref (unix_output_stream);
 
 	return TRUE;
 }
@@ -1230,8 +1268,11 @@ app_getmsg_done (gboolean success, gpointer sdata, GError *error)
 		ipc(printf("Get message: %s failed: %s\n", priv->path, error->message));
 		return;
 	}
-	
-	egdbus_folder_complete_get_message (data->object, data->invocation, data->msg_buf);
+
+        if (data->by_fd)
+            egdbus_folder_complete_get_message_by_fd (data->object, data->invocation, g_unix_fd_list_new());
+        else
+            egdbus_folder_complete_get_message (data->object, data->invocation, data->msg_buf);
 	
 	ipc(printf("Get Message: %s success: %s\n", priv->path, data->uid));
 
@@ -1255,8 +1296,37 @@ impl_Mail_getMessage (EGdbusFolder *object, GDBusMethodInvocation *invocation, c
 	data->invocation = invocation;
 	data->uid = g_strdup (uid);
 	data->ops = ops;
-
+        data->by_fd = FALSE;
+        
 	ipc(printf("Get message: %s : %s\n", priv->path, uid));
+
+	mail_operate_on_object ((GObject *)priv->folder, ops, app_getmsg_operate, app_getmsg_done, data);
+	
+
+	return TRUE;
+}
+
+static gboolean
+impl_Mail_getMessageByFd (EGdbusFolder *object, GDBusMethodInvocation *invocation, GUnixFDList *fdl, const char *uid, const char *ops_path, GVariant *v, EMailDataFolder *mfolder)
+{
+	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
+	EMailFolderMessageData *data;
+	GCancellable *ops;
+	int fdh;
+
+	GET_OPS_FROM_PATH;
+
+	fdh = g_variant_get_handle (v);
+	data = g_new0 (EMailFolderMessageData, 1);
+	data->mfolder = mfolder;	
+	data->object = object;
+	data->invocation = invocation;
+	data->uid = g_strdup (uid);
+	data->ops = ops;
+        data->by_fd = TRUE;
+	data->fd_list = fdl;
+	data->fd_index = fdh;
+	ipc(printf("Get message By FD : %s : %s\n", priv->path, uid));
 
 	mail_operate_on_object ((GObject *)priv->folder, ops, app_getmsg_operate, app_getmsg_done, data);
 	
@@ -2120,6 +2190,7 @@ e_mail_data_folder_init (EMailDataFolder *self)
 	g_signal_connect (priv->gdbus_object, "handle-get-uids", G_CALLBACK (impl_Mail_getUids), self);
 	g_signal_connect (priv->gdbus_object, "handle-fetch-messages", G_CALLBACK (impl_Mail_fetchMessages), self);	
 	g_signal_connect (priv->gdbus_object, "handle-get-message", G_CALLBACK (impl_Mail_getMessage), self);
+	g_signal_connect (priv->gdbus_object, "handle-get-message-by-fd", G_CALLBACK (impl_Mail_getMessageByFd), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-quota-info", G_CALLBACK (impl_Mail_getQuotaInfo), self);	
 	g_signal_connect (priv->gdbus_object, "handle-search-by-expression", G_CALLBACK (impl_Mail_searchByExpression), self);
 	g_signal_connect (priv->gdbus_object, "handle-search-sort-by-expression", G_CALLBACK (impl_Mail_searchSortByExpression), self);	

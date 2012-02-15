@@ -135,7 +135,16 @@
       <arg name="uid" type="s" direction="in"/>	    	    	    	    	    
       <arg name="ops" type="o" direction="in"/>	    
       <arg name="message" type="s" direction="out"/>	    	    	    	    
-    </method>      
+    </method> 
+
+    <!-- This functions expects the client to append a FD while making the request and it writes
+	 to the fd before returning -->
+    <method name="getMessageByFd">
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="1"/>
+      <arg name="uid" type="s" direction="in"/>	    	    	    	    	    
+      <arg name="ops" type="o" direction="in"/>	    
+      <arg name="message" type="h" direction="in"/>	    	    	    	    
+    </method>     
     <method name="fetchMessages">
       <arg name="type" type="s" direction="in"/>	    	    	    	    	    
       <arg name="limit" type="i" direction="in"/>	    

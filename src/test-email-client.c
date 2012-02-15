@@ -30,7 +30,7 @@ ops_cancelled_cb (EGdbusOperation *ops, gpointer data)
 static void
 ops_status_cb (EGdbusOperation *ops, char *desc, int percentage, gpointer data)
 {
-	printf("OPS STATUS (%d): %s\n", percentage, desc);
+	//printf("OPS STATUS (%d): %s\n", percentage, desc);
 }
 
 EGdbusOperation *
@@ -487,6 +487,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		}
 
 		/* Get Message */
+#if 0                
 	        ops = create_operation (&ops_path);
 		ret = egdbus_folder_call_get_message_sync (folder_proxy, uids[0], ops_path, &msg, NULL, &error);
 		if (!ret || error) {
@@ -495,6 +496,58 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 			error = NULL;
 		} else {
 			printf("Get Message\n\n%d\n\n", strlen(msg));
+			/* g_free(msg); */
+		}
+#endif
+
+                GUnixFDList *fd_list = NULL, *alt;
+     	        int pipe_fd[2], index;
+            	GError *error = NULL;
+            
+            	if (pipe(pipe_fd) < 0) {
+                	printf("Unable to do pipe\n");
+                	return ;
+            	}
+            
+            	fd_list = g_unix_fd_list_new ();
+		index = g_unix_fd_list_append (fd_list, pipe_fd[1], &error);
+	            if (index == -1) {
+        	        printf("Unable to append FD: %s", error ? error->message : "No message");
+                	return ;
+            	}
+		    printf("INDEX = %d\n", index);
+            	close (pipe_fd[1]);
+
+		GInputStream *unix_input_stream;
+		GInputStream *buffered_input_stream;
+		GOutputStream *output_stream;
+
+		unix_input_stream = g_unix_input_stream_new (pipe_fd[0], TRUE);
+		buffered_input_stream = g_buffered_input_stream_new_sized (unix_input_stream,
+	                                                           65536);
+		output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+	        ops = create_operation (&ops_path);
+
+		ret = egdbus_folder_call_get_message_by_fd_sync (folder_proxy, uids[0], ops_path, g_variant_new("h", index), fd_list, &alt, NULL, &error);
+		if (!ret || error) {
+			printf("Error while getting message BY : %s\n", error->message);
+			g_error_free (error);
+			error = NULL;
+			return;
+		} else {
+		g_object_unref (fd_list);
+		int size = g_output_stream_splice (output_stream,
+	                              buffered_input_stream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+					NULL, &error);
+		if (size == -1)
+			printf("ERROR: GET MESSAGE BY FD: %s\n", error ? error->message : "nomsg");
+		else 
+			printf("Got data.... %d\n", size);
+
+                 //printf("Get Message\n\n%d\n\n", strlen(msg));
 			/* g_free(msg); */
 		}
 
