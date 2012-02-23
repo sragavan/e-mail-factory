@@ -122,6 +122,13 @@ struct _EGdbusSessionIface
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
 
+  gboolean (*handle_send_short_message) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_account_uid,
+    const gchar *arg_text,
+    const gchar *const *arg_recipients);
+
   gboolean (*handle_set_network_available) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
@@ -152,6 +159,10 @@ struct _EGdbusSessionIface
 
   void (*send_receive_complete) (
     EGdbusSession *object);
+
+  void (*send_short_message_complete) (
+    EGdbusSession *object,
+    GVariant *arg_result);
 
 };
 
@@ -247,6 +258,11 @@ void egdbus_session_complete_send_mails_from_outbox (
     GDBusMethodInvocation *invocation,
     const gchar *operation);
 
+void egdbus_session_complete_send_short_message (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation);
+
 void egdbus_session_complete_fetch_account (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
@@ -266,6 +282,10 @@ void egdbus_session_complete_cancel_operations (
 /* D-Bus signal emissions functions: */
 void egdbus_session_emit_send_receive_complete (
     EGdbusSession *object);
+
+void egdbus_session_emit_send_short_message_complete (
+    EGdbusSession *object,
+    GVariant *arg_result);
 
 void egdbus_session_emit_account_added (
     EGdbusSession *object,
@@ -630,6 +650,30 @@ gboolean egdbus_session_call_send_mails_from_outbox_finish (
 
 gboolean egdbus_session_call_send_mails_from_outbox_sync (
     EGdbusSession *proxy,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_session_call_send_short_message (
+    EGdbusSession *proxy,
+    const gchar *arg_account_uid,
+    const gchar *arg_text,
+    const gchar *const *arg_recipients,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_send_short_message_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_send_short_message_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_account_uid,
+    const gchar *arg_text,
+    const gchar *const *arg_recipients,
     gchar **out_operation,
     GCancellable *cancellable,
     GError **error);

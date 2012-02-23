@@ -854,6 +854,77 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_send_mails_fro
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_send_short_message_IN_ARG_account_uid =
+{
+  {
+    -1,
+    "account_uid",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_send_short_message_IN_ARG_text =
+{
+  {
+    -1,
+    "text",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_send_short_message_IN_ARG_recipients =
+{
+  {
+    -1,
+    "recipients",
+    "as",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_send_short_message_IN_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_send_short_message_IN_ARG_account_uid,
+  &_egdbus_session_method_info_send_short_message_IN_ARG_text,
+  &_egdbus_session_method_info_send_short_message_IN_ARG_recipients,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_send_short_message_OUT_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_send_short_message_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_send_short_message_OUT_ARG_operation,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_send_short_message =
+{
+  {
+    -1,
+    "sendShortMessage",
+    (GDBusArgInfo **) &_egdbus_session_method_info_send_short_message_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_session_method_info_send_short_message_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-send-short-message",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_account_IN_ARG_uid =
 {
   {
@@ -993,6 +1064,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointe
   &_egdbus_session_method_info_get_folder_from_uri,
   &_egdbus_session_method_info_send_receive,
   &_egdbus_session_method_info_send_mails_from_outbox,
+  &_egdbus_session_method_info_send_short_message,
   &_egdbus_session_method_info_fetch_account,
   &_egdbus_session_method_info_fetch_old_messages,
   &_egdbus_session_method_info_cancel_operations,
@@ -1008,6 +1080,34 @@ static const _ExtendedGDBusSignalInfo _egdbus_session_signal_info_send_receive_c
     NULL
   },
   "send-receive-complete"
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_signal_info_send_short_message_complete_ARG_result =
+{
+  {
+    -1,
+    "result",
+    "a(sssi)",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_signal_info_send_short_message_complete_ARG_pointers[] =
+{
+  &_egdbus_session_signal_info_send_short_message_complete_ARG_result,
+  NULL
+};
+
+static const _ExtendedGDBusSignalInfo _egdbus_session_signal_info_send_short_message_complete =
+{
+  {
+    -1,
+    "sendShortMessageComplete",
+    (GDBusArgInfo **) &_egdbus_session_signal_info_send_short_message_complete_ARG_pointers,
+    NULL
+  },
+  "send-short-message-complete"
 };
 
 static const _ExtendedGDBusArgInfo _egdbus_session_signal_info_account_added_ARG_uid =
@@ -1149,6 +1249,7 @@ static const _ExtendedGDBusSignalInfo _egdbus_session_signal_info_get_password =
 static const _ExtendedGDBusSignalInfo * const _egdbus_session_signal_info_pointers[] =
 {
   &_egdbus_session_signal_info_send_receive_complete,
+  &_egdbus_session_signal_info_send_short_message_complete,
   &_egdbus_session_signal_info_account_added,
   &_egdbus_session_signal_info_account_removed,
   &_egdbus_session_signal_info_account_changed,
@@ -1243,6 +1344,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_remove_services: Handler for the #EGdbusSession::handle-remove-services signal.
  * @handle_send_mails_from_outbox: Handler for the #EGdbusSession::handle-send-mails-from-outbox signal.
  * @handle_send_receive: Handler for the #EGdbusSession::handle-send-receive signal.
+ * @handle_send_short_message: Handler for the #EGdbusSession::handle-send-short-message signal.
  * @handle_set_network_available: Handler for the #EGdbusSession::handle-set-network-available signal.
  * @handle_set_online: Handler for the #EGdbusSession::handle-set-online signal.
  * @account_added: Handler for the #EGdbusSession::account-added signal.
@@ -1250,6 +1352,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @account_removed: Handler for the #EGdbusSession::account-removed signal.
  * @get_password: Handler for the #EGdbusSession::get-password signal.
  * @send_receive_complete: Handler for the #EGdbusSession::send-receive-complete signal.
+ * @send_short_message_complete: Handler for the #EGdbusSession::send-short-message-complete signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-org-gnome-evolution-dataserver-mail-Session.top_of_page">org.gnome.evolution.dataserver.mail.Session</link>.
  */
@@ -1671,6 +1774,31 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     G_TYPE_DBUS_METHOD_INVOCATION);
 
   /**
+   * EGdbusSession::handle-send-short-message:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_account_uid: Argument passed by remote caller.
+   * @arg_text: Argument passed by remote caller.
+   * @arg_recipients: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendShortMessage">sendShortMessage()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_send_short_message() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-send-short-message",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_send_short_message),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRV);
+
+  /**
    * EGdbusSession::handle-fetch-account:
    * @object: A #EGdbusSession.
    * @invocation: A #GDBusMethodInvocation.
@@ -1757,6 +1885,25 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     g_cclosure_marshal_generic,
     G_TYPE_NONE,
     0);
+
+  /**
+   * EGdbusSession::send-short-message-complete:
+   * @object: A #EGdbusSession.
+   * @arg_result: Argument.
+   *
+   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-org-gnome-evolution-dataserver-mail-Session.sendShortMessageComplete">"sendShortMessageComplete"</link> is received.
+   *
+   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
+   */
+  g_signal_new ("send-short-message-complete",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, send_short_message_complete),
+    NULL,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_NONE,
+    1, G_TYPE_VARIANT);
 
   /**
    * EGdbusSession::account-added:
@@ -1852,6 +1999,21 @@ egdbus_session_emit_send_receive_complete (
     EGdbusSession *object)
 {
   g_signal_emit_by_name (object, "send-receive-complete");
+}
+
+/**
+ * egdbus_session_emit_send_short_message_complete:
+ * @object: A #EGdbusSession.
+ * @arg_result: Argument to pass with the signal.
+ *
+ * Emits the <link linkend="gdbus-signal-org-gnome-evolution-dataserver-mail-Session.sendShortMessageComplete">"sendShortMessageComplete"</link> D-Bus signal.
+ */
+void
+egdbus_session_emit_send_short_message_complete (
+    EGdbusSession *object,
+    GVariant *arg_result)
+{
+  g_signal_emit_by_name (object, "send-short-message-complete", arg_result);
 }
 
 /**
@@ -3749,6 +3911,122 @@ _out:
 }
 
 /**
+ * egdbus_session_call_send_short_message:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_account_uid: Argument to pass with the method invocation.
+ * @arg_text: Argument to pass with the method invocation.
+ * @arg_recipients: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendShortMessage">sendShortMessage()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_send_short_message_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_send_short_message_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_send_short_message (
+    EGdbusSession *proxy,
+    const gchar *arg_account_uid,
+    const gchar *arg_text,
+    const gchar *const *arg_recipients,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "sendShortMessage",
+    g_variant_new ("(ss^as)",
+                   arg_account_uid,
+                   arg_text,
+                   arg_recipients),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_send_short_message_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_send_short_message().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_send_short_message().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_send_short_message_finish (
+    EGdbusSession *proxy,
+    gchar **out_operation,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_send_short_message_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_account_uid: Argument to pass with the method invocation.
+ * @arg_text: Argument to pass with the method invocation.
+ * @arg_recipients: Argument to pass with the method invocation.
+ * @out_operation: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendShortMessage">sendShortMessage()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_send_short_message() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_send_short_message_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_account_uid,
+    const gchar *arg_text,
+    const gchar *const *arg_recipients,
+    gchar **out_operation,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "sendShortMessage",
+    g_variant_new ("(ss^as)",
+                   arg_account_uid,
+                   arg_text,
+                   arg_recipients),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_operation);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_session_call_fetch_account:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uid: Argument to pass with the method invocation.
@@ -4418,6 +4696,27 @@ egdbus_session_complete_send_mails_from_outbox (
 }
 
 /**
+ * egdbus_session_complete_send_short_message:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @operation: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.sendShortMessage">sendShortMessage()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_send_short_message (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *operation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   operation));
+}
+
+/**
  * egdbus_session_complete_fetch_account:
  * @object: A #EGdbusSession.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -5032,6 +5331,21 @@ _egdbus_session_on_signal_send_receive_complete (
 }
 
 static void
+_egdbus_session_on_signal_send_short_message_complete (
+    EGdbusSession *object,
+    GVariant *arg_result)
+{
+  EGdbusSessionSkeleton *skeleton = EGDBUS_SESSION_SKELETON (object);
+  GDBusConnection *connection = g_dbus_interface_skeleton_get_connection (G_DBUS_INTERFACE_SKELETON (skeleton));
+  if (connection == NULL)
+    return;
+  g_dbus_connection_emit_signal (connection,
+    NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "org.gnome.evolution.dataserver.mail.Session", "sendShortMessageComplete",
+    g_variant_new ("(@a(sssi))",
+                   arg_result), NULL);
+}
+
+static void
 _egdbus_session_on_signal_account_added (
     EGdbusSession *object,
     const gchar *arg_uid)
@@ -5145,6 +5459,7 @@ static void
 egdbus_session_skeleton_iface_init (EGdbusSessionIface *iface)
 {
   iface->send_receive_complete = _egdbus_session_on_signal_send_receive_complete;
+  iface->send_short_message_complete = _egdbus_session_on_signal_send_short_message_complete;
   iface->account_added = _egdbus_session_on_signal_account_added;
   iface->account_removed = _egdbus_session_on_signal_account_removed;
   iface->account_changed = _egdbus_session_on_signal_account_changed;
