@@ -1339,6 +1339,101 @@ start_test_client (gpointer foo)
 	return FALSE;
 }
 
+static void
+send_short_message_status_cb (EGdbusOperation *object, const gchar *description,
+								gint percentage)
+{
+	if (percentage)
+		printf ("\nStatus: %s %d%%", description, percentage);
+	else
+		printf ("\nStatus: %s", description);
+}
+
+static void
+send_short_message_cb (EGdbusSession *session_proxy, const GVariant *recipients)
+{
+	GVariantIter iter;
+	char *addr, *err, *quark;
+	int code;
+
+	printf ("\nsend_short_message_cb\n");
+	g_variant_iter_init (&iter, recipients);
+	while (g_variant_iter_next (&iter, "(sssi)", &addr, &err, &quark,
+								&code)) {
+		if (*err)
+			printf ("\tRecipient [%s]: %s, %s, %d\n", addr, err,
+								quark, code);
+		else
+			printf ("\tRecipient [%s]: Success!\n", addr);
+	}
+	printf ("\n");
+}
+
+static gboolean
+start_test_client_send_short_msg (gpointer foo)
+{
+	EAccount *account = e_get_default_account ();
+	GError *error = NULL;
+	char **services;
+	int i;
+	char *recipients[]= { "000001111", "2222233333", NULL };
+	char *ops_path;
+	EGdbusOperation *ops_proxy;
+
+	/* Get Session */
+	session_proxy = egdbus_session_proxy_new_for_bus_sync (
+				G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_NONE,
+				E_MAIL_DATA_FACTORY_SERVICE_NAME,
+				"/org/gnome/evolution/dataserver/Mail/Session",
+				NULL, &error);
+	if (error)
+		printf ("ERROR %s\n", error->message);
+	else
+		printf ("Success\n");
+
+	/* List services */
+	if (!egdbus_session_call_list_services_sync (session_proxy, &services,
+								NULL, &error)) {
+		printf ("List Services failed: %s\n", error->message);
+		return TRUE;
+	} else {
+		printf ("Services are: \n");
+		i = 0;
+		while (services[i]) {
+			printf ("\t%s\n", services[i]);
+			i++;
+		}
+		printf ("End\n");
+	}
+
+	g_signal_connect (session_proxy , "send-short-message-complete",
+				G_CALLBACK (send_short_message_cb), NULL);
+
+	if (!egdbus_session_call_send_short_message_sync (
+					session_proxy, account->uid,
+					"Hello World", recipients, &ops_path,
+					NULL, &error)) {
+		printf ("Send Message failed: %s\n", error->message);
+		g_error_free (error);
+		return TRUE;
+	}
+
+	ops_proxy = egdbus_operation_proxy_new_sync (
+			g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+			G_DBUS_PROXY_FLAGS_NONE, E_MAIL_DATA_FACTORY_SERVICE_NAME,
+			ops_path, NULL, &error);
+	if (!ops_proxy) {
+		printf ("Send Message failed: %s\n", error->message);
+		g_error_free (error);
+		return TRUE;
+	}
+
+	g_signal_connect (ops_proxy , "status",
+			G_CALLBACK (send_short_message_status_cb), NULL);
+
+	return FALSE;
+}
+
 int 
 main(int argc, char* argv[])
 {
