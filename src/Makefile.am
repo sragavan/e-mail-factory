@@ -4,6 +4,8 @@ evolution_mail_factory_SOURCES = 	\
 		main.c			\
 		mail-send-recv.c	\
 		mail-send-recv.h	\
+		mail-send-short-msg.c	\
+		mail-send-short-msg.h	\
 		utils.c			\
 		utils.h			\
 		e-dbus-manager.c	\

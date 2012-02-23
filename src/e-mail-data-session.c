@@ -11,6 +11,7 @@
 #include "libemail-utils/e-account-utils.h"
 #include "libemail-engine/mail-tools.h"
 #include "mail-send-recv.h"
+#include "mail-send-short-msg.h"
 #include "utils.h"
 #include <libedataserver/e-account-list.h>
 #include <libedataserverui/e-passwords.h>
@@ -676,6 +677,39 @@ impl_Mail_sendMailsFromOutbox (EGdbusSession *object, GDBusMethodInvocation *inv
 	return TRUE;
 }
 
+static gboolean
+impl_Mail_sendShortMessage (EGdbusSession *object,
+		GDBusMethodInvocation *invocation, const char *account_uid,
+		const char *text, const char **recipients,
+		EMailDataSession *msession)
+{
+	GCancellable *ops;
+	EMailDataOperation *mops;
+	char *mops_path;
+	GError *error;
+
+	ipc(printf("Initiating Send Short Message\n"));
+
+	ops = mail_send_short_message (session, account_uid, text, recipients,
+									&error);
+	if (ops == NULL) {
+		g_dbus_method_invocation_return_gerror (invocation, error);
+		g_error_free(error);
+		return TRUE;
+	}
+
+	mops = e_mail_data_operation_new ((CamelOperation *) ops);
+	g_object_unref (ops);
+
+	mops_path = e_mail_data_operation_register_gdbus_object (mops,
+			g_dbus_method_invocation_get_connection(invocation),
+			NULL);
+	egdbus_session_complete_send_short_message (object, invocation,
+								mops_path);
+	g_free (mops_path);
+
+	return TRUE;
+}
 
 static gboolean
 impl_Mail_fetchAccount (EGdbusSession *object, GDBusMethodInvocation *invocation, char *uid, EMailDataSession *msession)
@@ -861,6 +895,7 @@ e_mail_data_session_init (EMailDataSession *self)
 	g_signal_connect (priv->gdbus_object, "handle-add-password", G_CALLBACK (impl_Mail_addPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-find-password", G_CALLBACK (impl_Mail_findPassword), self);
 	g_signal_connect (priv->gdbus_object, "handle-send-receive", G_CALLBACK (impl_Mail_sendReceive), self);
+	g_signal_connect (priv->gdbus_object, "handle-send-short-message", G_CALLBACK (impl_Mail_sendShortMessage), self);
 	g_signal_connect (priv->gdbus_object, "handle-send-mails-from-outbox", G_CALLBACK (impl_Mail_sendMailsFromOutbox), self);	
 	g_signal_connect (priv->gdbus_object, "handle-fetch-account", G_CALLBACK (impl_Mail_fetchAccount), self);
 //	g_signal_connect (priv->gdbus_object, "handle-fetch-old-messages", G_CALLBACK (impl_Mail_fetchOldMessages), self);
@@ -963,6 +998,19 @@ e_mail_session_get_folder_from_path (EMailDataSession *msession, const char *pat
 	g_warning ("Unable to find CamelFolder from the object path\n");
 
 	return NULL;	
+}
+
+void
+e_mail_session_emit_send_short_message_completed (EMailDataSession *msession,
+						GVariantBuilder *builder)
+{
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE (msession);
+	GVariant *result = g_variant_builder_end (builder);
+
+	ipc(printf("Emitting Send Short Message completed signal\n"));
+	egdbus_session_emit_send_short_message_complete (priv->gdbus_object,
+									result);
+	g_variant_unref (result);
 }
 
 void
