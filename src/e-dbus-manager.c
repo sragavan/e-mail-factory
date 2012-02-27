@@ -94,8 +94,8 @@ on_bus_acquired (GDBusConnection *connection,
                  const gchar     *name,
                  gpointer         user_data)
 {
-	EDBusManager *manager = user_data;
-	EDBusManagerPrivate *priv = MANAGER_PRIVATE(manager);
+        /* EDBusManager *manager = user_data; */
+	/* EDBusManagerPrivate *priv = MANAGER_PRIVATE(manager); */
 	guint registration_id;
 	GError *error = NULL;
 
@@ -123,8 +123,8 @@ on_name_lost (GDBusConnection *connection,
               const gchar     *name,
               gpointer         user_data)
 {
-	EDBusManager *manager = user_data;
-	EDBusManagerPrivate *priv = MANAGER_PRIVATE(manager);
+        /* EDBusManager *manager = user_data; */
+	/* EDBusManagerPrivate *priv = MANAGER_PRIVATE(manager); */
 
 	e_mail_data_session_release (data_session, connection, name);
 #if 0

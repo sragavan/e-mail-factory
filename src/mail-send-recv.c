@@ -186,6 +186,7 @@ setup_send_data (EMailSession *session)
 	return send_data;
 }
 
+/*
 static void
 receive_cancel (struct _send_info *info)
 {
@@ -194,6 +195,7 @@ receive_cancel (struct _send_info *info)
 		info->state = SEND_CANCELLED;
 	}
 }
+*/
 
 static void
 free_send_data (void)
@@ -238,7 +240,7 @@ hide_send_info (gpointer key,
 #endif
 
 static GStaticMutex status_lock = G_STATIC_MUTEX_INIT;
-static gchar *format_url (CamelService *service);
+
 
 static void
 set_send_status (struct _send_info *info,
@@ -286,6 +288,7 @@ operation_status (CamelOperation *op,
 	set_send_status (info, what, pc);
 }
 
+/*
 static gchar *
 format_url (CamelService *service)
 {
@@ -340,6 +343,7 @@ format_url (CamelService *service)
 
 	return pretty_url;
 }
+*/
 
 static send_info_t
 get_receive_type (CamelService *service)

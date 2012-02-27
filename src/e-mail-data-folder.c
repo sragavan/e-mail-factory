@@ -9,7 +9,8 @@
 #include <camel/camel.h>
 #include "libemail-engine/mail-ops.h"
 #include "utils.h"
-
+#include <gio/gunixfdlist.h>
+#include <gio/gunixoutputstream.h>
 
 #define micro(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_MICRO)) x;
 #define ipc(x) if (mail_debug_log(EMAIL_DEBUG_FOLDER|EMAIL_DEBUG_IPC)) x;
@@ -1183,9 +1184,9 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	CamelFolder *folder = (CamelFolder *) object;
 	int pipe_fd;
 
-	GOutputStream *unix_output_stream;
-	GOutputStream *buffered_output_stream;
-	GDataOutputStream *data_output_stream;
+	GOutputStream *unix_output_stream = NULL;
+	GOutputStream *buffered_output_stream = NULL;
+	GDataOutputStream *data_output_stream = NULL;
 
 	/* FIXME we should somehow get the right operation and pass it */
 	msg = camel_folder_get_message_sync (folder, data->uid, data->ops, error);
@@ -1195,16 +1196,12 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 		return FALSE;
 	}
 
-        if (data->by_fd) {
-		int index;
-            
+        if (data->by_fd) {            
 		pipe_fd = g_unix_fd_list_get (data->fd_list, data->fd_index, error);
 		if (pipe_fd == -1) {
 			printf("Error getting fd %s\n", (*error)->message);
 			return FALSE;
 		}
-	    
-		printf("PIPE FD is %d\n", pipe_fd);
 
 		unix_output_stream = g_unix_output_stream_new (pipe_fd, TRUE);
 		buffered_output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
@@ -1213,7 +1210,7 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 		g_data_output_stream_set_byte_order (G_DATA_OUTPUT_STREAM (data_output_stream),
                                                  G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
                     
-		stream = camel_stream_vfs_new_with_stream (data_output_stream);
+		stream = camel_stream_vfs_new_with_stream ((GObject *)data_output_stream);
 		g_object_ref (data_output_stream);
         } else {
 		stream = camel_stream_mem_new ();
@@ -1249,9 +1246,12 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
         camel_stream_flush (filter_stream, NULL, NULL);
 	g_object_unref (filter_stream);
 	g_object_unref (msg);
-	g_object_unref (data_output_stream);
-	g_object_unref (buffered_output_stream);
-	g_object_unref (unix_output_stream);
+
+	if (data->by_fd) {
+		g_object_unref (data_output_stream);
+		g_object_unref (buffered_output_stream);
+		g_object_unref (unix_output_stream);
+	}
 
 	return TRUE;
 }

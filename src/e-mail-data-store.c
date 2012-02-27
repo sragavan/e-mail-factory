@@ -1101,7 +1101,7 @@ static gboolean
 sbs_operate (GObject *object, gpointer sdata, GError **error)
 {
 	EMailStoreStdData *data = (EMailStoreStdData *)sdata;
-	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(data->mstore);
+	/* EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(data->mstore);*/
 	CamelStore *store = (CamelStore *) object;
 	CamelDB *db;
 	GList *list = NULL;
