@@ -204,6 +204,11 @@
       <arg name="ops" type="o" direction="in"/>	    	    
     </method>        
 
+    <!-- Vee Folder specific -->
+    <method name="isVeeFolder">
+      <arg name="vfolder" type="b" direction="out"/>	    	    
+    </method>        
+
     <!-- Signals -->
     <signal name="FolderChanged">
       <arg name="uids_added" type="as"/>

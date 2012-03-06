@@ -130,6 +130,10 @@ struct _EGdbusFolderIface
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation);
 
+  gboolean (*handle_is_vee_folder) (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation);
+
   gboolean (*handle_prepare_summary) (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation,
@@ -423,6 +427,11 @@ void egdbus_folder_complete_freeze_folder (
 void egdbus_folder_complete_thaw_folder (
     EGdbusFolder *object,
     GDBusMethodInvocation *invocation);
+
+void egdbus_folder_complete_is_vee_folder (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation,
+    gboolean vfolder);
 
 
 
@@ -1195,6 +1204,24 @@ gboolean egdbus_folder_call_thaw_folder_sync (
     GCancellable *cancellable,
     GError **error);
 
+void egdbus_folder_call_is_vee_folder (
+    EGdbusFolder *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_folder_call_is_vee_folder_finish (
+    EGdbusFolder *proxy,
+    gboolean *out_vfolder,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_folder_call_is_vee_folder_sync (
+    EGdbusFolder *proxy,
+    gboolean *out_vfolder,
+    GCancellable *cancellable,
+    GError **error);
+
 
 
 /* ---- */
@@ -1291,148 +1318,6 @@ struct _EGdbusFolderSkeletonClass
 GType egdbus_folder_skeleton_get_type (void) G_GNUC_CONST;
 
 EGdbusFolder *egdbus_folder_skeleton_new (void);
-
-
-/* ---- */
-
-#define EGDBUS_TYPE_OBJECT (egdbus_object_get_type ())
-#define EGDBUS_OBJECT(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), EGDBUS_TYPE_OBJECT, EGdbusObject))
-#define EGDBUS_IS_OBJECT(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), EGDBUS_TYPE_OBJECT))
-#define EGDBUS_OBJECT_GET_IFACE(o) (G_TYPE_INSTANCE_GET_INTERFACE ((o), EGDBUS_TYPE_OBJECT, EGdbusObject))
-
-struct _EGdbusObject;
-typedef struct _EGdbusObject EGdbusObject;
-typedef struct _EGdbusObjectIface EGdbusObjectIface;
-
-struct _EGdbusObjectIface
-{
-  GTypeInterface parent_iface;
-};
-
-GType egdbus_object_get_type (void) G_GNUC_CONST;
-
-EGdbusFolder *egdbus_object_get_folder (EGdbusObject *object);
-EGdbusFolder *egdbus_object_peek_folder (EGdbusObject *object);
-
-#define EGDBUS_TYPE_OBJECT_PROXY (egdbus_object_proxy_get_type ())
-#define EGDBUS_OBJECT_PROXY(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), EGDBUS_TYPE_OBJECT_PROXY, EGdbusObjectProxy))
-#define EGDBUS_OBJECT_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), EGDBUS_TYPE_OBJECT_PROXY, EGdbusObjectProxyClass))
-#define EGDBUS_OBJECT_PROXY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), EGDBUS_TYPE_OBJECT_PROXY, EGdbusObjectProxyClass))
-#define EGDBUS_IS_OBJECT_PROXY(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), EGDBUS_TYPE_OBJECT_PROXY))
-#define EGDBUS_IS_OBJECT_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), EGDBUS_TYPE_OBJECT_PROXY))
-
-typedef struct _EGdbusObjectProxy EGdbusObjectProxy;
-typedef struct _EGdbusObjectProxyClass EGdbusObjectProxyClass;
-typedef struct _EGdbusObjectProxyPrivate EGdbusObjectProxyPrivate;
-
-struct _EGdbusObjectProxy
-{
-  /*< private >*/
-  GDBusObjectProxy parent_instance;
-  EGdbusObjectProxyPrivate *priv;
-};
-
-struct _EGdbusObjectProxyClass
-{
-  GDBusObjectProxyClass parent_class;
-};
-
-GType egdbus_object_proxy_get_type (void) G_GNUC_CONST;
-EGdbusObjectProxy *egdbus_object_proxy_new (GDBusConnection *connection, const gchar *object_path);
-
-#define EGDBUS_TYPE_OBJECT_SKELETON (egdbus_object_skeleton_get_type ())
-#define EGDBUS_OBJECT_SKELETON(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), EGDBUS_TYPE_OBJECT_SKELETON, EGdbusObjectSkeleton))
-#define EGDBUS_OBJECT_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), EGDBUS_TYPE_OBJECT_SKELETON, EGdbusObjectSkeletonClass))
-#define EGDBUS_OBJECT_SKELETON_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), EGDBUS_TYPE_OBJECT_SKELETON, EGdbusObjectSkeletonClass))
-#define EGDBUS_IS_OBJECT_SKELETON(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), EGDBUS_TYPE_OBJECT_SKELETON))
-#define EGDBUS_IS_OBJECT_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), EGDBUS_TYPE_OBJECT_SKELETON))
-
-typedef struct _EGdbusObjectSkeleton EGdbusObjectSkeleton;
-typedef struct _EGdbusObjectSkeletonClass EGdbusObjectSkeletonClass;
-typedef struct _EGdbusObjectSkeletonPrivate EGdbusObjectSkeletonPrivate;
-
-struct _EGdbusObjectSkeleton
-{
-  /*< private >*/
-  GDBusObjectSkeleton parent_instance;
-  EGdbusObjectSkeletonPrivate *priv;
-};
-
-struct _EGdbusObjectSkeletonClass
-{
-  GDBusObjectSkeletonClass parent_class;
-};
-
-GType egdbus_object_skeleton_get_type (void) G_GNUC_CONST;
-EGdbusObjectSkeleton *egdbus_object_skeleton_new (const gchar *object_path);
-void egdbus_object_skeleton_set_folder (EGdbusObjectSkeleton *object, EGdbusFolder *interface_);
-
-/* ---- */
-
-#define EGDBUS_TYPE_OBJECT_MANAGER_CLIENT (egdbus_object_manager_client_get_type ())
-#define EGDBUS_OBJECT_MANAGER_CLIENT(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, EGdbusObjectManagerClient))
-#define EGDBUS_OBJECT_MANAGER_CLIENT_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, EGdbusObjectManagerClientClass))
-#define EGDBUS_OBJECT_MANAGER_CLIENT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, EGdbusObjectManagerClientClass))
-#define EGDBUS_IS_OBJECT_MANAGER_CLIENT(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), EGDBUS_TYPE_OBJECT_MANAGER_CLIENT))
-#define EGDBUS_IS_OBJECT_MANAGER_CLIENT_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), EGDBUS_TYPE_OBJECT_MANAGER_CLIENT))
-
-typedef struct _EGdbusObjectManagerClient EGdbusObjectManagerClient;
-typedef struct _EGdbusObjectManagerClientClass EGdbusObjectManagerClientClass;
-typedef struct _EGdbusObjectManagerClientPrivate EGdbusObjectManagerClientPrivate;
-
-struct _EGdbusObjectManagerClient
-{
-  /*< private >*/
-  GDBusObjectManagerClient parent_instance;
-  EGdbusObjectManagerClientPrivate *priv;
-};
-
-struct _EGdbusObjectManagerClientClass
-{
-  GDBusObjectManagerClientClass parent_class;
-};
-
-GType egdbus_object_manager_client_get_type (void) G_GNUC_CONST;
-
-GType egdbus_object_manager_client_get_proxy_type (GDBusObjectManagerClient *manager, const gchar *object_path, const gchar *interface_name, gpointer user_data);
-
-void egdbus_object_manager_client_new (
-    GDBusConnection        *connection,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GAsyncReadyCallback     callback,
-    gpointer                user_data);
-GDBusObjectManager *egdbus_object_manager_client_new_finish (
-    GAsyncResult        *res,
-    GError             **error);
-GDBusObjectManager *egdbus_object_manager_client_new_sync (
-    GDBusConnection        *connection,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GError                **error);
-
-void egdbus_object_manager_client_new_for_bus (
-    GBusType                bus_type,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GAsyncReadyCallback     callback,
-    gpointer                user_data);
-GDBusObjectManager *egdbus_object_manager_client_new_for_bus_finish (
-    GAsyncResult        *res,
-    GError             **error);
-GDBusObjectManager *egdbus_object_manager_client_new_for_bus_sync (
-    GBusType                bus_type,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GError                **error);
 
 
 G_END_DECLS

@@ -1,5 +1,6 @@
 /* e-mail-data-session.c */
 
+#include <glib/gi18n.h>
 #include "libemail-engine/e-mail-session.h"
 #include "e-mail-data-session.h"
 #include "e-mail-data-operation.h"
@@ -8,6 +9,7 @@
 #include <camel/camel.h>
 #include <gio/gio.h>
 #include "libemail-engine/mail-ops.h"
+#include "libemail-engine/e-mail-utils.h"
 #include "libemail-utils/e-account-utils.h"
 #include "libemail-engine/mail-tools.h"
 #include "mail-send-recv.h"
@@ -53,6 +55,17 @@ struct _EMailDataSessionPrivate
 	guint exit_timeout;
 	
 };
+
+static gchar *
+construct_folder_name (const char *uid)
+{
+	static volatile gint counter = 1;
+	char *path;
+	
+	path = g_strdup_printf ( uid ? _("Account Search (%d)") : _("All Account Search (%d)"), g_atomic_int_exchange_and_add (&counter, 1));
+
+	return path;
+}
 
 static gchar *
 construct_mail_session_path (const char *uid)
@@ -450,6 +463,67 @@ impl_Mail_getLocalStore (EGdbusSession *object, GDBusMethodInvocation *invocatio
 }
 
 static gboolean
+impl_Mail_getVeeStore (EGdbusSession *object, GDBusMethodInvocation *invocation, EMailDataSession *msession)
+{
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
+	CamelStore *store;
+	EMailDataStore *estore;
+	char *path = NULL;
+	GList *list;
+	const gchar *sender;
+
+	/* Remove a pending exit */
+	if (priv->exit_timeout) {
+		g_source_remove (priv->exit_timeout);
+		priv->exit_timeout = 0;
+	}
+	
+	store = e_mail_session_get_vfolder_store (E_MAIL_SESSION (session));
+
+	g_mutex_lock (priv->stores_lock);
+	g_mutex_lock (priv->datastores_lock);
+	estore = g_hash_table_lookup (priv->datastores, store);
+	
+	if (estore == NULL) {
+		const char *uid;
+		char *url;
+
+		url = mail_get_service_url ((CamelService *)store);
+		uid = camel_service_get_uid((CamelService *)store);
+		path = construct_mail_session_path (uid);
+		estore = e_mail_data_store_new ((CamelService *)store, uid);
+
+		g_hash_table_insert (priv->datastores, store, estore);
+		e_mail_data_store_register_gdbus_object (estore, g_dbus_method_invocation_get_connection (invocation), path, NULL);
+	
+		/* Hashtable owns the key's memory */
+		g_hash_table_insert (priv->stores, g_strdup(uid), store);
+		g_hash_table_insert (priv->stores, url, store);		
+
+	} else 
+		path = g_strdup (e_mail_data_store_get_path (estore));
+
+	g_mutex_unlock (priv->datastores_lock);
+	g_mutex_unlock (priv->stores_lock);
+
+	g_mutex_lock (priv->connections_lock);
+	sender = g_dbus_method_invocation_get_sender (invocation);
+
+	list = g_hash_table_lookup (priv->connections, sender);
+	list = g_list_prepend (list, estore);
+	g_hash_table_insert (priv->connections, g_strdup (sender), list);
+	g_mutex_unlock (priv->connections_lock);
+
+	ipc (printf("EMailDataSession: Get Vee Store: Success %s  for sender: '%s'\n", path, sender));
+
+	egdbus_session_complete_get_vee_store (object, invocation, path);
+
+	g_free (path);
+	
+	return TRUE;
+}
+
+static gboolean
 impl_Mail_getLocalFolder (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *type, EMailDataSession *msession)
 {
 	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
@@ -797,6 +871,242 @@ impl_Mail_cancelOperations (EGdbusSession *object, GDBusMethodInvocation *invoca
 	return TRUE;
 }
 
+typedef struct _email_search_folder_data {
+	EMailDataSession *msession;
+	EGdbusSession *object;
+	GDBusMethodInvocation *invocation;
+	char *uid;
+	char *query;
+	GCancellable *cancellable;
+} EmailSearchFolderData;
+
+static gboolean
+sf_operate (GObject *object, gpointer sdata, GError **error)
+{
+	EmailSearchFolderData *data = (EmailSearchFolderData  *)sdata;
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(data->msession);	
+	CamelService *service;
+	CamelFolder *folder;
+	char *fname;
+	MailFolderCache *cache;
+	GQueue queue = G_QUEUE_INIT;
+	GList *list = NULL;
+	CamelStore *store;
+	const char *fpath;
+	char *spath;
+	EMailDataStore *estore;
+	const gchar *sender;
+
+	cache = e_mail_session_get_folder_cache (session);
+
+	service = camel_session_get_service (
+		CAMEL_SESSION (session), E_MAIL_SESSION_VFOLDER_UID);
+	em_utils_connect_service_sync (service, data->cancellable, error);
+	fname = construct_folder_name (data->uid);
+	folder = (CamelFolder *) camel_vee_folder_new (
+		CAMEL_STORE (service), fname,
+		CAMEL_STORE_VEE_FOLDER_AUTO);
+	g_free (fname);
+
+	if (data->uid == NULL) {
+		/* All account search */
+		mail_folder_cache_get_local_folder_uris (cache, &queue);
+		mail_folder_cache_get_remote_folder_uris (cache, &queue);
+	
+		/* Add all available local and remote folders. */
+		while (!g_queue_is_empty (&queue)) {
+			gchar *folder_uri = g_queue_pop_head (&queue);
+
+			/* FIXME Not passing a GCancellable or GError here. */
+			folder = e_mail_session_uri_to_folder_sync (
+				E_MAIL_SESSION (session), folder_uri, 0, NULL, NULL);
+	
+			if (folder != NULL)
+				list = g_list_append (list, folder);
+			else
+				g_warning ("Could not open vfolder source: %s", folder_uri);
+	
+			g_free (folder_uri);
+		}
+	} else {
+		/* Specific account search */
+		CamelStore *lstore;
+
+		lstore = (CamelStore *)camel_session_get_service (CAMEL_SESSION(session), data->uid);
+		if (lstore != NULL) {
+			CamelFolderInfo *root, *fi;
+
+			/* FIXME This call blocks the main loop. */
+			root = camel_store_get_folder_info_sync (
+				lstore, NULL,
+				CAMEL_STORE_FOLDER_INFO_RECURSIVE, NULL, NULL);
+			fi = root;
+			while (fi) {
+				CamelFolderInfo *next;
+
+				if ((fi->flags & CAMEL_FOLDER_NOSELECT) == 0) {
+					CamelFolder *fldr;
+
+					/* FIXME This call blocks the main loop. */
+					fldr = camel_store_get_folder_sync (
+						lstore, fi->full_name, 0, NULL, NULL);
+					if (fldr)
+						list = g_list_prepend (list, fldr);
+				}
+	
+				/* pick the next */
+				next = fi->child;
+				if (!next)
+					next = fi->next;
+				if (!next) {
+					next = fi->parent;
+					while (next) {
+						if (next->next) {
+							next = next->next;
+							break;
+							}
+	
+						next = next->parent;
+					}
+				}
+
+				fi = next;
+			}
+
+			if (root)
+				camel_store_free_folder_info_full (lstore, root);
+
+			g_object_unref (lstore);
+		}
+
+		list = g_list_reverse (list);
+
+	}
+	
+	camel_vee_folder_set_expression (CAMEL_VEE_FOLDER(folder), data->query);
+	camel_vee_folder_set_folders (
+		CAMEL_VEE_FOLDER (folder), list);
+
+	/* Return the folder safely */
+
+	store = camel_folder_get_parent_store (folder);
+
+	g_mutex_lock (priv->stores_lock);
+	g_mutex_lock (priv->datastores_lock);
+	estore = g_hash_table_lookup (priv->datastores, store);
+	
+	if (estore == NULL) {
+		const char *uid;
+		char *url;
+
+		url = mail_get_service_url ((CamelService *)store);
+		uid = camel_service_get_uid((CamelService *)store);
+		spath = construct_mail_session_path (uid);
+		estore = e_mail_data_store_new ((CamelService *)store, uid);
+
+		g_hash_table_insert (priv->datastores, store, estore);
+		e_mail_data_store_register_gdbus_object (estore, g_dbus_method_invocation_get_connection (data->invocation), spath, NULL);
+
+		/* Hashtable owns the key's memory */
+		g_hash_table_insert (priv->stores, g_strdup(uid), store);
+		g_hash_table_insert (priv->stores, url, store);		
+
+		g_free (url);
+		g_free (spath);	
+	}
+
+	g_mutex_unlock (priv->datastores_lock);
+	g_mutex_unlock (priv->stores_lock);
+
+	g_mutex_lock (priv->connections_lock);
+	sender = g_dbus_method_invocation_get_sender (data->invocation);
+
+	list = g_hash_table_lookup (priv->connections, sender);
+	list = g_list_prepend (list, estore);
+	g_hash_table_insert (priv->connections, g_strdup (sender), list);
+	g_mutex_unlock (priv->connections_lock);
+	
+	fpath = e_mail_data_store_get_folder_path (estore, g_dbus_method_invocation_get_connection (data->invocation), folder);
+	if (data->uid)
+		egdbus_session_complete_get_account_search_folder (data->object, data->invocation, fpath);
+	else
+		egdbus_session_complete_get_all_account_search_folder (data->object, data->invocation, fpath);
+
+	ipc (printf("EMailDataSession: Get Search folder for all/uid account from URI : Success %s  for sender: '%s'\n", fpath, sender));
+
+
+
+	return TRUE;
+}
+
+static void
+sf_done (gboolean success, gpointer sdata, GError *error)
+{
+	EmailSearchFolderData *data = (EmailSearchFolderData *)sdata;
+
+	if (error && error->message) {
+		g_warning ("Account search prep failed: %s\n", error->message);
+		g_dbus_method_invocation_return_gerror (data->invocation, error);		
+		ipc(printf("Account search prep failed: %s\n", error->message));
+		return;
+	}
+
+}
+
+static gboolean
+impl_Mail_getAccountSearchFolder (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uid, const char *query, const char *ops_path, EMailDataSession *msession)
+{
+	GCancellable *ops;
+	EmailSearchFolderData *data;
+
+	ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path);
+	if (!ops) {
+		g_warning ("Unable to get CamelOperation for path: %s\n", ops_path);
+		ops = camel_operation_new ();
+	}
+
+	data = g_new0 (EmailSearchFolderData, 1);
+	data->msession = msession;
+	data->object = object;
+	data->invocation = invocation;
+	data->cancellable = ops;
+	data->uid = g_strdup (uid);
+	data->query = g_strdup(query);
+	
+	ipc(printf("Preparing for Account folder search for uid : %s\n", uid));
+
+	mail_operate_on_object ((GObject *)session, (GCancellable *)ops, sf_operate, sf_done, data);
+	
+	return TRUE;
+}
+
+static gboolean
+impl_Mail_getAllAccountSearchFolder (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *query, const char *ops_path, EMailDataSession *msession)
+{
+		GCancellable *ops;
+	EmailSearchFolderData *data;
+
+	ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path);
+	if (!ops) {
+		g_warning ("Unable to get CamelOperation for path: %s\n", ops_path);
+		ops = camel_operation_new ();
+	}
+
+	data = g_new0 (EmailSearchFolderData, 1);
+	data->msession = msession;
+	data->object = object;
+	data->invocation = invocation;
+	data->cancellable = ops;
+	data->uid = NULL;
+	data->query = g_strdup(query);
+	
+	ipc(printf("Preparing for All Account folder search\n"));
+
+	mail_operate_on_object ((GObject *)session, (GCancellable *)ops, sf_operate, sf_done, data);
+	
+	return TRUE;
+}
+
 static gboolean
 impl_Mail_createMailOperation (EGdbusSession *object, GDBusMethodInvocation *invocation, EMailDataSession *msession)
 {
@@ -890,6 +1200,7 @@ e_mail_data_session_init (EMailDataSession *self)
 	
 
 	g_signal_connect (priv->gdbus_object, "handle-get-local-store", G_CALLBACK (impl_Mail_getLocalStore), self);
+	g_signal_connect (priv->gdbus_object, "handle-get-vee-store", G_CALLBACK (impl_Mail_getVeeStore), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-local-folder", G_CALLBACK (impl_Mail_getLocalFolder), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-folder-from-uri", G_CALLBACK (impl_Mail_getFolderFromUri), self);
 	g_signal_connect (priv->gdbus_object, "handle-add-password", G_CALLBACK (impl_Mail_addPassword), self);
@@ -899,6 +1210,10 @@ e_mail_data_session_init (EMailDataSession *self)
 	g_signal_connect (priv->gdbus_object, "handle-send-mails-from-outbox", G_CALLBACK (impl_Mail_sendMailsFromOutbox), self);	
 	g_signal_connect (priv->gdbus_object, "handle-fetch-account", G_CALLBACK (impl_Mail_fetchAccount), self);
 //	g_signal_connect (priv->gdbus_object, "handle-fetch-old-messages", G_CALLBACK (impl_Mail_fetchOldMessages), self);
+	g_signal_connect (priv->gdbus_object, "handle-cancel-operations", G_CALLBACK (impl_Mail_cancelOperations), self);
+	g_signal_connect (priv->gdbus_object, "handle-get-account-search-folder", G_CALLBACK (impl_Mail_getAccountSearchFolder), self);
+	g_signal_connect (priv->gdbus_object, "handle-get-all-account-search-folder", G_CALLBACK (impl_Mail_getAllAccountSearchFolder), self);
+
 	g_signal_connect (priv->gdbus_object, "handle-cancel-operations", G_CALLBACK (impl_Mail_cancelOperations), self);
 
 	priv->stores_lock = g_mutex_new ();

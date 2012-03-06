@@ -67,6 +67,19 @@ struct _EGdbusSessionIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_key);
 
+  gboolean (*handle_get_account_search_folder) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_uid,
+    const gchar *arg_query,
+    const gchar *arg_operation);
+
+  gboolean (*handle_get_all_account_search_folder) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_query,
+    const gchar *arg_operation);
+
   gboolean (*handle_get_folder_from_uri) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
@@ -100,6 +113,10 @@ struct _EGdbusSessionIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_url,
     gboolean arg_isstore);
+
+  gboolean (*handle_get_vee_store) (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation);
 
   gboolean (*handle_list_services) (
     EGdbusSession *object,
@@ -230,6 +247,11 @@ void egdbus_session_complete_get_local_store (
     GDBusMethodInvocation *invocation,
     const gchar *store);
 
+void egdbus_session_complete_get_vee_store (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *store);
+
 void egdbus_session_complete_add_password (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation);
@@ -272,6 +294,16 @@ void egdbus_session_complete_fetch_old_messages (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
     gboolean success);
+
+void egdbus_session_complete_get_account_search_folder (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *folder);
+
+void egdbus_session_complete_get_all_account_search_folder (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *folder);
 
 void egdbus_session_complete_cancel_operations (
     EGdbusSession *object,
@@ -536,6 +568,24 @@ gboolean egdbus_session_call_get_local_store_sync (
     GCancellable *cancellable,
     GError **error);
 
+void egdbus_session_call_get_vee_store (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_get_vee_store_finish (
+    EGdbusSession *proxy,
+    gchar **out_store,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_get_vee_store_sync (
+    EGdbusSession *proxy,
+    gchar **out_store,
+    GCancellable *cancellable,
+    GError **error);
+
 void egdbus_session_call_add_password (
     EGdbusSession *proxy,
     const gchar *arg_key,
@@ -717,6 +767,52 @@ gboolean egdbus_session_call_fetch_old_messages_sync (
     const gchar *arg_uid,
     gint arg_count,
     gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_session_call_get_account_search_folder (
+    EGdbusSession *proxy,
+    const gchar *arg_uid,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_get_account_search_folder_finish (
+    EGdbusSession *proxy,
+    gchar **out_folder,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_get_account_search_folder_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_uid,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    gchar **out_folder,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_session_call_get_all_account_search_folder (
+    EGdbusSession *proxy,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_session_call_get_all_account_search_folder_finish (
+    EGdbusSession *proxy,
+    gchar **out_folder,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_session_call_get_all_account_search_folder_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    gchar **out_folder,
     GCancellable *cancellable,
     GError **error);
 

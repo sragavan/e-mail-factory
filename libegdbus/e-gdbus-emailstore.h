@@ -129,6 +129,10 @@ struct _EGdbusStoreIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_folder_name);
 
+  gboolean (*handle_is_vee_store) (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation);
+
   gboolean (*handle_noop) (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
@@ -355,6 +359,11 @@ void egdbus_store_complete_count_by_sql (
     EGdbusStore *object,
     GDBusMethodInvocation *invocation,
     guint count);
+
+void egdbus_store_complete_is_vee_store (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    gboolean veestore);
 
 
 
@@ -970,6 +979,24 @@ gboolean egdbus_store_call_count_by_sql_sync (
     const gchar *arg_expression,
     const gchar *arg_ops,
     guint *out_count,
+    GCancellable *cancellable,
+    GError **error);
+
+void egdbus_store_call_is_vee_store (
+    EGdbusStore *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean egdbus_store_call_is_vee_store_finish (
+    EGdbusStore *proxy,
+    gboolean *out_veestore,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean egdbus_store_call_is_vee_store_sync (
+    EGdbusStore *proxy,
+    gboolean *out_veestore,
     GCancellable *cancellable,
     GError **error);
 

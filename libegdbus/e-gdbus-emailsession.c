@@ -604,6 +604,36 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_get_local_stor
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_vee_store_OUT_ARG_store =
+{
+  {
+    -1,
+    "store",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_vee_store_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_get_vee_store_OUT_ARG_store,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_get_vee_store =
+{
+  {
+    -1,
+    "getVeeStore",
+    NULL,
+    (GDBusArgInfo **) &_egdbus_session_method_info_get_vee_store_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-get-vee-store",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_session_method_info_add_password_IN_ARG_key =
 {
   {
@@ -1031,6 +1061,136 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_fetch_old_mess
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_account_search_folder_IN_ARG_uid =
+{
+  {
+    -1,
+    "uid",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_account_search_folder_IN_ARG_query =
+{
+  {
+    -1,
+    "query",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_account_search_folder_IN_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_account_search_folder_IN_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_get_account_search_folder_IN_ARG_uid,
+  &_egdbus_session_method_info_get_account_search_folder_IN_ARG_query,
+  &_egdbus_session_method_info_get_account_search_folder_IN_ARG_operation,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_account_search_folder_OUT_ARG_folder =
+{
+  {
+    -1,
+    "folder",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_account_search_folder_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_get_account_search_folder_OUT_ARG_folder,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_get_account_search_folder =
+{
+  {
+    -1,
+    "getAccountSearchFolder",
+    (GDBusArgInfo **) &_egdbus_session_method_info_get_account_search_folder_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_session_method_info_get_account_search_folder_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-get-account-search-folder",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_all_account_search_folder_IN_ARG_query =
+{
+  {
+    -1,
+    "query",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_all_account_search_folder_IN_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_all_account_search_folder_IN_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_get_all_account_search_folder_IN_ARG_query,
+  &_egdbus_session_method_info_get_all_account_search_folder_IN_ARG_operation,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_get_all_account_search_folder_OUT_ARG_folder =
+{
+  {
+    -1,
+    "folder",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_get_all_account_search_folder_OUT_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_get_all_account_search_folder_OUT_ARG_folder,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_get_all_account_search_folder =
+{
+  {
+    -1,
+    "getAllAccountSearchFolder",
+    (GDBusArgInfo **) &_egdbus_session_method_info_get_all_account_search_folder_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_session_method_info_get_all_account_search_folder_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-get-all-account-search-folder",
+  FALSE
+};
+
 static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_cancel_operations =
 {
   {
@@ -1058,6 +1218,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointe
   &_egdbus_session_method_info_get_network_available,
   &_egdbus_session_method_info_set_network_available,
   &_egdbus_session_method_info_get_local_store,
+  &_egdbus_session_method_info_get_vee_store,
   &_egdbus_session_method_info_add_password,
   &_egdbus_session_method_info_find_password,
   &_egdbus_session_method_info_get_local_folder,
@@ -1067,6 +1228,8 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointe
   &_egdbus_session_method_info_send_short_message,
   &_egdbus_session_method_info_fetch_account,
   &_egdbus_session_method_info_fetch_old_messages,
+  &_egdbus_session_method_info_get_account_search_folder,
+  &_egdbus_session_method_info_get_all_account_search_folder,
   &_egdbus_session_method_info_cancel_operations,
   NULL
 };
@@ -1332,6 +1495,8 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_fetch_account: Handler for the #EGdbusSession::handle-fetch-account signal.
  * @handle_fetch_old_messages: Handler for the #EGdbusSession::handle-fetch-old-messages signal.
  * @handle_find_password: Handler for the #EGdbusSession::handle-find-password signal.
+ * @handle_get_account_search_folder: Handler for the #EGdbusSession::handle-get-account-search-folder signal.
+ * @handle_get_all_account_search_folder: Handler for the #EGdbusSession::handle-get-all-account-search-folder signal.
  * @handle_get_folder_from_uri: Handler for the #EGdbusSession::handle-get-folder-from-uri signal.
  * @handle_get_local_folder: Handler for the #EGdbusSession::handle-get-local-folder signal.
  * @handle_get_local_store: Handler for the #EGdbusSession::handle-get-local-store signal.
@@ -1339,6 +1504,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_get_online: Handler for the #EGdbusSession::handle-get-online signal.
  * @handle_get_service: Handler for the #EGdbusSession::handle-get-service signal.
  * @handle_get_service_by_url: Handler for the #EGdbusSession::handle-get-service-by-url signal.
+ * @handle_get_vee_store: Handler for the #EGdbusSession::handle-get-vee-store signal.
  * @handle_list_services: Handler for the #EGdbusSession::handle-list-services signal.
  * @handle_remove_service: Handler for the #EGdbusSession::handle-remove-service signal.
  * @handle_remove_services: Handler for the #EGdbusSession::handle-remove-services signal.
@@ -1635,6 +1801,28 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     G_TYPE_DBUS_METHOD_INVOCATION);
 
   /**
+   * EGdbusSession::handle-get-vee-store:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getVeeStore">getVeeStore()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_get_vee_store() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-get-vee-store",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_get_vee_store),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
    * EGdbusSession::handle-add-password:
    * @object: A #EGdbusSession.
    * @invocation: A #GDBusMethodInvocation.
@@ -1844,6 +2032,55 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     G_TYPE_BOOLEAN,
     3,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_INT);
+
+  /**
+   * EGdbusSession::handle-get-account-search-folder:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_uid: Argument passed by remote caller.
+   * @arg_query: Argument passed by remote caller.
+   * @arg_operation: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAccountSearchFolder">getAccountSearchFolder()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_get_account_search_folder() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-get-account-search-folder",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_get_account_search_folder),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+
+  /**
+   * EGdbusSession::handle-get-all-account-search-folder:
+   * @object: A #EGdbusSession.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_query: Argument passed by remote caller.
+   * @arg_operation: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAllAccountSearchFolder">getAllAccountSearchFolder()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_get_all_account_search_folder() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-get-all-account-search-folder",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_get_all_account_search_folder),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
 
   /**
    * EGdbusSession::handle-cancel-operations:
@@ -3293,6 +3530,104 @@ _out:
 }
 
 /**
+ * egdbus_session_call_get_vee_store:
+ * @proxy: A #EGdbusSessionProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getVeeStore">getVeeStore()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_get_vee_store_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_get_vee_store_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_get_vee_store (
+    EGdbusSession *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "getVeeStore",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_get_vee_store_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_store: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_get_vee_store().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_get_vee_store().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_vee_store_finish (
+    EGdbusSession *proxy,
+    gchar **out_store,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_store);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_get_vee_store_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_store: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getVeeStore">getVeeStore()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_get_vee_store() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_vee_store_sync (
+    EGdbusSession *proxy,
+    gchar **out_store,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "getVeeStore",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_store);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_session_call_add_password:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_key: Argument to pass with the method invocation.
@@ -4241,6 +4576,232 @@ _out:
 }
 
 /**
+ * egdbus_session_call_get_account_search_folder:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_uid: Argument to pass with the method invocation.
+ * @arg_query: Argument to pass with the method invocation.
+ * @arg_operation: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAccountSearchFolder">getAccountSearchFolder()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_get_account_search_folder_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_get_account_search_folder_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_get_account_search_folder (
+    EGdbusSession *proxy,
+    const gchar *arg_uid,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "getAccountSearchFolder",
+    g_variant_new ("(sso)",
+                   arg_uid,
+                   arg_query,
+                   arg_operation),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_get_account_search_folder_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_folder: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_get_account_search_folder().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_get_account_search_folder().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_account_search_folder_finish (
+    EGdbusSession *proxy,
+    gchar **out_folder,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_folder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_get_account_search_folder_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_uid: Argument to pass with the method invocation.
+ * @arg_query: Argument to pass with the method invocation.
+ * @arg_operation: Argument to pass with the method invocation.
+ * @out_folder: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAccountSearchFolder">getAccountSearchFolder()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_get_account_search_folder() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_account_search_folder_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_uid,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    gchar **out_folder,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "getAccountSearchFolder",
+    g_variant_new ("(sso)",
+                   arg_uid,
+                   arg_query,
+                   arg_operation),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_folder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_get_all_account_search_folder:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_query: Argument to pass with the method invocation.
+ * @arg_operation: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAllAccountSearchFolder">getAllAccountSearchFolder()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_session_call_get_all_account_search_folder_finish() to get the result of the operation.
+ *
+ * See egdbus_session_call_get_all_account_search_folder_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_session_call_get_all_account_search_folder (
+    EGdbusSession *proxy,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "getAllAccountSearchFolder",
+    g_variant_new ("(so)",
+                   arg_query,
+                   arg_operation),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_session_call_get_all_account_search_folder_finish:
+ * @proxy: A #EGdbusSessionProxy.
+ * @out_folder: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_get_all_account_search_folder().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_session_call_get_all_account_search_folder().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_all_account_search_folder_finish (
+    EGdbusSession *proxy,
+    gchar **out_folder,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_folder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_session_call_get_all_account_search_folder_sync:
+ * @proxy: A #EGdbusSessionProxy.
+ * @arg_query: Argument to pass with the method invocation.
+ * @arg_operation: Argument to pass with the method invocation.
+ * @out_folder: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAllAccountSearchFolder">getAllAccountSearchFolder()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_session_call_get_all_account_search_folder() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_session_call_get_all_account_search_folder_sync (
+    EGdbusSession *proxy,
+    const gchar *arg_query,
+    const gchar *arg_operation,
+    gchar **out_folder,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "getAllAccountSearchFolder",
+    g_variant_new ("(so)",
+                   arg_query,
+                   arg_operation),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(o)",
+                 out_folder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_session_call_cancel_operations:
  * @proxy: A #EGdbusSessionProxy.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
@@ -4576,6 +5137,27 @@ egdbus_session_complete_get_local_store (
 }
 
 /**
+ * egdbus_session_complete_get_vee_store:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @store: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getVeeStore">getVeeStore()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_get_vee_store (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *store)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   store));
+}
+
+/**
  * egdbus_session_complete_add_password:
  * @object: A #EGdbusSession.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -4756,6 +5338,48 @@ egdbus_session_complete_fetch_old_messages (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(b)",
                    success));
+}
+
+/**
+ * egdbus_session_complete_get_account_search_folder:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @folder: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAccountSearchFolder">getAccountSearchFolder()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_get_account_search_folder (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *folder)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   folder));
+}
+
+/**
+ * egdbus_session_complete_get_all_account_search_folder:
+ * @object: A #EGdbusSession.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @folder: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.getAllAccountSearchFolder">getAllAccountSearchFolder()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_session_complete_get_all_account_search_folder (
+    EGdbusSession *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *folder)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(o)",
+                   folder));
 }
 
 /**

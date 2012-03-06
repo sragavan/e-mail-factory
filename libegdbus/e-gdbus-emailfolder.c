@@ -1908,6 +1908,36 @@ static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_thaw_folder =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_folder_method_info_is_vee_folder_OUT_ARG_vfolder =
+{
+  {
+    -1,
+    "vfolder",
+    "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_folder_method_info_is_vee_folder_OUT_ARG_pointers[] =
+{
+  &_egdbus_folder_method_info_is_vee_folder_OUT_ARG_vfolder,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_folder_method_info_is_vee_folder =
+{
+  {
+    -1,
+    "isVeeFolder",
+    NULL,
+    (GDBusArgInfo **) &_egdbus_folder_method_info_is_vee_folder_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-is-vee-folder",
+  FALSE
+};
+
 static const _ExtendedGDBusMethodInfo * const _egdbus_folder_method_info_pointers[] =
 {
   &_egdbus_folder_method_info_refresh_info,
@@ -1947,6 +1977,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_folder_method_info_pointer
   &_egdbus_folder_method_info_prepare_summary,
   &_egdbus_folder_method_info_freeze_folder,
   &_egdbus_folder_method_info_thaw_folder,
+  &_egdbus_folder_method_info_is_vee_folder,
   NULL
 };
 
@@ -2108,6 +2139,7 @@ egdbus_folder_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_get_uids: Handler for the #EGdbusFolder::handle-get-uids signal.
  * @handle_has_search_capability: Handler for the #EGdbusFolder::handle-has-search-capability signal.
  * @handle_has_summary_capability: Handler for the #EGdbusFolder::handle-has-summary-capability signal.
+ * @handle_is_vee_folder: Handler for the #EGdbusFolder::handle-is-vee-folder signal.
  * @handle_prepare_summary: Handler for the #EGdbusFolder::handle-prepare-summary signal.
  * @handle_refresh_info: Handler for the #EGdbusFolder::handle-refresh-info signal.
  * @handle_search_by_expression: Handler for the #EGdbusFolder::handle-search-by-expression signal.
@@ -3000,6 +3032,28 @@ egdbus_folder_default_init (EGdbusFolderIface *iface)
     G_TYPE_BOOLEAN,
     2,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+
+  /**
+   * EGdbusFolder::handle-is-vee-folder:
+   * @object: A #EGdbusFolder.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.isVeeFolder">isVeeFolder()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_folder_complete_is_vee_folder() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-is-vee-folder",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusFolderIface, handle_is_vee_folder),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
 
   /* GObject signals for received D-Bus signals: */
   /**
@@ -6952,6 +7006,104 @@ _out:
 }
 
 /**
+ * egdbus_folder_call_is_vee_folder:
+ * @proxy: A #EGdbusFolderProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.isVeeFolder">isVeeFolder()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_folder_call_is_vee_folder_finish() to get the result of the operation.
+ *
+ * See egdbus_folder_call_is_vee_folder_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_folder_call_is_vee_folder (
+    EGdbusFolder *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "isVeeFolder",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_folder_call_is_vee_folder_finish:
+ * @proxy: A #EGdbusFolderProxy.
+ * @out_vfolder: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_folder_call_is_vee_folder().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_folder_call_is_vee_folder().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_folder_call_is_vee_folder_finish (
+    EGdbusFolder *proxy,
+    gboolean *out_vfolder,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_vfolder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_folder_call_is_vee_folder_sync:
+ * @proxy: A #EGdbusFolderProxy.
+ * @out_vfolder: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.isVeeFolder">isVeeFolder()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_folder_call_is_vee_folder() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_folder_call_is_vee_folder_sync (
+    EGdbusFolder *proxy,
+    gboolean *out_vfolder,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "isVeeFolder",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_vfolder);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_folder_complete_refresh_info:
  * @object: A #EGdbusFolder.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -7707,6 +7859,27 @@ egdbus_folder_complete_thaw_folder (
     g_variant_new ("()"));
 }
 
+/**
+ * egdbus_folder_complete_is_vee_folder:
+ * @object: A #EGdbusFolder.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @vfolder: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Folder.isVeeFolder">isVeeFolder()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_folder_complete_is_vee_folder (
+    EGdbusFolder *object,
+    GDBusMethodInvocation *invocation,
+    gboolean vfolder)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   vfolder));
+}
+
 /* ------------------------------------------------------------------------ */
 
 /**
@@ -8333,563 +8506,4 @@ egdbus_folder_skeleton_new (void)
 {
   return EGDBUS_FOLDER (g_object_new (EGDBUS_TYPE_FOLDER_SKELETON, NULL));
 }
-
-/* ------------------------------------------------------------------------
- * Code for Object, ObjectProxy and ObjectSkeleton
- * ------------------------------------------------------------------------
- */
-
-/**
- * SECTION:EGdbusObject
- * @title: EGdbusObject
- * @short_description: Specialized GDBusObject types
- *
- * This section contains the #EGdbusObject, #EGdbusObjectProxy, and #EGdbusObjectSkeleton types which make it easier to work with objects implementing generated types for D-Bus interfaces.
- */
-
-/**
- * EGdbusObject:
- *
- * The #EGdbusObject type is a specialized container of interfaces.
- */
-
-/**
- * EGdbusObjectIface:
- * @parent_iface: The parent interface.
- *
- * Virtual table for the #EGdbusObject interface.
- */
-
-static void
-egdbus_object_default_init (EGdbusObjectIface *iface)
-{
-  /**
-   * EGdbusObject:folder:
-   *
-   * The #EGdbusFolder instance corresponding to the D-Bus interface <link linkend="gdbus-interface-org-gnome-evolution-dataserver-mail-Folder.top_of_page">org.gnome.evolution.dataserver.mail.Folder</link>, if any.
-   *
-   * Connect to the #GObject::notify signal to get informed of property changes.
-   */
-  g_object_interface_install_property (iface, g_param_spec_object ("folder", "folder", "folder", EGDBUS_TYPE_FOLDER, G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-}
-
-typedef EGdbusObjectIface EGdbusObjectInterface;
-G_DEFINE_INTERFACE_WITH_CODE (EGdbusObject, egdbus_object, G_TYPE_OBJECT, g_type_interface_add_prerequisite (g_define_type_id, G_TYPE_DBUS_OBJECT));
-
-/**
- * egdbus_object_get_folder:
- * @object: A #EGdbusObject.
- *
- * Gets the #EGdbusFolder instance for the D-Bus interface <link linkend="gdbus-interface-org-gnome-evolution-dataserver-mail-Folder.top_of_page">org.gnome.evolution.dataserver.mail.Folder</link> on @object, if any.
- *
- * Returns: (transfer full): A #EGdbusFolder that must be freed with g_object_unref() or %NULL if @object does not implement the interface.
- */
-EGdbusFolder *egdbus_object_get_folder (EGdbusObject *object)
-{
-  GDBusInterface *ret;
-  ret = g_dbus_object_get_interface (G_DBUS_OBJECT (object), "org.gnome.evolution.dataserver.mail.Folder");
-  if (ret == NULL)
-    return NULL;
-  return EGDBUS_FOLDER (ret);
-}
-
-
-/**
- * egdbus_object_peek_folder: (skip)
- * @object: A #EGdbusObject.
- *
- * Like egdbus_object_get_folder() but doesn' increase the reference count on the returned object.
- *
- * <warning>It is not safe to use the returned object if you are on another thread than the one where the #GDBusObjectManagerClient or #GDBusObjectManagerServer for @object is running.</warning>
- *
- * Returns: (transfer none): A #EGdbusFolder or %NULL if @object does not implement the interface. Do not free the returned object, it is owned by @object.
- */
-EGdbusFolder *egdbus_object_peek_folder (EGdbusObject *object)
-{
-  GDBusInterface *ret;
-  ret = g_dbus_object_get_interface (G_DBUS_OBJECT (object), "org.gnome.evolution.dataserver.mail.Folder");
-  if (ret == NULL)
-    return NULL;
-  g_object_unref (ret);
-  return EGDBUS_FOLDER (ret);
-}
-
-
-static void
-egdbus_object_notify (GDBusObject *object, GDBusInterface *interface)
-{
-  g_object_notify (G_OBJECT (object), ((_ExtendedGDBusInterfaceInfo *) g_dbus_interface_get_info (interface))->hyphen_name);
-}
-
-/**
- * EGdbusObjectProxy:
- *
- * The #EGdbusObjectProxy structure contains only private data and should only be accessed using the provided API.
- */
-
-/**
- * EGdbusObjectProxyClass:
- * @parent_class: The parent class.
- *
- * Class structure for #EGdbusObjectProxy.
- */
-
-static void
-egdbus_object_proxy__egdbus_object_iface_init (EGdbusObjectIface *iface)
-{
-}
-
-static void
-egdbus_object_proxy__g_dbus_object_iface_init (GDBusObjectIface *iface)
-{
-  iface->interface_added = egdbus_object_notify;
-  iface->interface_removed = egdbus_object_notify;
-}
-
-
-G_DEFINE_TYPE_WITH_CODE (EGdbusObjectProxy, egdbus_object_proxy, G_TYPE_DBUS_OBJECT_PROXY,
-                         G_IMPLEMENT_INTERFACE (EGDBUS_TYPE_OBJECT, egdbus_object_proxy__egdbus_object_iface_init)
-                         G_IMPLEMENT_INTERFACE (G_TYPE_DBUS_OBJECT, egdbus_object_proxy__g_dbus_object_iface_init));
-
-static void
-egdbus_object_proxy_init (EGdbusObjectProxy *object)
-{
-}
-
-static void
-egdbus_object_proxy_set_property (GObject      *gobject,
-  guint         prop_id,
-  const GValue *value,
-  GParamSpec   *pspec)
-{
-  G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-}
-
-static void
-egdbus_object_proxy_get_property (GObject      *gobject,
-  guint         prop_id,
-  GValue       *value,
-  GParamSpec   *pspec)
-{
-  EGdbusObjectProxy *object = EGDBUS_OBJECT_PROXY (gobject);
-  GDBusInterface *interface;
-
-  switch (prop_id)
-    {
-    case 1:
-      interface = g_dbus_object_get_interface (G_DBUS_OBJECT (object), "org.gnome.evolution.dataserver.mail.Folder");
-      g_value_take_object (value, interface);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-  }
-}
-
-static void
-egdbus_object_proxy_class_init (EGdbusObjectProxyClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->set_property = egdbus_object_proxy_set_property;
-  gobject_class->get_property = egdbus_object_proxy_get_property;
-
-  g_object_class_override_property (gobject_class, 1, "folder");
-}
-
-/**
- * egdbus_object_proxy_new:
- * @connection: A #GDBusConnection.
- * @object_path: An object path.
- *
- * Creates a new proxy object.
- *
- * Returns: (transfer full): The proxy object.
- */
-EGdbusObjectProxy *
-egdbus_object_proxy_new (GDBusConnection *connection,
-  const gchar *object_path)
-{
-  g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), NULL);
-  g_return_val_if_fail (g_variant_is_object_path (object_path), NULL);
-  return EGDBUS_OBJECT_PROXY (g_object_new (EGDBUS_TYPE_OBJECT_PROXY, "g-connection", connection, "g-object-path", object_path, NULL));
-}
-
-/**
- * EGdbusObjectSkeleton:
- *
- * The #EGdbusObjectSkeleton structure contains only private data and should only be accessed using the provided API.
- */
-
-/**
- * EGdbusObjectSkeletonClass:
- * @parent_class: The parent class.
- *
- * Class structure for #EGdbusObjectSkeleton.
- */
-
-static void
-egdbus_object_skeleton__egdbus_object_iface_init (EGdbusObjectIface *iface)
-{
-}
-
-
-static void
-egdbus_object_skeleton__g_dbus_object_iface_init (GDBusObjectIface *iface)
-{
-  iface->interface_added = egdbus_object_notify;
-  iface->interface_removed = egdbus_object_notify;
-}
-
-G_DEFINE_TYPE_WITH_CODE (EGdbusObjectSkeleton, egdbus_object_skeleton, G_TYPE_DBUS_OBJECT_SKELETON,
-                         G_IMPLEMENT_INTERFACE (EGDBUS_TYPE_OBJECT, egdbus_object_skeleton__egdbus_object_iface_init)
-                         G_IMPLEMENT_INTERFACE (G_TYPE_DBUS_OBJECT, egdbus_object_skeleton__g_dbus_object_iface_init));
-
-static void
-egdbus_object_skeleton_init (EGdbusObjectSkeleton *object)
-{
-}
-
-static void
-egdbus_object_skeleton_set_property (GObject      *gobject,
-  guint         prop_id,
-  const GValue *value,
-  GParamSpec   *pspec)
-{
-  EGdbusObjectSkeleton *object = EGDBUS_OBJECT_SKELETON (gobject);
-  GDBusInterfaceSkeleton *interface;
-
-  switch (prop_id)
-    {
-    case 1:
-      interface = g_value_get_object (value);
-      if (interface != NULL)
-        {
-          g_warn_if_fail (EGDBUS_IS_FOLDER (interface));
-          g_dbus_object_skeleton_add_interface (G_DBUS_OBJECT_SKELETON (object), interface);
-        }
-      else
-        {
-          g_dbus_object_skeleton_remove_interface_by_name (G_DBUS_OBJECT_SKELETON (object), "org.gnome.evolution.dataserver.mail.Folder");
-        }
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-  }
-}
-
-static void
-egdbus_object_skeleton_get_property (GObject      *gobject,
-  guint         prop_id,
-  GValue       *value,
-  GParamSpec   *pspec)
-{
-  EGdbusObjectSkeleton *object = EGDBUS_OBJECT_SKELETON (gobject);
-  GDBusInterface *interface;
-
-  switch (prop_id)
-    {
-    case 1:
-      interface = g_dbus_object_get_interface (G_DBUS_OBJECT (object), "org.gnome.evolution.dataserver.mail.Folder");
-      g_value_take_object (value, interface);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-  }
-}
-
-static void
-egdbus_object_skeleton_class_init (EGdbusObjectSkeletonClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->set_property = egdbus_object_skeleton_set_property;
-  gobject_class->get_property = egdbus_object_skeleton_get_property;
-
-  g_object_class_override_property (gobject_class, 1, "folder");
-}
-
-/**
- * egdbus_object_skeleton_new:
- * @object_path: An object path.
- *
- * Creates a new skeleton object.
- *
- * Returns: (transfer full): The skeleton object.
- */
-EGdbusObjectSkeleton *
-egdbus_object_skeleton_new (const gchar *object_path)
-{
-  g_return_val_if_fail (g_variant_is_object_path (object_path), NULL);
-  return EGDBUS_OBJECT_SKELETON (g_object_new (EGDBUS_TYPE_OBJECT_SKELETON, "g-object-path", object_path, NULL));
-}
-
-/**
- * egdbus_object_skeleton_set_folder:
- * @object: A #EGdbusObjectSkeleton.
- * @interface_: (allow-none): A #EGdbusFolder or %NULL to clear the interface.
- *
- * Sets the #EGdbusFolder instance for the D-Bus interface <link linkend="gdbus-interface-org-gnome-evolution-dataserver-mail-Folder.top_of_page">org.gnome.evolution.dataserver.mail.Folder</link> on @object.
- */
-void egdbus_object_skeleton_set_folder (EGdbusObjectSkeleton *object, EGdbusFolder *interface_)
-{
-  g_object_set (G_OBJECT (object), "folder", interface_, NULL);
-}
-
-
-/* ------------------------------------------------------------------------
- * Code for ObjectManager client
- * ------------------------------------------------------------------------
- */
-
-/**
- * SECTION:EGdbusObjectManagerClient
- * @title: EGdbusObjectManagerClient
- * @short_description: Generated GDBusObjectManagerClient type
- *
- * This section contains a #GDBusObjectManagerClient that uses egdbus_object_manager_client_get_proxy_type() as the #GDBusProxyTypeFunc.
- */
-
-/**
- * EGdbusObjectManagerClient:
- *
- * The #EGdbusObjectManagerClient structure contains only private data and should only be accessed using the provided API.
- */
-
-/**
- * EGdbusObjectManagerClientClass:
- * @parent_class: The parent class.
- *
- * Class structure for #EGdbusObjectManagerClient.
- */
-
-G_DEFINE_TYPE (EGdbusObjectManagerClient, egdbus_object_manager_client, G_TYPE_DBUS_OBJECT_MANAGER_CLIENT);
-
-static void
-egdbus_object_manager_client_init (EGdbusObjectManagerClient *manager)
-{
-}
-
-static void
-egdbus_object_manager_client_class_init (EGdbusObjectManagerClientClass *klass)
-{
-}
-
-/**
- * egdbus_object_manager_client_get_proxy_type:
- * @manager: A #GDBusObjectManagerClient.
- * @object_path: The object path of the remote object (unused).
- * @interface_name: (allow-none): Interface name of the remote object or %NULL to get the object proxy #GType.
- * @user_data: User data (unused).
- *
- * A #GDBusProxyTypeFunc that maps @interface_name to the generated #GDBusObjectProxy<!-- -->- and #GDBusProxy<!-- -->-derived types.
- *
- * Returns: A #GDBusProxy<!-- -->-derived #GType if @interface_name is not %NULL, otherwise the #GType for #EGdbusObjectProxy.
- */
-GType
-egdbus_object_manager_client_get_proxy_type (GDBusObjectManagerClient *manager, const gchar *object_path, const gchar *interface_name, gpointer user_data)
-{
-  static gsize once_init_value = 0;
-  static GHashTable *lookup_hash;
-  GType ret;
-
-  if (interface_name == NULL)
-    return EGDBUS_TYPE_OBJECT_PROXY;
-  if (g_once_init_enter (&once_init_value))
-    {
-      lookup_hash = g_hash_table_new (g_str_hash, g_str_equal);
-      g_hash_table_insert (lookup_hash, "org.gnome.evolution.dataserver.mail.Folder", GSIZE_TO_POINTER (EGDBUS_TYPE_FOLDER_PROXY));
-      g_once_init_leave (&once_init_value, 1);
-    }
-  ret = (GType) GPOINTER_TO_SIZE (g_hash_table_lookup (lookup_hash, interface_name));
-  if (ret == (GType) 0)
-    ret = G_TYPE_DBUS_PROXY;
-  return ret;
-}
-
-/**
- * egdbus_object_manager_client_new:
- * @connection: A #GDBusConnection.
- * @flags: Flags from the #GDBusObjectManagerClientFlags enumeration.
- * @name: (allow-none): A bus name (well-known or unique) or %NULL if @connection is not a message bus connection.
- * @object_path: An object path.
- * @cancellable: (allow-none): A #GCancellable or %NULL.
- * @callback: A #GAsyncReadyCallback to call when the request is satisfied.
- * @user_data: User data to pass to @callback.
- *
- * Asynchronously creates #GDBusObjectManagerClient using egdbus_object_manager_client_get_proxy_type() as the #GDBusProxyTypeFunc. See g_dbus_object_manager_client_new() for more details.
- *
- * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
- * You can then call egdbus_object_manager_client_new_finish() to get the result of the operation.
- *
- * See egdbus_object_manager_client_new_sync() for the synchronous, blocking version of this constructor.
- */
-void
-egdbus_object_manager_client_new (
-    GDBusConnection        *connection,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GAsyncReadyCallback     callback,
-    gpointer                user_data)
-{
-  g_async_initable_new_async (EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "flags", flags, "name", name, "connection", connection, "object-path", object_path, "get-proxy-type-func", egdbus_object_manager_client_get_proxy_type, NULL);
-}
-
-/**
- * egdbus_object_manager_client_new_finish:
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_object_manager_client_new().
- * @error: Return location for error or %NULL
- *
- * Finishes an operation started with egdbus_object_manager_client_new().
- *
- * Returns: (transfer full) (type EGdbusObjectManagerClient): The constructed object manager client or %NULL if @error is set.
- */
-GDBusObjectManager *
-egdbus_object_manager_client_new_finish (
-    GAsyncResult        *res,
-    GError             **error)
-{
-  GObject *ret;
-  GObject *source_object;
-  source_object = g_async_result_get_source_object (res);
-  ret = g_async_initable_new_finish (G_ASYNC_INITABLE (source_object), res, error);
-  g_object_unref (source_object);
-  if (ret != NULL)
-    return G_DBUS_OBJECT_MANAGER (ret);
-  else
-    return NULL;
-}
-
-/**
- * egdbus_object_manager_client_new_sync:
- * @connection: A #GDBusConnection.
- * @flags: Flags from the #GDBusObjectManagerClientFlags enumeration.
- * @name: (allow-none): A bus name (well-known or unique) or %NULL if @connection is not a message bus connection.
- * @object_path: An object path.
- * @cancellable: (allow-none): A #GCancellable or %NULL.
- * @error: Return location for error or %NULL
- *
- * Synchronously creates #GDBusObjectManagerClient using egdbus_object_manager_client_get_proxy_type() as the #GDBusProxyTypeFunc. See g_dbus_object_manager_client_new_sync() for more details.
- *
- * The calling thread is blocked until a reply is received.
- *
- * See egdbus_object_manager_client_new() for the asynchronous version of this constructor.
- *
- * Returns: (transfer full) (type EGdbusObjectManagerClient): The constructed object manager client or %NULL if @error is set.
- */
-GDBusObjectManager *
-egdbus_object_manager_client_new_sync (
-    GDBusConnection        *connection,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GError                **error)
-{
-  GInitable *ret;
-  ret = g_initable_new (EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, cancellable, error, "flags", flags, "name", name, "connection", connection, "object-path", object_path, "get-proxy-type-func", egdbus_object_manager_client_get_proxy_type, NULL);
-  if (ret != NULL)
-    return G_DBUS_OBJECT_MANAGER (ret);
-  else
-    return NULL;
-}
-
-
-/**
- * egdbus_object_manager_client_new_for_bus:
- * @bus_type: A #GBusType.
- * @flags: Flags from the #GDBusObjectManagerClientFlags enumeration.
- * @name: A bus name (well-known or unique).
- * @object_path: An object path.
- * @cancellable: (allow-none): A #GCancellable or %NULL.
- * @callback: A #GAsyncReadyCallback to call when the request is satisfied.
- * @user_data: User data to pass to @callback.
- *
- * Like egdbus_object_manager_client_new() but takes a #GBusType instead of a #GDBusConnection.
- *
- * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
- * You can then call egdbus_object_manager_client_new_for_bus_finish() to get the result of the operation.
- *
- * See egdbus_object_manager_client_new_for_bus_sync() for the synchronous, blocking version of this constructor.
- */
-void
-egdbus_object_manager_client_new_for_bus (
-    GBusType                bus_type,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GAsyncReadyCallback     callback,
-    gpointer                user_data)
-{
-  g_async_initable_new_async (EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "flags", flags, "name", name, "bus-type", bus_type, "object-path", object_path, "get-proxy-type-func", egdbus_object_manager_client_get_proxy_type, NULL);
-}
-
-/**
- * egdbus_object_manager_client_new_for_bus_finish:
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_object_manager_client_new_for_bus().
- * @error: Return location for error or %NULL
- *
- * Finishes an operation started with egdbus_object_manager_client_new_for_bus().
- *
- * Returns: (transfer full) (type EGdbusObjectManagerClient): The constructed object manager client or %NULL if @error is set.
- */
-GDBusObjectManager *
-egdbus_object_manager_client_new_for_bus_finish (
-    GAsyncResult        *res,
-    GError             **error)
-{
-  GObject *ret;
-  GObject *source_object;
-  source_object = g_async_result_get_source_object (res);
-  ret = g_async_initable_new_finish (G_ASYNC_INITABLE (source_object), res, error);
-  g_object_unref (source_object);
-  if (ret != NULL)
-    return G_DBUS_OBJECT_MANAGER (ret);
-  else
-    return NULL;
-}
-
-/**
- * egdbus_object_manager_client_new_for_bus_sync:
- * @bus_type: A #GBusType.
- * @flags: Flags from the #GDBusObjectManagerClientFlags enumeration.
- * @name: A bus name (well-known or unique).
- * @object_path: An object path.
- * @cancellable: (allow-none): A #GCancellable or %NULL.
- * @error: Return location for error or %NULL
- *
- * Like egdbus_object_manager_client_new_sync() but takes a #GBusType instead of a #GDBusConnection.
- *
- * The calling thread is blocked until a reply is received.
- *
- * See egdbus_object_manager_client_new_for_bus() for the asynchronous version of this constructor.
- *
- * Returns: (transfer full) (type EGdbusObjectManagerClient): The constructed object manager client or %NULL if @error is set.
- */
-GDBusObjectManager *
-egdbus_object_manager_client_new_for_bus_sync (
-    GBusType                bus_type,
-    GDBusObjectManagerClientFlags  flags,
-    const gchar            *name,
-    const gchar            *object_path,
-    GCancellable           *cancellable,
-    GError                **error)
-{
-  GInitable *ret;
-  ret = g_initable_new (EGDBUS_TYPE_OBJECT_MANAGER_CLIENT, cancellable, error, "flags", flags, "name", name, "bus-type", bus_type, "object-path", object_path, "get-proxy-type-func", egdbus_object_manager_client_get_proxy_type, NULL);
-  if (ret != NULL)
-    return G_DBUS_OBJECT_MANAGER (ret);
-  else
-    return NULL;
-}
-
 

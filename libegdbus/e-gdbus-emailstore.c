@@ -1584,6 +1584,36 @@ static const _ExtendedGDBusMethodInfo _egdbus_store_method_info_count_by_sql =
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_store_method_info_is_vee_store_OUT_ARG_veestore =
+{
+  {
+    -1,
+    "veestore",
+    "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_store_method_info_is_vee_store_OUT_ARG_pointers[] =
+{
+  &_egdbus_store_method_info_is_vee_store_OUT_ARG_veestore,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _egdbus_store_method_info_is_vee_store =
+{
+  {
+    -1,
+    "isVeeStore",
+    NULL,
+    (GDBusArgInfo **) &_egdbus_store_method_info_is_vee_store_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-is-vee-store",
+  FALSE
+};
+
 static const _ExtendedGDBusMethodInfo * const _egdbus_store_method_info_pointers[] =
 {
   &_egdbus_store_method_info_get_display_name,
@@ -1615,6 +1645,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_store_method_info_pointers
   &_egdbus_store_method_info_unsubscribe_folder,
   &_egdbus_store_method_info_search_by_sql,
   &_egdbus_store_method_info_count_by_sql,
+  &_egdbus_store_method_info_is_vee_store,
   NULL
 };
 
@@ -1967,6 +1998,7 @@ egdbus_store_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_get_user_cache_dir: Handler for the #EGdbusStore::handle-get-user-cache-dir signal.
  * @handle_get_user_data_dir: Handler for the #EGdbusStore::handle-get-user-data-dir signal.
  * @handle_is_folder_subscribed: Handler for the #EGdbusStore::handle-is-folder-subscribed signal.
+ * @handle_is_vee_store: Handler for the #EGdbusStore::handle-is-vee-store signal.
  * @handle_noop: Handler for the #EGdbusStore::handle-noop signal.
  * @handle_rename_folder: Handler for the #EGdbusStore::handle-rename-folder signal.
  * @handle_search_by_sql: Handler for the #EGdbusStore::handle-search-by-sql signal.
@@ -2661,6 +2693,28 @@ egdbus_store_default_init (EGdbusStoreIface *iface)
     G_TYPE_BOOLEAN,
     3,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING);
+
+  /**
+   * EGdbusStore::handle-is-vee-store:
+   * @object: A #EGdbusStore.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.isVeeStore">isVeeStore()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_store_complete_is_vee_store() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-is-vee-store",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (EGdbusStoreIface, handle_is_vee_store),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
 
   /* GObject signals for received D-Bus signals: */
   /**
@@ -5910,6 +5964,104 @@ _out:
 }
 
 /**
+ * egdbus_store_call_is_vee_store:
+ * @proxy: A #EGdbusStoreProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.isVeeStore">isVeeStore()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call egdbus_store_call_is_vee_store_finish() to get the result of the operation.
+ *
+ * See egdbus_store_call_is_vee_store_sync() for the synchronous, blocking version of this method.
+ */
+void
+egdbus_store_call_is_vee_store (
+    EGdbusStore *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "isVeeStore",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * egdbus_store_call_is_vee_store_finish:
+ * @proxy: A #EGdbusStoreProxy.
+ * @out_veestore: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_store_call_is_vee_store().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with egdbus_store_call_is_vee_store().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_store_call_is_vee_store_finish (
+    EGdbusStore *proxy,
+    gboolean *out_veestore,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_veestore);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * egdbus_store_call_is_vee_store_sync:
+ * @proxy: A #EGdbusStoreProxy.
+ * @out_veestore: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.isVeeStore">isVeeStore()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See egdbus_store_call_is_vee_store() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+egdbus_store_call_is_vee_store_sync (
+    EGdbusStore *proxy,
+    gboolean *out_veestore,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "isVeeStore",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_veestore);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * egdbus_store_complete_get_display_name:
  * @object: A #EGdbusStore.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -6510,6 +6662,27 @@ egdbus_store_complete_count_by_sql (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(u)",
                    count));
+}
+
+/**
+ * egdbus_store_complete_is_vee_store:
+ * @object: A #EGdbusStore.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @veestore: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Store.isVeeStore">isVeeStore()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+egdbus_store_complete_is_vee_store (
+    EGdbusStore *object,
+    GDBusMethodInvocation *invocation,
+    gboolean veestore)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   veestore));
 }
 
 /* ------------------------------------------------------------------------ */

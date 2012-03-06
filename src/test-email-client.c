@@ -1336,6 +1336,32 @@ start_test_client (gpointer foo)
 #endif
 	}
 
+	if (!egdbus_session_call_get_vee_store_sync (session_proxy, &service, NULL, &error)) {
+		printf("Get VEE Service failed: %s\n", error->message);
+	} else {
+		printf("Got VEE FOLDER: %s\n", service);
+		store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
+							G_DBUS_PROXY_FLAGS_NONE,
+							E_MAIL_DATA_FACTORY_SERVICE_NAME,
+							service,
+							NULL, &error);
+		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, ops_path, &infos, NULL, &error))
+			printf("Get Folder Info for VEEStore Error %s\n", error->message);
+		else {
+			GVariantIter iter;
+			guint32 u1;
+			gint32 i1, i2;
+			gchar *str1, *str2, *str3;
+	
+			g_variant_iter_init (&iter, infos);
+			while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
+				printf("Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, u1, i1, i2);
+			}			
+		}
+
+
+	}
+
 	return FALSE;
 }
 

@@ -32,6 +32,7 @@
 #include "libemail-utils/mail-mt.h"
 #include "libemail-engine/mail-config.h"
 #include "libemail-engine/mail-ops.h"
+#include "libemail-engine/mail-vfolder.h"
 
 #include "mail-send-recv.h"
 #include "e-dbus-manager.h"
@@ -67,7 +68,8 @@ start_mail_engine ()
 
 	
 	g_free(data_dir);
-
+	
+	vfolder_load_storage (session);
 	mail_autoreceive_init (session);
 	
 	e_dbus_manager_new ();

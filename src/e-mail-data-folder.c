@@ -2149,6 +2149,16 @@ impl_Mail_thawFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, c
 	return TRUE;
 }
 
+static gboolean
+impl_Mail_isVeeFolder (EGdbusFolder *object, GDBusMethodInvocation *invocation, EMailDataFolder *mfolder)
+{
+	EMailDataFolderPrivate *priv = DATA_FOLDER_PRIVATE(mfolder);
+
+	egdbus_folder_complete_is_vee_folder (object, invocation, CAMEL_IS_VEE_FOLDER (priv->folder));
+	ipc(printf("Get isVeeFolder %s : %d \n", priv->path, CAMEL_IS_VEE_FOLDER (priv->folder)));
+
+	return TRUE;
+}
 
 /* Class def */
 
@@ -2200,6 +2210,7 @@ e_mail_data_folder_init (EMailDataFolder *self)
 	g_signal_connect (priv->gdbus_object, "handle-prepare-summary", G_CALLBACK (impl_Mail_prepareSummary), self);
 	g_signal_connect (priv->gdbus_object, "handle-freeze-folder", G_CALLBACK (impl_Mail_thawFolder), self);
 	g_signal_connect (priv->gdbus_object, "handle-thaw-folder", G_CALLBACK (impl_Mail_freezeFolder), self);
+	g_signal_connect (priv->gdbus_object, "handle-is-vee-folder", G_CALLBACK (impl_Mail_isVeeFolder), self);
 
 	/* g_signal_connect (priv->gdbus_object, "handle-fetch-old-messages", G_CALLBACK (impl_Mail_fetchOldMessages), self); */
 	

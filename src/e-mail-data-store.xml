@@ -178,6 +178,11 @@
       <arg name="count" type="u" direction="out"/>
     </method>  
 
+    <!-- VeeStore methods-->
+    <method name="isVeeStore">
+      <arg name="veestore" type="b" direction="out"/>	    
+    </method>
+
     <!-- CamelStore signals -->
     <signal name="FolderOpened">
     	<arg name="folder" type="o"/>

@@ -58,6 +58,9 @@
     <method name="getLocalStore">
       <arg name="store" type="o" direction="out"/>
     </method>
+    <method name="getVeeStore">
+      <arg name="store" type="o" direction="out"/>
+    </method>
 
     <method name="addPassword">
       <arg name="key" type="s" direction="in"/>	    
@@ -102,6 +105,19 @@
       <arg name="uid" type="s" direction="in"/>	 
       <arg name="count" type="i" direction="in"/>	    	             
       <arg name="success" type="b" direction="out"/>            
+    </method>
+
+    <method name="getAccountSearchFolder">
+      <arg name="uid" type="s" direction="in"/>	 	    
+      <arg name="query" type="s" direction="in"/>	 	    
+      <arg name="operation" type="o" direction="in"/>	    	    
+      <arg name="folder" type="o" direction="out"/>            
+    </method>
+
+    <method name="getAllAccountSearchFolder">
+      <arg name="query" type="s" direction="in"/>	 	    
+      <arg name="operation" type="o" direction="in"/>	    	    
+      <arg name="folder" type="o" direction="out"/>            
     </method>
 
     <method name="cancelOperations">

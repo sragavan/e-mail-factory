@@ -807,6 +807,19 @@ impl_Mail_isFolderSubscribed (EGdbusStore *object, GDBusMethodInvocation *invoca
 }
 
 static gboolean
+impl_Mail_isVeeStore (EGdbusStore *object, GDBusMethodInvocation *invocation, EMailDataStore *mstore)
+{
+	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
+
+	ipc (printf("EMailDataStore: is Vee Store %s: %d\n", priv->object_path, CAMEL_IS_VEE_STORE (priv->store)));
+
+	egdbus_store_complete_is_vee_store (object, invocation, CAMEL_IS_VEE_STORE (priv->store));
+
+	return TRUE;
+}
+
+
+static gboolean
 impl_Mail_subscribeFolder (EGdbusStore *object, GDBusMethodInvocation *invocation, char *folder, const char *ops_path, EMailDataStore *mstore)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(mstore);
@@ -1267,6 +1280,7 @@ e_mail_data_store_init (EMailDataStore *self)
 
 	g_signal_connect (priv->gdbus_object, "handle-supports-subscriptions", G_CALLBACK (impl_Mail_supportsSubscriptions), self);
 	g_signal_connect (priv->gdbus_object, "handle-is-folder-subscribed", G_CALLBACK (impl_Mail_isFolderSubscribed), self);
+	g_signal_connect (priv->gdbus_object, "handle-is-vee-store", G_CALLBACK (impl_Mail_isVeeStore), self);
 	g_signal_connect (priv->gdbus_object, "handle-subscribe-folder", G_CALLBACK (impl_Mail_subscribeFolder), self);
 	g_signal_connect (priv->gdbus_object, "handle-unsubscribe-folder", G_CALLBACK (impl_Mail_unsubscribeFolder), self);
 
