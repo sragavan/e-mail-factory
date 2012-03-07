@@ -179,6 +179,7 @@ struct _EGdbusSessionIface
 
   void (*send_short_message_complete) (
     EGdbusSession *object,
+    const gchar *arg_operation,
     GVariant *arg_result);
 
 };
@@ -317,6 +318,7 @@ void egdbus_session_emit_send_receive_complete (
 
 void egdbus_session_emit_send_short_message_complete (
     EGdbusSession *object,
+    const gchar *arg_operation,
     GVariant *arg_result);
 
 void egdbus_session_emit_account_added (

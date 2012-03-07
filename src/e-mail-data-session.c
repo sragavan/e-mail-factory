@@ -754,33 +754,19 @@ impl_Mail_sendMailsFromOutbox (EGdbusSession *object, GDBusMethodInvocation *inv
 static gboolean
 impl_Mail_sendShortMessage (EGdbusSession *object,
 		GDBusMethodInvocation *invocation, const char *account_uid,
-		const char *text, const char **recipients,
+		const char *text, const char **to,
 		EMailDataSession *msession)
 {
-	GCancellable *ops;
-	EMailDataOperation *mops;
-	char *mops_path;
-	GError *error;
+	GError *error = NULL;
 
-	ipc(printf("Initiating Send Short Message\n"));
+	ipc(printf("Initiating Send short message\n"));
 
-	ops = mail_send_short_message (session, account_uid, text, recipients,
-									&error);
-	if (ops == NULL) {
+	if (!mail_send_short_message (object, invocation, account_uid, text, to,
+							msession, &error)) {
 		g_dbus_method_invocation_return_gerror (invocation, error);
 		g_error_free(error);
-		return TRUE;
+
 	}
-
-	mops = e_mail_data_operation_new ((CamelOperation *) ops);
-	g_object_unref (ops);
-
-	mops_path = e_mail_data_operation_register_gdbus_object (mops,
-			g_dbus_method_invocation_get_connection(invocation),
-			NULL);
-	egdbus_session_complete_send_short_message (object, invocation,
-								mops_path);
-	g_free (mops_path);
 
 	return TRUE;
 }
@@ -1317,14 +1303,15 @@ e_mail_session_get_folder_from_path (EMailDataSession *msession, const char *pat
 
 void
 e_mail_session_emit_send_short_message_completed (EMailDataSession *msession,
+						gchar *ops_path,
 						GVariantBuilder *builder)
 {
-	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE (msession);
 	GVariant *result = g_variant_builder_end (builder);
+	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE (msession);
 
 	ipc(printf("Emitting Send Short Message completed signal\n"));
 	egdbus_session_emit_send_short_message_complete (priv->gdbus_object,
-									result);
+							ops_path, result);
 	g_variant_unref (result);
 }
 

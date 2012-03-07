@@ -125,6 +125,7 @@
     <signal name="sendReceiveComplete">
     </signal>
     <signal name="sendShortMessageComplete">
+      <arg name="operation" type="o"/>
       <arg name="result" type="a(sssi)"/>
     </signal>
     <signal name="AccountAdded">

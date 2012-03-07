@@ -1245,6 +1245,17 @@ static const _ExtendedGDBusSignalInfo _egdbus_session_signal_info_send_receive_c
   "send-receive-complete"
 };
 
+static const _ExtendedGDBusArgInfo _egdbus_session_signal_info_send_short_message_complete_ARG_operation =
+{
+  {
+    -1,
+    "operation",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _egdbus_session_signal_info_send_short_message_complete_ARG_result =
 {
   {
@@ -1258,6 +1269,7 @@ static const _ExtendedGDBusArgInfo _egdbus_session_signal_info_send_short_messag
 
 static const _ExtendedGDBusArgInfo * const _egdbus_session_signal_info_send_short_message_complete_ARG_pointers[] =
 {
+  &_egdbus_session_signal_info_send_short_message_complete_ARG_operation,
   &_egdbus_session_signal_info_send_short_message_complete_ARG_result,
   NULL
 };
@@ -2126,6 +2138,7 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
   /**
    * EGdbusSession::send-short-message-complete:
    * @object: A #EGdbusSession.
+   * @arg_operation: Argument.
    * @arg_result: Argument.
    *
    * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-org-gnome-evolution-dataserver-mail-Session.sendShortMessageComplete">"sendShortMessageComplete"</link> is received.
@@ -2140,7 +2153,7 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_NONE,
-    1, G_TYPE_VARIANT);
+    2, G_TYPE_STRING, G_TYPE_VARIANT);
 
   /**
    * EGdbusSession::account-added:
@@ -2241,6 +2254,7 @@ egdbus_session_emit_send_receive_complete (
 /**
  * egdbus_session_emit_send_short_message_complete:
  * @object: A #EGdbusSession.
+ * @arg_operation: Argument to pass with the signal.
  * @arg_result: Argument to pass with the signal.
  *
  * Emits the <link linkend="gdbus-signal-org-gnome-evolution-dataserver-mail-Session.sendShortMessageComplete">"sendShortMessageComplete"</link> D-Bus signal.
@@ -2248,9 +2262,10 @@ egdbus_session_emit_send_receive_complete (
 void
 egdbus_session_emit_send_short_message_complete (
     EGdbusSession *object,
+    const gchar *arg_operation,
     GVariant *arg_result)
 {
-  g_signal_emit_by_name (object, "send-short-message-complete", arg_result);
+  g_signal_emit_by_name (object, "send-short-message-complete", arg_operation, arg_result);
 }
 
 /**
@@ -5957,6 +5972,7 @@ _egdbus_session_on_signal_send_receive_complete (
 static void
 _egdbus_session_on_signal_send_short_message_complete (
     EGdbusSession *object,
+    const gchar *arg_operation,
     GVariant *arg_result)
 {
   EGdbusSessionSkeleton *skeleton = EGDBUS_SESSION_SKELETON (object);
@@ -5965,7 +5981,8 @@ _egdbus_session_on_signal_send_short_message_complete (
     return;
   g_dbus_connection_emit_signal (connection,
     NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "org.gnome.evolution.dataserver.mail.Session", "sendShortMessageComplete",
-    g_variant_new ("(@a(sssi))",
+    g_variant_new ("(o@a(sssi))",
+                   arg_operation,
                    arg_result), NULL);
 }
 

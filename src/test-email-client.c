@@ -1376,14 +1376,16 @@ send_short_message_status_cb (EGdbusOperation *object, const gchar *description,
 }
 
 static void
-send_short_message_cb (EGdbusSession *session_proxy, const GVariant *recipients)
+send_short_message_cb (EGdbusSession *session_proxy, const gchar *ops_path,
+						const GVariant *result)
 {
 	GVariantIter iter;
 	char *addr, *err, *quark;
 	int code;
 
-	printf ("\nsend_short_message_cb\n");
-	g_variant_iter_init (&iter, recipients);
+	printf ("\nsend_short_message_cb for ops [%s]\n", ops_path);
+
+	g_variant_iter_init (&iter, result);
 	while (g_variant_iter_next (&iter, "(sssi)", &addr, &err, &quark,
 								&code)) {
 		if (*err)
@@ -1441,7 +1443,7 @@ start_test_client_send_short_msg (gpointer foo)
 					NULL, &error)) {
 		printf ("Send Message failed: %s\n", error->message);
 		g_error_free (error);
-		return TRUE;
+		return FALSE;
 	}
 
 	ops_proxy = egdbus_operation_proxy_new_sync (
@@ -1451,7 +1453,7 @@ start_test_client_send_short_msg (gpointer foo)
 	if (!ops_proxy) {
 		printf ("Send Message failed: %s\n", error->message);
 		g_error_free (error);
-		return TRUE;
+		return FALSE;
 	}
 
 	g_signal_connect (ops_proxy , "status",

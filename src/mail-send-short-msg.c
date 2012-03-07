@@ -17,6 +17,7 @@
 #define MAX_SUBJECT_LENGTH 20
 
 extern EMailDataSession *data_session;
+extern EMailSession *session;
 
 typedef struct _SendAsyncContext SendAsyncContext;
 
@@ -35,6 +36,7 @@ struct _SendAsyncContext {
 	GVariantBuilder *result;
 
 	GCancellable *cancellable;
+	gchar *ops_path;
 	gint io_priority;
 };
 
@@ -57,6 +59,8 @@ async_context_free (SendAsyncContext *context)
 		g_variant_builder_unref(context->result);
 	if (context->sent_folder_uri)
 		g_free (context->sent_folder_uri);
+	if (context->ops_path)
+		g_free (context->ops_path);
 	if (context->cancellable != NULL) {
 		camel_operation_pop_message (context->cancellable);
 		g_object_unref (context->cancellable);
@@ -284,12 +288,15 @@ mail_send_short_message_completed (GObject *source, GAsyncResult *res,
 {
 	SendAsyncContext *context = (SendAsyncContext *) user_data;
 	e_mail_session_emit_send_short_message_completed (data_session,
-							context->result);
+					context->ops_path,
+					context->result);
 }
 
-GCancellable *
-mail_send_short_message (EMailSession *session, const char *account_uid,
-			const char *text, const char **to, GError **ret_error)
+gboolean
+mail_send_short_message (EGdbusSession *object,
+		GDBusMethodInvocation *invocation, const char *account_uid,
+		const char *text, const char **to,
+		EMailDataSession *msession, GError **ret_error)
 {
 	EAccount *account;
 	CamelMimeMessage *message;
@@ -301,52 +308,52 @@ mail_send_short_message (EMailSession *session, const char *account_uid,
 	SendAsyncContext *context;
 	CamelInternetAddress *from;
 	GCancellable *ops;
+	EMailDataOperation *mops;
+	char *mops_path;
 	gchar subject[MAX_SUBJECT_LENGTH + 4];
 	GError *error = NULL;
 
 	/* Check params. */
 
-	*ret_error = NULL;
-
 	if (account_uid == NULL || *account_uid == 0) {
-		*ret_error = g_error_new (G_DBUS_ERROR,
+		error = g_error_new (G_DBUS_ERROR,
 						G_DBUS_ERROR_INVALID_ARGS,
 						_("Invalid account"));
-		return NULL;
+		goto on_error;
 	}
 	if (text == NULL || *text == 0) {
-		*ret_error = g_error_new (G_DBUS_ERROR,
+		error = g_error_new (G_DBUS_ERROR,
 						G_DBUS_ERROR_INVALID_ARGS,
 						_("Text is empty"));
-		return NULL;
+		goto on_error;
 	}
 	if (to == NULL || *to == 0 || **to == 0) {
-		*ret_error = g_error_new (G_DBUS_ERROR,
+		error = g_error_new (G_DBUS_ERROR,
 						G_DBUS_ERROR_INVALID_ARGS,
 						_("No recipient"));
-		return NULL;
+		goto on_error;
 	}
 
 	/* Get transport. */
 
 	account = e_get_account_by_uid (account_uid);
 	if (!account) {
-		*ret_error = g_error_new (G_DBUS_ERROR,
+		error = g_error_new (G_DBUS_ERROR,
 						G_DBUS_ERROR_INVALID_ARGS,
 						_("Invalid account %s"),
 						account_uid);
-		return NULL;
+		goto on_error;
 	}
 
 	transport_uid = g_strconcat (account->uid, "-transport", NULL);
 	service = camel_session_get_service (CAMEL_SESSION (session),
 								transport_uid);
 	if (!CAMEL_IS_TRANSPORT (service)) {
-		*ret_error = g_error_new(G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+		error = g_error_new(G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
 					_("Invalid account %s"), account_uid);
 		g_object_unref (account);
 		g_free (transport_uid);
- 		return NULL;
+		goto on_error;
 	}
 
 	/* Prepare message. */
@@ -375,9 +382,18 @@ mail_send_short_message (EMailSession *session, const char *account_uid,
 	info = camel_message_info_new (NULL);
 	camel_message_info_set_flags (info, CAMEL_MESSAGE_SEEN, ~0);
 
-	/* The rest of the processing happens in a thread. */
+	/* Return the new operation */
 
 	ops = camel_operation_new ();
+	mops = e_mail_data_operation_new ((CamelOperation *) ops);
+
+	mops_path = e_mail_data_operation_register_gdbus_object (mops,
+			g_dbus_method_invocation_get_connection(invocation),
+			NULL);
+	egdbus_session_complete_send_short_message (object, invocation,
+								mops_path);
+
+	/* The rest of the processing happens in a thread. */
 
 	context = g_slice_new0 (SendAsyncContext);
 	context->message = message;
@@ -387,7 +403,8 @@ mail_send_short_message (EMailSession *session, const char *account_uid,
 	context->info = info;
 	context->transport = service;
 	context->sent_folder_uri = g_strdup (account->sent_folder_uri);
-	context->cancellable = g_object_ref (ops);
+	context->cancellable = ops;
+	context->ops_path = mops_path;
 	context->result = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
 
 	/* Failure here emits a runtime warning but is non-fatal. */
@@ -417,5 +434,12 @@ mail_send_short_message (EMailSession *session, const char *account_uid,
 
 	g_object_unref (simple);
 
-	return ops;
+	return TRUE;
+
+on_error:
+
+	*ret_error = error;
+
+	return FALSE;
 }
+
