@@ -35,7 +35,7 @@ test_email_client_LDADD = \
 
 
 desktopentry_in_files = evolution-mail-factory.desktop.in
-desktopentry_DATA = $(desktopentry_in_files:.desktop.in=.desktop)
+#desktopentry_DATA = $(desktopentry_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
 
