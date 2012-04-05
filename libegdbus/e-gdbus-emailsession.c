@@ -1002,7 +1002,7 @@ static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_fetch_account 
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_old_messages_IN_ARG_uid =
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_messages_IN_ARG_uid =
 {
   {
     -1,
@@ -1013,51 +1013,75 @@ static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_old_message
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_old_messages_IN_ARG_count =
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_messages_IN_ARG_type =
 {
   {
     -1,
-    "count",
+    "type",
+    "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_messages_IN_ARG_limit =
+{
+  {
+    -1,
+    "limit",
     "i",
     NULL
   },
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_old_messages_IN_ARG_pointers[] =
-{
-  &_egdbus_session_method_info_fetch_old_messages_IN_ARG_uid,
-  &_egdbus_session_method_info_fetch_old_messages_IN_ARG_count,
-  NULL
-};
-
-static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_old_messages_OUT_ARG_success =
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_messages_IN_ARG_ops =
 {
   {
     -1,
-    "success",
+    "ops",
+    "o",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_messages_IN_ARG_pointers[] =
+{
+  &_egdbus_session_method_info_fetch_messages_IN_ARG_uid,
+  &_egdbus_session_method_info_fetch_messages_IN_ARG_type,
+  &_egdbus_session_method_info_fetch_messages_IN_ARG_limit,
+  &_egdbus_session_method_info_fetch_messages_IN_ARG_ops,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _egdbus_session_method_info_fetch_messages_OUT_ARG_more =
+{
+  {
+    -1,
+    "more",
     "b",
     NULL
   },
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_old_messages_OUT_ARG_pointers[] =
+static const _ExtendedGDBusArgInfo * const _egdbus_session_method_info_fetch_messages_OUT_ARG_pointers[] =
 {
-  &_egdbus_session_method_info_fetch_old_messages_OUT_ARG_success,
+  &_egdbus_session_method_info_fetch_messages_OUT_ARG_more,
   NULL
 };
 
-static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_fetch_old_messages =
+static const _ExtendedGDBusMethodInfo _egdbus_session_method_info_fetch_messages =
 {
   {
     -1,
-    "fetchOldMessages",
-    (GDBusArgInfo **) &_egdbus_session_method_info_fetch_old_messages_IN_ARG_pointers,
-    (GDBusArgInfo **) &_egdbus_session_method_info_fetch_old_messages_OUT_ARG_pointers,
+    "fetchMessages",
+    (GDBusArgInfo **) &_egdbus_session_method_info_fetch_messages_IN_ARG_pointers,
+    (GDBusArgInfo **) &_egdbus_session_method_info_fetch_messages_OUT_ARG_pointers,
     NULL
   },
-  "handle-fetch-old-messages",
+  "handle-fetch-messages",
   FALSE
 };
 
@@ -1227,7 +1251,7 @@ static const _ExtendedGDBusMethodInfo * const _egdbus_session_method_info_pointe
   &_egdbus_session_method_info_send_mails_from_outbox,
   &_egdbus_session_method_info_send_short_message,
   &_egdbus_session_method_info_fetch_account,
-  &_egdbus_session_method_info_fetch_old_messages,
+  &_egdbus_session_method_info_fetch_messages,
   &_egdbus_session_method_info_get_account_search_folder,
   &_egdbus_session_method_info_get_all_account_search_folder,
   &_egdbus_session_method_info_cancel_operations,
@@ -1505,7 +1529,7 @@ egdbus_session_override_properties (GObjectClass *klass, guint property_id_begin
  * @handle_cancel_operations: Handler for the #EGdbusSession::handle-cancel-operations signal.
  * @handle_create_mail_operation: Handler for the #EGdbusSession::handle-create-mail-operation signal.
  * @handle_fetch_account: Handler for the #EGdbusSession::handle-fetch-account signal.
- * @handle_fetch_old_messages: Handler for the #EGdbusSession::handle-fetch-old-messages signal.
+ * @handle_fetch_messages: Handler for the #EGdbusSession::handle-fetch-messages signal.
  * @handle_find_password: Handler for the #EGdbusSession::handle-find-password signal.
  * @handle_get_account_search_folder: Handler for the #EGdbusSession::handle-get-account-search-folder signal.
  * @handle_get_all_account_search_folder: Handler for the #EGdbusSession::handle-get-all-account-search-folder signal.
@@ -2022,28 +2046,30 @@ egdbus_session_default_init (EGdbusSessionIface *iface)
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /**
-   * EGdbusSession::handle-fetch-old-messages:
+   * EGdbusSession::handle-fetch-messages:
    * @object: A #EGdbusSession.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_uid: Argument passed by remote caller.
-   * @arg_count: Argument passed by remote caller.
+   * @arg_type: Argument passed by remote caller.
+   * @arg_limit: Argument passed by remote caller.
+   * @arg_ops: Argument passed by remote caller.
    *
-   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchOldMessages">fetchOldMessages()</link> D-Bus method.
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchMessages">fetchMessages()</link> D-Bus method.
    *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_fetch_old_messages() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call egdbus_session_complete_fetch_messages() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
    *
    * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
    */
-  g_signal_new ("handle-fetch-old-messages",
+  g_signal_new ("handle-fetch-messages",
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (EGdbusSessionIface, handle_fetch_old_messages),
+    G_STRUCT_OFFSET (EGdbusSessionIface, handle_fetch_messages),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    3,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_INT);
+    5,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING);
 
   /**
    * EGdbusSession::handle-get-account-search-folder:
@@ -4481,34 +4507,40 @@ _out:
 }
 
 /**
- * egdbus_session_call_fetch_old_messages:
+ * egdbus_session_call_fetch_messages:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uid: Argument to pass with the method invocation.
- * @arg_count: Argument to pass with the method invocation.
+ * @arg_type: Argument to pass with the method invocation.
+ * @arg_limit: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
  *
- * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchOldMessages">fetchOldMessages()</link> D-Bus method on @proxy.
+ * Asynchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchMessages">fetchMessages()</link> D-Bus method on @proxy.
  * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
- * You can then call egdbus_session_call_fetch_old_messages_finish() to get the result of the operation.
+ * You can then call egdbus_session_call_fetch_messages_finish() to get the result of the operation.
  *
- * See egdbus_session_call_fetch_old_messages_sync() for the synchronous, blocking version of this method.
+ * See egdbus_session_call_fetch_messages_sync() for the synchronous, blocking version of this method.
  */
 void
-egdbus_session_call_fetch_old_messages (
+egdbus_session_call_fetch_messages (
     EGdbusSession *proxy,
     const gchar *arg_uid,
-    gint arg_count,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
-    "fetchOldMessages",
-    g_variant_new ("(si)",
+    "fetchMessages",
+    g_variant_new ("(ssio)",
                    arg_uid,
-                   arg_count),
+                   arg_type,
+                   arg_limit,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -4517,20 +4549,20 @@ egdbus_session_call_fetch_old_messages (
 }
 
 /**
- * egdbus_session_call_fetch_old_messages_finish:
+ * egdbus_session_call_fetch_messages_finish:
  * @proxy: A #EGdbusSessionProxy.
- * @out_success: (out): Return location for return parameter or %NULL to ignore.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_fetch_old_messages().
+ * @out_more: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to egdbus_session_call_fetch_messages().
  * @error: Return location for error or %NULL.
  *
- * Finishes an operation started with egdbus_session_call_fetch_old_messages().
+ * Finishes an operation started with egdbus_session_call_fetch_messages().
  *
  * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
  */
 gboolean
-egdbus_session_call_fetch_old_messages_finish (
+egdbus_session_call_fetch_messages_finish (
     EGdbusSession *proxy,
-    gboolean *out_success,
+    gboolean *out_more,
     GAsyncResult *res,
     GError **error)
 {
@@ -4540,42 +4572,48 @@ egdbus_session_call_fetch_old_messages_finish (
     goto _out;
   g_variant_get (_ret,
                  "(b)",
-                 out_success);
+                 out_more);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
 }
 
 /**
- * egdbus_session_call_fetch_old_messages_sync:
+ * egdbus_session_call_fetch_messages_sync:
  * @proxy: A #EGdbusSessionProxy.
  * @arg_uid: Argument to pass with the method invocation.
- * @arg_count: Argument to pass with the method invocation.
- * @out_success: (out): Return location for return parameter or %NULL to ignore.
+ * @arg_type: Argument to pass with the method invocation.
+ * @arg_limit: Argument to pass with the method invocation.
+ * @arg_ops: Argument to pass with the method invocation.
+ * @out_more: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (allow-none): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
- * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchOldMessages">fetchOldMessages()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ * Synchronously invokes the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchMessages">fetchMessages()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
  *
- * See egdbus_session_call_fetch_old_messages() for the asynchronous version of this method.
+ * See egdbus_session_call_fetch_messages() for the asynchronous version of this method.
  *
  * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
  */
 gboolean
-egdbus_session_call_fetch_old_messages_sync (
+egdbus_session_call_fetch_messages_sync (
     EGdbusSession *proxy,
     const gchar *arg_uid,
-    gint arg_count,
-    gboolean *out_success,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    gboolean *out_more,
     GCancellable *cancellable,
     GError **error)
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
-    "fetchOldMessages",
-    g_variant_new ("(si)",
+    "fetchMessages",
+    g_variant_new ("(ssio)",
                    arg_uid,
-                   arg_count),
+                   arg_type,
+                   arg_limit,
+                   arg_ops),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -4584,7 +4622,7 @@ egdbus_session_call_fetch_old_messages_sync (
     goto _out;
   g_variant_get (_ret,
                  "(b)",
-                 out_success);
+                 out_more);
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -5335,24 +5373,24 @@ egdbus_session_complete_fetch_account (
 }
 
 /**
- * egdbus_session_complete_fetch_old_messages:
+ * egdbus_session_complete_fetch_messages:
  * @object: A #EGdbusSession.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
- * @success: Parameter to return.
+ * @more: Parameter to return.
  *
- * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchOldMessages">fetchOldMessages()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-org-gnome-evolution-dataserver-mail-Session.fetchMessages">fetchMessages()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
  * This method will free @invocation, you cannot use it afterwards.
  */
 void
-egdbus_session_complete_fetch_old_messages (
+egdbus_session_complete_fetch_messages (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
-    gboolean success)
+    gboolean more)
 {
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(b)",
-                   success));
+                   more));
 }
 
 /**

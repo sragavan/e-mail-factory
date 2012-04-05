@@ -45,6 +45,7 @@
 #include "e-mail-data-session.h"
 
 #include "mail-send-recv.h"
+#include "utils.h"
 
 /* We would need it sometime. */
 extern EMailDataSession *data_session;
@@ -134,6 +135,7 @@ static CamelFolder *
 						 const gchar *uri,
 						 gpointer data,
 						 GError **error);
+static void	send_done 			(gpointer data);
 
 static struct _send_data *send_data = NULL;
 
@@ -387,25 +389,6 @@ get_receive_type (CamelService *service)
 	return SEND_INVALID;
 }
 
-static gboolean
-get_keep_on_server (CamelService *service)
-{
-	GObjectClass *class;
-	CamelSettings *settings;
-	gboolean keep_on_server = FALSE;
-
-	settings = camel_service_get_settings (service);
-	class = G_OBJECT_GET_CLASS (settings);
-
-	/* XXX This is a POP3-specific setting. */
-	if (g_object_class_find_property (class, "keep-on-server") != NULL)
-		g_object_get (
-			settings, "keep-on-server",
-			&keep_on_server, NULL);
-
-	return keep_on_server;
-}
-
 static gint
 operation_status_timeout (gpointer data)
 {
@@ -501,7 +484,7 @@ build_infra (EMailSession *session,
 
 			d(printf("adding source %s\n", source->url));
 			info->service = g_object_ref (service);
-			info->keep_on_server = get_keep_on_server (service);
+			info->keep_on_server = mail_get_keep_on_server (service);
 			info->cancellable = camel_operation_new ();
 			info->state = allow_send ? SEND_ACTIVE : SEND_COMPLETE;
 			info->timeout_id = g_timeout_add (
@@ -623,7 +606,7 @@ receive_status (CamelFilterDriver *driver,
 
 /* when receive/send is complete */
 static void
-receive_done (gpointer data)
+receive_done (gint still_more, gpointer data)
 {
 	struct _send_info *info = data;
 	const gchar *uid;
@@ -652,7 +635,7 @@ receive_done (gpointer data)
 			info->cancellable,
 			receive_get_folder, info,
 			receive_status, info,
-			receive_done, info);
+			send_done, info);
 		return;
 	}
 
@@ -681,6 +664,11 @@ receive_done (gpointer data)
 	free_send_info (info);
 }
 
+static void
+send_done (gpointer data)
+{
+	receive_done (-1, data);
+}
 /* although we dont do anythign smart here yet, there is no need for this interface to
  * be available to anyone else.
  * This can also be used to hook into which folders are being updated, and occasionally
@@ -837,7 +825,7 @@ refresh_folders_exec (struct _refresh_folders_msg *m,
 static void
 refresh_folders_done (struct _refresh_folders_msg *m)
 {
-	receive_done (m->info);
+	receive_done (-1, m->info);
 }
 
 static void
@@ -884,7 +872,7 @@ receive_update_got_folderinfo (MailFolderCache *folder_cache,
 		/* do not free folder info, we will free it later */
 		return FALSE;
 	} else {
-		receive_done (data);
+		receive_done (-1, data);
 	}
 
 	return TRUE;
@@ -906,7 +894,7 @@ receive_update_got_store (CamelStore *store,
 			store, info->cancellable,
 			receive_update_got_folderinfo, info);
 	} else {
-		receive_done (info);
+		receive_done (-1, info);
 	}
 }
 
@@ -950,8 +938,9 @@ send_receive (EMailSession *session,
 		case SEND_RECEIVE:
 			mail_fetch_mail (
 				CAMEL_STORE (info->service),
-				info->keep_on_server,
+				info->keep_on_server, 0, -1,
 				E_FILTER_SOURCE_INCOMING,
+				mail_provider_fetch_lock, mail_provider_fetch_unlock, mail_provider_fetch_inbox_folder,
 				info->cancellable,
 				receive_get_folder, info,
 				receive_status, info,
@@ -966,7 +955,7 @@ send_receive (EMailSession *session,
 				info->cancellable,
 				receive_get_folder, info,
 				receive_status, info,
-				receive_done, info);
+				send_done, info);
 			break;
 		case SEND_UPDATE:
 			receive_update_got_store (
@@ -1213,7 +1202,7 @@ mail_receive_service (CamelService *service)
 	info->type = type;
 	info->session = g_object_ref (session);
 	info->service = g_object_ref (service);
-	info->keep_on_server = get_keep_on_server (service);	
+	info->keep_on_server = mail_get_keep_on_server (service);	
 	info->cancellable = camel_operation_new ();
 	info->data = data;
 	info->state = SEND_ACTIVE;
@@ -1231,8 +1220,9 @@ mail_receive_service (CamelService *service)
 	case SEND_RECEIVE:
 		mail_fetch_mail (
 			CAMEL_STORE (service),
-			info->keep_on_server,
+			info->keep_on_server, 0, -1,
 			E_FILTER_SOURCE_INCOMING,
+			mail_provider_fetch_lock, mail_provider_fetch_unlock, mail_provider_fetch_inbox_folder,
 			info->cancellable,
 			receive_get_folder, info,
 			receive_status, info,
@@ -1251,7 +1241,7 @@ mail_receive_service (CamelService *service)
 			info->cancellable,
 			receive_get_folder, info,
 			receive_status, info,
-			receive_done, info);
+			send_done, info);
 		break;
 	case SEND_UPDATE:
 		receive_update_got_store (CAMEL_STORE (service), info);
@@ -1342,7 +1332,7 @@ mail_send (EMailSession *session)
 		info->cancellable,
 		receive_get_folder, info,
 		receive_status, info,
-		receive_done, info);
+		send_done, info);
 
 	return info->cancellable;
 }

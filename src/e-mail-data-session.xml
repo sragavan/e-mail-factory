@@ -101,10 +101,12 @@
       <arg name="operation" type="o" direction="out"/>	    
     </method>
     
-    <method name="fetchOldMessages">
-      <arg name="uid" type="s" direction="in"/>	 
-      <arg name="count" type="i" direction="in"/>	    	             
-      <arg name="success" type="b" direction="out"/>            
+    <method name="fetchMessages">
+      <arg name="uid" type="s" direction="in"/>	
+      <arg name="type" type="s" direction="in"/>
+      <arg name="limit" type="i" direction="in"/>	
+      <arg name="ops" type="o" direction="in"/>      
+      <arg name="more" type="b" direction="out"/>            
     </method>
 
     <method name="getAccountSearchFolder">

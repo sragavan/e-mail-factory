@@ -24,6 +24,14 @@ void 		mail_operate_on_object		(GObject *object,
 		       	    			gboolean (*do_op) (GObject *object, gpointer data, GError **error),
 		            			void (*done) (gboolean ret, gpointer data, GError *error), 
 		            			gpointer data);
+void		mail_provider_fetch_lock 	(const char *source);
+void		mail_provider_fetch_unlock 	(const char *source);
+CamelFolder *	mail_provider_fetch_inbox_folder
+						(const char *source,
+						 GCancellable *cancellable, 
+						 GError **error);
+gboolean	mail_get_keep_on_server 	(CamelService *service);
+
 G_END_DECLS
 
 #endif /* UTILS_H */

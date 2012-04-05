@@ -56,11 +56,13 @@ struct _EGdbusSessionIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_uid);
 
-  gboolean (*handle_fetch_old_messages) (
+  gboolean (*handle_fetch_messages) (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_uid,
-    gint arg_count);
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops);
 
   gboolean (*handle_find_password) (
     EGdbusSession *object,
@@ -291,10 +293,10 @@ void egdbus_session_complete_fetch_account (
     GDBusMethodInvocation *invocation,
     const gchar *operation);
 
-void egdbus_session_complete_fetch_old_messages (
+void egdbus_session_complete_fetch_messages (
     EGdbusSession *object,
     GDBusMethodInvocation *invocation,
-    gboolean success);
+    gboolean more);
 
 void egdbus_session_complete_get_account_search_folder (
     EGdbusSession *object,
@@ -750,25 +752,29 @@ gboolean egdbus_session_call_fetch_account_sync (
     GCancellable *cancellable,
     GError **error);
 
-void egdbus_session_call_fetch_old_messages (
+void egdbus_session_call_fetch_messages (
     EGdbusSession *proxy,
     const gchar *arg_uid,
-    gint arg_count,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean egdbus_session_call_fetch_old_messages_finish (
+gboolean egdbus_session_call_fetch_messages_finish (
     EGdbusSession *proxy,
-    gboolean *out_success,
+    gboolean *out_more,
     GAsyncResult *res,
     GError **error);
 
-gboolean egdbus_session_call_fetch_old_messages_sync (
+gboolean egdbus_session_call_fetch_messages_sync (
     EGdbusSession *proxy,
     const gchar *arg_uid,
-    gint arg_count,
-    gboolean *out_success,
+    const gchar *arg_type,
+    gint arg_limit,
+    const gchar *arg_ops,
+    gboolean *out_more,
     GCancellable *cancellable,
     GError **error);
 

@@ -797,53 +797,55 @@ impl_Mail_fetchAccount (EGdbusSession *object, GDBusMethodInvocation *invocation
 	return TRUE;
 }
 
-#if 0
 static void
-fetch_old_messages_done (gboolean still_more, EMailGetStoreData *data)
+fetch_messages_done (int still_more, EMailGetStoreData *data)
 {
 	ipc(printf("Done: Fetch old messages in POP: %d\n", still_more));
-	egdbus_session_complete_fetch_old_messages (data->object, data->invocation, still_more);
+	egdbus_session_complete_fetch_messages (data->object, data->invocation, still_more > 0);
 
 	g_free (data);
 }
 
 static gboolean
-impl_Mail_fetchOldMessages (EGdbusSession *object, GDBusMethodInvocation *invocation, char *uid, int count, EMailDataSession *msession)
+impl_Mail_fetchMessages (EGdbusSession *object, GDBusMethodInvocation *invocation, char *uid, char *type, int limit, const char *ops_path, EMailDataSession *msession)
 {
-	EIterator *iter;
-	EAccountList *accounts;
-	EAccount *account;
 	EMailGetStoreData *data = g_new0(EMailGetStoreData, 1);
+	GCancellable *ops;
+	CamelFetchType ftype;
+	gboolean keep_on_server;
+	CamelService *service;
+
+
+	ops = (GCancellable *)e_mail_data_session_get_camel_operation (ops_path);
+	if (!ops) {
+		g_warning ("Unable to get CamelOperation for path: %s\n", ops_path);
+		ops = camel_operation_new ();
+	}
+
+	if (type && (type[0] == 'o' || type[0] == 'O'))
+		ftype = CAMEL_FETCH_OLD_MESSAGES;
+	else
+		ftype = CAMEL_FETCH_NEW_MESSAGES;
 
 	data->invocation = invocation;
 	data->msession = msession;
 	data->object = object;
 	
-	accounts = e_get_account_list ();
-	for (iter = e_list_get_iterator ((EList *)accounts);
-	     e_iterator_is_valid (iter);
-	     e_iterator_next (iter)) {
-		account = (EAccount *) e_iterator_get (iter);
-		if (account->uid && strcmp (account->uid, uid) == 0) {
-			const gchar *uri;
-			gboolean keep_on_server;
+        service = camel_session_get_service (
+	                CAMEL_SESSION (session), uid);
 
-			uri = e_account_get_string (
-				account, E_ACCOUNT_SOURCE_URL);
-			keep_on_server = e_account_get_bool (
-				account, E_ACCOUNT_SOURCE_KEEP_ON_SERVER);
-			mail_fetch_mail (uri, keep_on_server,
-				 E_FILTER_SOURCE_INCOMING,
-				 NULL, count,
-				 NULL, NULL,
-				 NULL, NULL,
-				 (void (*)(const gchar *, void *)) fetch_old_messages_done, data);
-		}
-	}
+	keep_on_server = mail_get_keep_on_server (service);
+
+	mail_fetch_mail (CAMEL_STORE (service), keep_on_server, ftype, limit,
+			 E_FILTER_SOURCE_INCOMING, 
+			 mail_provider_fetch_lock, mail_provider_fetch_unlock, mail_provider_fetch_inbox_folder,
+			 ops, 
+			NULL, NULL,
+			NULL, NULL,
+			 (void (*)(gint , void *)) fetch_messages_done, data);
 
 	return TRUE;
 }
-#endif 
 
 static gboolean
 impl_Mail_cancelOperations (EGdbusSession *object, GDBusMethodInvocation *invocation, EMailDataSession *msession)
@@ -1195,7 +1197,7 @@ e_mail_data_session_init (EMailDataSession *self)
 	g_signal_connect (priv->gdbus_object, "handle-send-short-message", G_CALLBACK (impl_Mail_sendShortMessage), self);
 	g_signal_connect (priv->gdbus_object, "handle-send-mails-from-outbox", G_CALLBACK (impl_Mail_sendMailsFromOutbox), self);	
 	g_signal_connect (priv->gdbus_object, "handle-fetch-account", G_CALLBACK (impl_Mail_fetchAccount), self);
-//	g_signal_connect (priv->gdbus_object, "handle-fetch-old-messages", G_CALLBACK (impl_Mail_fetchOldMessages), self);
+	g_signal_connect (priv->gdbus_object, "handle-fetch-messages", G_CALLBACK (impl_Mail_fetchMessages), self);
 	g_signal_connect (priv->gdbus_object, "handle-cancel-operations", G_CALLBACK (impl_Mail_cancelOperations), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-account-search-folder", G_CALLBACK (impl_Mail_getAccountSearchFolder), self);
 	g_signal_connect (priv->gdbus_object, "handle-get-all-account-search-folder", G_CALLBACK (impl_Mail_getAllAccountSearchFolder), self);
