@@ -228,6 +228,9 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 	if (!destination) {
 		/* If its first time, create that folder & Draft/Sent. */
 		CamelFolderInfo *info;
+		char *path_name;
+
+		g_clear_error(error);
 
 		info = camel_store_create_folder_sync (local, NULL, folder_name, cancellable, error);
 		if (!info) 
@@ -238,10 +241,19 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 			folder_name = g_strdup_printf ("%s/Drafts", email);
 
 			info = camel_store_create_folder_sync (local, NULL, folder_name, cancellable, error);
+			path_name = g_strdup_printf ("folder://local/%s", folder_name);
+			e_account_set_string(account, E_ACCOUNT_DRAFTS_FOLDER_URI, path_name);
+			g_free(path_name);
+			
 			g_free (folder_name);
 			folder_name = g_strdup_printf ("%s/Sent", email);
 	
 			info = camel_store_create_folder_sync (local, NULL, folder_name, cancellable, error);
+			path_name = g_strdup_printf ("folder://local/%s", folder_name);
+			e_account_set_string(account, E_ACCOUNT_SENT_FOLDER_URI, path_name);
+			g_free(path_name);
+
+			e_account_list_save(accounts);			
 		}
 	}
 	g_free (folder_name);
