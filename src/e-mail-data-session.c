@@ -10,13 +10,12 @@
 #include <gio/gio.h>
 #include "libemail-engine/mail-ops.h"
 #include "libemail-engine/e-mail-utils.h"
-#include "libemail-utils/e-account-utils.h"
 #include "libemail-engine/mail-tools.h"
 #include "mail-send-recv.h"
 #include "mail-send-short-msg.h"
 #include "utils.h"
-#include <libedataserver/e-account-list.h>
-#include <libedataserverui/e-passwords.h>
+#include <libedataserver/libedataserver.h>
+#include <e-util/e-util.h>
 #include <string.h>
 
 extern EMailSession *session;
@@ -760,14 +759,17 @@ impl_Mail_sendShortMessage (EGdbusSession *object,
 	GError *error = NULL;
 
 	ipc(printf("Initiating Send short message\n"));
-
+#if 0
 	if (!mail_send_short_message (object, invocation, account_uid, text, to,
 							msession, &error)) {
 		g_dbus_method_invocation_return_gerror (invocation, error);
 		g_error_free(error);
 
 	}
-
+#endif
+	// We don't support sendShortMessage For now.
+	g_dbus_method_invocation_return_gerror (invocation, error);
+	
 	return TRUE;
 }
 

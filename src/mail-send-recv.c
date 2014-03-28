@@ -451,24 +451,16 @@ ref_default_transport (EMailSession *session)
 static struct _send_data *
 build_infra (EMailSession *session, gboolean allow_send)
 {
-	GList *list = NULL;
 	struct _send_data *data;
 	struct _send_info *info;
 	CamelService *transport = NULL;
 	GList *link;
+	GList *list = NULL;
 	GList *accounts=NULL;
-	const gchar *extension_name;
 
 	transport = ref_default_transport (session);
 
-	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
-	list = e_source_registry_list_sources (source_registry, extension_name);
-	accounts = g_list_concat (accounts, list);
-
-	extension_name = E_SOURCE_EXTENSION_MAIL_TRANSPORT;
-	list = e_source_registry_list_sources (source_registry, extension_name);
-	accounts = g_list_concat (accounts, list);
-
+	accounts = mail_get_all_accounts();
 
 	data = setup_send_data (session);
 
@@ -1132,12 +1124,9 @@ auto_online (EMailSession *session)
 	struct _auto_data *info;
 	gboolean can_update_all;
 	GList *accounts = NULL;
-	GList *list, *link;
-	const char *extension_name;
+	GList *link;
 
-	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
-	list = e_source_registry_list_sources (source_registry, extension_name);
-	accounts = g_list_concat (accounts, list);
+	accounts = mail_get_store_accounts();
 
 	link = accounts;
 	while (link) {
@@ -1162,19 +1151,12 @@ void
 mail_autoreceive_init (EMailSession *session)
 {
 	GList *accounts = NULL;
-	GList *list, *link;
-	const char *extension_name;
+	GList *link;
 
 	if (auto_active)
 		return;
 
-	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
-	list = e_source_registry_list_sources (source_registry, extension_name);
-	accounts = g_list_concat (accounts, list);
-
-//	extension_name = E_SOURCE_EXTENSION_MAIL_TRANSPORT;
-//	list = e_source_registry_list_sources (source_registry, extension_name);
-//	accounts = g_list_concat (accounts, list);
+	accounts = mail_get_store_accounts();
 
 	auto_active = g_hash_table_new (g_str_hash, g_str_equal);
 

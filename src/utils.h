@@ -31,6 +31,9 @@ CamelFolder *	mail_provider_fetch_inbox_folder
 						 GCancellable *cancellable, 
 						 GError **error);
 gboolean	mail_get_keep_on_server 	(CamelService *service);
+GList *		mail_get_all_accounts		(void);
+GList *		mail_get_store_accounts		(void);
+GList *		mail_get_transport_accounts	(void);
 
 G_END_DECLS
 

@@ -4,8 +4,6 @@ evolution_mail_factory_SOURCES = 	\
 		main.c			\
 		mail-send-recv.c	\
 		mail-send-recv.h	\
-		mail-send-short-msg.c	\
-		mail-send-short-msg.h	\
 		utils.c			\
 		utils.h			\
 		e-dbus-manager.c	\
@@ -18,6 +16,8 @@ evolution_mail_factory_SOURCES = 	\
 		e-mail-data-folder.h	\
 		e-mail-data-operation.c	\
 		e-mail-data-operation.h
+#		mail-send-short-msg.c	
+#		mail-send-short-msg.h	
 
 noinst_PROGRAMS = test-email-client
 
@@ -48,6 +48,8 @@ evolution_mail_factory_CPPFLAGS = \
 
 evolution_mail_factory_LDADD = \
 		$(top_builddir)/libegdbus/libegdbus-mail.la	\
+		$(top_builddir)/libeutils/libeutils.la 	\
+		$(top_builddir)/libemail-engine/libemail-engine.la
 		$(E_MAIL_FACTORY_LIBS)				
 
 service_in_files = org.gnome.evolution.dataserver.Mail.service.in

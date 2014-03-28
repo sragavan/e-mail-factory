@@ -2,9 +2,9 @@
 #include <string.h>
 #include <glib.h>
 #include "utils.h"
-#include "libemail-utils/mail-mt.h"
-#include "libemail-utils/e-account-utils.h"
+#include "libemail-engine/mail-mt.h"
 #include "libemail-engine/e-mail-session.h"
+#include <libedataserver/libedataserver.h>
 
 /* 
  * EDS_MAIL_DEBUG should be a CSV
@@ -13,6 +13,7 @@
 
 static int mail_debug_flag = 0;
 extern EMailSession *session;  
+extern ESourceRegistry *source_registry;
 
 void
 mail_debug_init ()
@@ -164,6 +165,48 @@ mail_get_provider_hash ()
 	return provider_hash;
 }
 
+GList *
+mail_get_all_accounts ()
+{
+	GList *list;
+	GList *accounts=NULL;
+	const gchar *extension_name;
+
+	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
+	list = e_source_registry_list_sources (source_registry, extension_name);
+	accounts = g_list_concat (accounts, list);
+
+	extension_name = E_SOURCE_EXTENSION_MAIL_TRANSPORT;
+	list = e_source_registry_list_sources (source_registry, extension_name);
+	accounts = g_list_concat (accounts, list);
+
+	return accounts;
+}
+
+GList *
+mail_get_transport_accounts ()
+{
+	GList *accounts=NULL;
+	const gchar *extension_name;
+
+	extension_name = E_SOURCE_EXTENSION_MAIL_TRANSPORT;
+	accounts = e_source_registry_list_sources (source_registry, extension_name);
+
+	return accounts;
+}
+
+GList *
+mail_get_store_accounts ()
+{
+	GList *accounts=NULL;
+	const gchar *extension_name;
+
+	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
+	accounts = e_source_registry_list_sources (source_registry, extension_name);
+
+	return accounts;
+}
+
 void
 mail_provider_fetch_lock (const char *source)
 {
@@ -201,27 +244,39 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 {
 	CamelStore *local = e_mail_session_get_local_store (session);
 	CamelFolder *destination=NULL;
-	EAccountList *accounts;
-	EAccount *account = NULL;
-	EIterator *iter;
+	GList *accounts, *list;
+	ESource *account = NULL;
 	const char *email;
 	char *folder_name;
+	ESourceMailIdentity *extension;
+	const gchar *extension_name;
 
-	accounts = e_get_account_list ();
-	iter = e_list_get_iterator ((EList *) accounts);
-	while (e_iterator_is_valid (iter)) {
-		account = (EAccount *) e_iterator_get (iter);
+	accounts = mail_get_store_accounts();
+	list=accounts;
+	while (list) {
+		const char *uid;
+		account = (ESource *) list->data;
 
-		if (account->uid && strcmp (account->uid, source) == 0) {
+		uid = e_source_get_uid (account);
+		if (uid && strcmp (uid, source) == 0) {
 			break;
 		}
 
-		e_iterator_next (iter);
+		list = list->next;
 		account = NULL;
 	}
+	
+	if (!account) {
+		printf("Fetch Inbox Folder: Account not found: %s\n", source);
+		return NULL;
+	}
 
-	email = e_account_get_string(account, E_ACCOUNT_ID_ADDRESS);
-	g_object_unref (iter);
+	extension_name = E_SOURCE_EXTENSION_MAIL_IDENTITY;
+	extension = e_source_get_extension (account, extension_name);
+	email = e_source_mail_identity_get_address (extension);
+
+	g_list_free_full (accounts, (GDestroyNotify) g_object_unref);
+
 	folder_name = g_strdup_printf ("%s/Inbox", email);
 
 	destination = camel_store_get_folder_sync (local, folder_name, 0, cancellable, error);
@@ -229,6 +284,7 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 		/* If its first time, create that folder & Draft/Sent. */
 		CamelFolderInfo *info;
 		char *path_name;
+		ESourceExtension *extension;
 
 		g_clear_error(error);
 
@@ -236,13 +292,18 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 		if (!info) 
 			g_warning ("Unable to create POP3 folder: %s\n", folder_name);
 		else {
+			extension_name = E_SOURCE_EXTENSION_MAIL_COMPOSITION;
+			extension = e_source_get_extension (account, extension_name);
+
 			destination = camel_store_get_folder_sync (local, folder_name, 0, cancellable, error);
 			g_free (folder_name);
 			folder_name = g_strdup_printf ("%s/Drafts", email);
 
 			info = camel_store_create_folder_sync (local, NULL, folder_name, cancellable, error);
 			path_name = g_strdup_printf ("folder://local/%s", folder_name);
-			e_account_set_string(account, E_ACCOUNT_DRAFTS_FOLDER_URI, path_name);
+			e_source_mail_composition_set_drafts_folder (
+				E_SOURCE_MAIL_COMPOSITION (extension),
+				path_name);
 			g_free(path_name);
 			
 			g_free (folder_name);
@@ -250,10 +311,18 @@ mail_provider_fetch_inbox_folder (const char *source, GCancellable *cancellable,
 	
 			info = camel_store_create_folder_sync (local, NULL, folder_name, cancellable, error);
 			path_name = g_strdup_printf ("folder://local/%s", folder_name);
-			e_account_set_string(account, E_ACCOUNT_SENT_FOLDER_URI, path_name);
+
+			extension_name = E_SOURCE_EXTENSION_MAIL_SUBMISSION;
+			extension = e_source_get_extension (account, extension_name);
+			e_source_mail_submission_set_sent_folder (E_SOURCE_MAIL_SUBMISSION(extension), path_name);
 			g_free(path_name);
 
-			e_account_list_save(accounts);			
+			/* FIXME This is a blocking D-Bus method call. */
+			if (!e_source_write_sync (account, cancellable, error)) {
+				g_warning ("%s", (*error)->message);
+			}
+
+
 		}
 	}
 	g_free (folder_name);
@@ -268,7 +337,7 @@ mail_get_keep_on_server (CamelService *service)
 	CamelSettings *settings;
 	gboolean keep_on_server = FALSE;
 
-	settings = camel_service_get_settings (service);
+	settings = camel_service_ref_settings (service);
 	class = G_OBJECT_GET_CLASS (settings);
 
 	/* XXX This is a POP3-specific setting. */
@@ -277,5 +346,6 @@ mail_get_keep_on_server (CamelService *service)
 			settings, "keep-on-server",
 			&keep_on_server, NULL);
 
+	g_object_unref (settings);
 	return keep_on_server;
 }
