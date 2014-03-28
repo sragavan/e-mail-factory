@@ -24,7 +24,6 @@
 #define MAIL_SEND_RECV_H
 
 #include <camel/camel.h>
-#include <libedataserver/e-account.h>
 #include <libemail-engine/e-mail-session.h>
 
 G_BEGIN_DECLS
@@ -35,8 +34,9 @@ void 		mail_send_receive		(EMailSession *session);
 void		mail_receive			(EMailSession *session);
 
 /* receive a single account */
-GCancellable *	mail_receive_account		(EMailSession *session,
-						 EAccount *account);
+//FIXME: SRINI
+/*GCancellable *	mail_receive_account		(EMailSession *session,
+						 EAccount *account);*/
 GCancellable *	mail_receive_service		(CamelService *service);
 
 GCancellable *	mail_send			(EMailSession *session);

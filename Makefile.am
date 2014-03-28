@@ -1,5 +1,5 @@
 EXTRA_DIST = autogen.sh	
-SUBDIRS = libegdbus src po
+SUBDIRS = libegdbus e-util libemail-engine src po
 
 DISTCHECK_CONFIGURE_FLAGS=
 

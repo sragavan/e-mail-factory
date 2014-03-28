@@ -8,7 +8,6 @@
 
 #include <libemail-engine/e-mail-session.h>
 #include <libemail-engine/e-mail-session-utils.h>
-#include <libemail-utils/e-account-utils.h>
 
 #include "mail-send-short-msg.h"
 #include "e-mail-data-session.h"

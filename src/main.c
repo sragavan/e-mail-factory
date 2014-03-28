@@ -25,11 +25,11 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
-#include <libedataserver/e-data-server-util.h>
-#include <libedataserverui/e-passwords.h>
+#include <libedataserver/libedataserver.h>
+#include <e-util/e-util.h>
 #include "libemail-engine/e-mail-session.h"
 #include "libemail-engine/mail-folder-cache.h"
-#include "libemail-utils/mail-mt.h"
+#include "libemail-engine/mail-mt.h"
 #include "libemail-engine/mail-config.h"
 #include "libemail-engine/mail-ops.h"
 #include "libemail-engine/mail-vfolder.h"
@@ -40,6 +40,7 @@
 
 EMailSession *session = NULL;
 MailFolderCache *folder_cache = NULL;
+ESourceRegistry *source_registry = NULL;
 
 static gboolean
 start_mail_engine ()
@@ -57,7 +58,12 @@ start_mail_engine ()
 		g_mkdir_with_parents (data_dir, 0700);
 	}
 
-	session = e_mail_session_new ();
+	source_registry = e_source_registry_new_sync (NULL, NULL);
+	if (!source_registry) {
+		g_error ("Unable to open Mail Source registry\n");
+	}
+
+	session = e_mail_session_new (source_registry);
 	/* When the session emits flush-outbox, just call mail_send to flush it */
 	g_signal_connect (session, "flush-outbox", G_CALLBACK(mail_send), session);
 

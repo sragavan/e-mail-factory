@@ -33,7 +33,7 @@ PKG_PROG_PKG_CONFIG
 # AC_CHECK_FUNCS([memset])
 
 # all libraries listed are associated with "E_MAIL_FACTORY" tag
-PKG_CHECK_MODULES(E_MAIL_FACTORY, glib-2.0 gio-unix-2.0 gtk+-3.0 camel-1.2 libedataserver-1.2 libedataserverui-3.0 libemail-utils libemail-engine)
+PKG_CHECK_MODULES(E_MAIL_FACTORY, glib-2.0 gio-unix-2.0 gtk+-3.0 camel-1.2 libedataserver-1.2 libemail-engine)
 
 AC_SUBST(E_MAIL_FACTORY_CFLAGS)
 AC_SUBST(E_MAIL_FACTORY_LIBS)
@@ -64,10 +64,16 @@ AC_SUBST(desktopentrydir)
 icondir=${datadir}/icons/hicolor/32x32/apps
 AC_SUBST(icondir)
 
+privsolibdir='${libdir}'/e-mail-factory
+AC_SUBST(privsolibdir)
+
 # Output files
 AC_OUTPUT([
 Makefile
 libegdbus/Makefile
+e-util/Makefile
+libemail-engine/Makefile
+libemail-engine/libemail-engine.pc
 src/Makefile
 po/Makefile.in
 src/evolution-mail-factory.desktop
