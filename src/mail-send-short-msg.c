@@ -345,7 +345,7 @@ mail_send_short_message (EGdbusSession *object,
 	}
 
 	transport_uid = g_strconcat (account->uid, "-transport", NULL);
-	service = camel_session_get_service (CAMEL_SESSION (session),
+	service = camel_session_ref_service (CAMEL_SESSION (session),
 								transport_uid);
 	if (!CAMEL_IS_TRANSPORT (service)) {
 		error = g_error_new(G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,

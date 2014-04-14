@@ -82,8 +82,8 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = libemail-engine
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/libemail-engine.pc.in $(top_srcdir)/depcomp \
-	$(libmailengineinclude_HEADERS)
+	$(top_srcdir)/mkinstalldirs $(srcdir)/libemail-engine.pc.in \
+	$(top_srcdir)/depcomp $(libmailengineinclude_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/intltool.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
@@ -91,7 +91,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/intltool.m4 \
 	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-mkinstalldirs = $(install_sh) -d
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = libemail-engine.pc
 CONFIG_CLEAN_VPATH_FILES =

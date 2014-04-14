@@ -154,7 +154,7 @@ impl_Mail_getService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 	if (service == NULL) {
 		char *url;
 
-		service = camel_session_get_service (CAMEL_SESSION(session), uid);
+		service = camel_session_ref_service (CAMEL_SESSION(session), uid);
 		url = mail_get_service_url (service);
 
 		/* Hashtable owns the key's memory */
@@ -200,7 +200,7 @@ impl_Mail_getServiceByUrl (EGdbusSession *object, GDBusMethodInvocation *invocat
 		CamelURL *curl;
 
 		curl = camel_url_new (url, NULL);
-		service = camel_session_get_service_by_url (CAMEL_SESSION(session), curl, isstore ? CAMEL_PROVIDER_STORE : CAMEL_PROVIDER_TRANSPORT);
+		service = camel_session_ref_service_by_url (CAMEL_SESSION(session), curl, isstore ? CAMEL_PROVIDER_STORE : CAMEL_PROVIDER_TRANSPORT);
 
 		/* Hashtable owns the key's memory */
 		g_hash_table_insert (priv->stores, g_strdup(url), service);
@@ -689,7 +689,7 @@ impl_Mail_findPassword (EGdbusSession *object, GDBusMethodInvocation *invocation
 	char *password;
 
 	ipc(printf("Finding Password for: %s\n", key));
-	password = e_passwords_get_password ("Mail", key);
+	password = e_passwords_get_password (key);
 
 	if (g_getenv("EDS_SHOW_PASSWORDS")) {
 		printf("findPass: %s: %s\n", key, password ? password : "EMPTY");
@@ -713,7 +713,7 @@ impl_Mail_addPassword (EGdbusSession *object, GDBusMethodInvocation *invocation,
 	}
 	e_passwords_add_password (key, password);
 	if (remember)
-		e_passwords_remember_password ("Mail", key);
+		e_passwords_remember_password (key);
 
 	egdbus_session_complete_add_password (object, invocation);
 
@@ -776,25 +776,24 @@ impl_Mail_sendShortMessage (EGdbusSession *object,
 static gboolean
 impl_Mail_fetchAccount (EGdbusSession *object, GDBusMethodInvocation *invocation, char *uid, EMailDataSession *msession)
 {
-	EIterator *iter;
-	EAccountList *accounts;
-	EAccount *account;
+	GList *iter;
+	GList *accounts;
+	ESource *account;
 	GCancellable *ops;
 	EMailDataOperation *mops;
 	char *mops_path = NULL;
 	
-	accounts = e_get_account_list ();
-	for (iter = e_list_get_iterator ((EList *)accounts);
-	     e_iterator_is_valid (iter);
-	     e_iterator_next (iter)) {
-		account = (EAccount *) e_iterator_get (iter);
-		if (account->uid && strcmp (account->uid, uid) == 0) {
+	accounts = mail_get_store_accounts ();
+  for (iter=accounts; iter ; iter=iter->next) {
+		account = (ESource *)iter->data;
+		if (strcmp (e_source_get_uid(account), uid) == 0) {
 			ops = mail_receive_account (session, account);
 			mops = e_mail_data_operation_new ((CamelOperation *)ops);
 			mops_path = e_mail_data_operation_register_gdbus_object (mops, g_dbus_method_invocation_get_connection(invocation), NULL);
 		}
 	}
 
+ 	g_list_free_full (accounts, (GDestroyNotify) g_object_unref);
 	egdbus_session_complete_fetch_account (object, invocation, mops_path ? mops_path : "");
 	return TRUE;
 }
@@ -833,12 +832,12 @@ impl_Mail_fetchMessages (EGdbusSession *object, GDBusMethodInvocation *invocatio
 	data->msession = msession;
 	data->object = object;
 	
-        service = camel_session_get_service (
+        service = camel_session_ref_service (
 	                CAMEL_SESSION (session), uid);
 
 	keep_on_server = mail_get_keep_on_server (service);
 
-	mail_fetch_mail (CAMEL_STORE (service), keep_on_server, ftype, limit,
+	mail_fetch_mail (CAMEL_STORE (service), ftype, limit,
 			 E_FILTER_SOURCE_INCOMING, 
 			 mail_provider_fetch_lock, mail_provider_fetch_unlock, mail_provider_fetch_inbox_folder,
 			 ops, 
@@ -889,13 +888,16 @@ sf_operate (GObject *object, gpointer sdata, GError **error)
 
 	cache = e_mail_session_get_folder_cache (session);
 
-	service = camel_session_get_service (
+	service = camel_session_ref_service (
 		CAMEL_SESSION (session), E_MAIL_SESSION_VFOLDER_UID);
-	em_utils_connect_service_sync (service, data->cancellable, error);
+	
+  // FIXME: SRINI: I think we don't have to connect, it now auto connects.
+  //em_utils_connect_service_sync (service, data->cancellable, error);
+  //
 	fname = construct_folder_name (data->uid);
 	folder = (CamelFolder *) camel_vee_folder_new (
 		CAMEL_STORE (service), fname,
-		CAMEL_STORE_VEE_FOLDER_AUTO);
+		0); //FIXME: SRINI: Check this flag again.
 	g_free (fname);
 
 	if (data->uid == NULL) {
@@ -922,7 +924,7 @@ sf_operate (GObject *object, gpointer sdata, GError **error)
 		/* Specific account search */
 		CamelStore *lstore;
 
-		lstore = (CamelStore *)camel_session_get_service (CAMEL_SESSION(session), data->uid);
+		lstore = (CamelStore *)camel_session_ref_service (CAMEL_SESSION(session), data->uid);
 		if (lstore != NULL) {
 			CamelFolderInfo *root, *fi;
 
@@ -975,7 +977,7 @@ sf_operate (GObject *object, gpointer sdata, GError **error)
 	
 	camel_vee_folder_set_expression (CAMEL_VEE_FOLDER(folder), data->query);
 	camel_vee_folder_set_folders (
-		CAMEL_VEE_FOLDER (folder), list);
+		CAMEL_VEE_FOLDER (folder), list, data->cancellable);
 
 	/* Return the folder safely */
 

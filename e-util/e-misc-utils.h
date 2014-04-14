@@ -35,12 +35,24 @@
 
 G_BEGIN_DECLS
 
-#define E_ASCII_DTOSTR_BUF_SIZE (DBL_DIG + 12 + 10)
-
 GtkWidget *	e_builder_get_widget		(GtkBuilder *builder,
 						 const gchar *widget_name);
 void		e_load_ui_builder_definition	(GtkBuilder *builder,
 						 const gchar *basename);
+
+/* String to/from double conversion functions */
+gdouble		e_flexible_strtod		(const gchar *nptr,
+						 gchar **endptr);
+
+/* 29 bytes should enough for all possible values that
+ * g_ascii_dtostr can produce with the %.17g format.
+ * Then add 10 for good measure */
+#define E_ASCII_DTOSTR_BUF_SIZE (DBL_DIG + 12 + 10)
+gchar *		e_ascii_dtostr			(gchar *buffer,
+						 gint buf_len,
+						 const gchar *format,
+						 gdouble d);
+
 
 G_END_DECLS
 

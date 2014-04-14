@@ -33,7 +33,7 @@ PKG_PROG_PKG_CONFIG
 # AC_CHECK_FUNCS([memset])
 
 # all libraries listed are associated with "E_MAIL_FACTORY" tag
-PKG_CHECK_MODULES(E_MAIL_FACTORY, glib-2.0 gio-unix-2.0 gtk+-3.0 camel-1.2 libedataserver-1.2)
+PKG_CHECK_MODULES(E_MAIL_FACTORY, glib-2.0 gio-unix-2.0 gtk+-3.0 camel-1.2 libedataserver-1.2 libebackend-1.2)
 
 AC_SUBST(E_MAIL_FACTORY_CFLAGS)
 AC_SUBST(E_MAIL_FACTORY_LIBS)

@@ -777,6 +777,7 @@ e_categories_add_change_hook (GHookFunc func,
 
 	g_hook_append (&hook_list, hook);
 }
+#endif
 
 /**
  * e_flexible_strtod:
@@ -1004,7 +1005,7 @@ e_ascii_dtostr (gchar *buffer,
 
 	return buffer;
 }
-
+#if 0
 /**
  * e_str_without_underscores:
  * @string: the string to strip underscores from

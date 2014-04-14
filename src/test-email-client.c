@@ -8,9 +8,8 @@
 #include <gtk/gtk.h>
 
 
-#include <libedataserver/e-data-server-util.h>
+#include <libedataserver/libedataserver.h>
 #include <camel/camel.h>
-#include "libemail-utils/e-account-utils.h"
 #include "e-gdbus-emailsession.h"
 #include "e-gdbus-emailstore.h"
 #include "e-gdbus-emailfolder.h"

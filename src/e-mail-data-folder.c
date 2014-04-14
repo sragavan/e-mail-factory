@@ -1,7 +1,6 @@
 /* e-mail-data-folder.c */
 
 #include <glib/gi18n.h>
-#include <gconf/gconf-client.h>
 #include "e-mail-data-folder.h"
 #include "e-mail-data-session.h"
 #include "e-gdbus-emailfolder.h"
@@ -503,7 +502,7 @@ hsec_operate (GObject *object, gpointer sdata, GError **error)
 	/* EMailFolderStdData *data = (EMailFolderStdData *)sdata; */
 	CamelFolder *folder = (CamelFolder *) object;
 
-	return camel_folder_has_search_capability (folder);
+	return TRUE; // camel_folder_has_search_capability (folder); //FIXME: SRINI: Find why this api no longer exists in Camel.
 }
 
 static void
@@ -1180,7 +1179,6 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	CamelStream *filter_stream = NULL;
 	CamelMimeFilter *charenc = NULL;
 	static const char *charset = NULL;
-	GConfClient *gconf;
 	CamelFolder *folder = (CamelFolder *) object;
 	int pipe_fd;
 
@@ -1219,10 +1217,15 @@ app_getmsg_operate (GObject *object, gpointer sdata, GError **error)
 	filter_stream = camel_stream_filter_new (stream);
 	
 	if (!charset)  {
+		GSettings *settings;
+		gchar *charset;
+
+		/* FIXME We should be getting this from the
+		 *       current view, not the global setting. */
+		settings = g_settings_new ("org.gnome.evolution.mail");
+
 		gboolean ret = FALSE;
-		gconf = gconf_client_get_default ();
-		charset = gconf_client_get_string (gconf, "/apps/evolution/mail/display/charset",NULL);
-		g_object_unref (gconf);
+    charset = g_settings_get_string (settings, "charset");
 		if (!charset || !*charset) {
 			char *lcharset = NULL;
 			ret = g_get_charset ((const char **)&lcharset);
@@ -1418,7 +1421,7 @@ search_expr_operate (GObject *object, gpointer sdata, GError **error)
 	EMailFolderSearchData *data = (EMailFolderSearchData *)sdata;
 	CamelFolder *folder = (CamelFolder *) object;
 	
-	data->result_uids = camel_folder_search_by_expression (folder, data->query, error);
+	data->result_uids = camel_folder_search_by_expression (folder, data->query, data->ops, error);
 
 	return TRUE;
 }
@@ -1527,7 +1530,7 @@ search_sort_expr_operate (GObject *object, gpointer sdata, GError **error)
 	
 	sort->ascending = data->ascending;
 
-	data->result_uids = camel_folder_search_by_expression (folder, data->query, error);
+	data->result_uids = camel_folder_search_by_expression (folder, data->query, data->ops, error);
 	micro(printf("Search returned: %d\n", data->result_uids->len));
 	g_qsort_with_data (data->result_uids->pdata, data->result_uids->len, sizeof (gpointer), compare_uids, sort);
 	micro(printf("Sorting completed\n"));
@@ -1594,7 +1597,7 @@ search_uids_operate (GObject *object, gpointer sdata, GError **error)
 	EMailFolderSearchData *data = (EMailFolderSearchData *)sdata;
 	CamelFolder *folder = (CamelFolder *) object;
 	
-	data->result_uids = camel_folder_search_by_uids (folder, data->query, data->query_uids, error);
+	data->result_uids = camel_folder_search_by_uids (folder, data->query, data->query_uids, data->ops, error);
 
 	return TRUE;
 }

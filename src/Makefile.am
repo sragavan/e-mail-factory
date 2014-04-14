@@ -48,7 +48,7 @@ evolution_mail_factory_CPPFLAGS = \
 
 evolution_mail_factory_LDADD = \
 		$(top_builddir)/libegdbus/libegdbus-mail.la	\
-		$(top_builddir)/libeutils/libeutils.la 	\
+		$(top_builddir)/e-util/libeutil.la 	\
 		$(top_builddir)/libemail-engine/libemail-engine.la
 		$(E_MAIL_FACTORY_LIBS)				
 
