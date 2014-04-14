@@ -1,6 +1,7 @@
 GDBUS_XML_FILES =			\
 	../src/e-mail-data-session.xml	\
-	../src/e-mail-data-store.xml
+	../src/e-mail-data-store.xml		\
+	../src/e-mail-data-folder.xml
 
 gdbus_files: $(GDBUS_XML_FILES)
 	gdbus-codegen --c-namespace=EGdbus --interface-prefix=org.gnome.evolution.dataserver.mail --c-generate-object-manager --generate-c-code=e-gdbus-emailsession

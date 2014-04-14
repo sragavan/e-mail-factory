@@ -1124,11 +1124,12 @@ folder_unsubscribed_cb (EGdbusStore *object, GVariant *v, gpointer data)
 	print_info (v, "Folder UnSubscribed");	
 }
 
+ESourceRegistry *source_registry = NULL;
+
 static gboolean
 start_test_client (gpointer foo)
 {
-	EAccount *account = e_get_default_account ();
-	const char *uri = e_account_get_string (account, E_ACCOUNT_SOURCE_URL);
+	ESource *source;
 	GError *error = NULL;
 	EGdbusStore *store_proxy;
 	EGdbusFolder *folder_proxy;
@@ -1141,6 +1142,20 @@ start_test_client (gpointer foo)
 	gboolean success;
 	char *ops_path;
 	EGdbusOperation *ops;
+	const gchar *extension_name;
+	gchar *uid;
+	const gchar *backend_name;
+	ESourceBackend *extension;
+
+  if (!source_registry)  
+	  source_registry = e_source_registry_new_sync (NULL, NULL);
+	if (!source_registry) {
+		g_error ("Unable to open Mail Source registry\n");
+	}
+
+	source = e_source_registry_ref_default_mail_identity (source_registry);
+  uid = g_strdup(e_source_get_uid(source));  
+  g_source_unref(source);
 
 	/* Get Session */
 	session_proxy = egdbus_session_proxy_new_for_bus_sync (
@@ -1169,7 +1184,7 @@ start_test_client (gpointer foo)
 	}
 
 	/* Get Service */
-	if (!egdbus_session_call_get_service_sync (session_proxy, account->uid, &service, NULL, &error)) {
+	if (!egdbus_session_call_get_service_sync (session_proxy, uid, &service, NULL, &error)) {
 		printf("Get Service failed: %s\n", error->message);
 	} else {
 		char *name;
@@ -1196,15 +1211,17 @@ start_test_client (gpointer foo)
 	}
 
 	/* Remove Service */
-	if (!egdbus_session_call_remove_service_sync (session_proxy, account->uid, &success, NULL, &error)) {
+	if (!egdbus_session_call_remove_service_sync (session_proxy, uid, &success, NULL, &error)) {
 		printf("Remove Service failed: %s\n", error->message);
 	} else {
 		printf("Remove Service: Success: %d\n", success);
 	}
 
+	extension = e_source_get_extension (source, E_SOURCE_EXTENSION_MAIL_ACCOUNT);
+	backend_name = e_source_backend_get_backend_name (extension);
+
 	/* Add Service */
-	CamelURL *url = camel_url_new (account->source->url, NULL);
-	if (!egdbus_session_call_add_service_sync (session_proxy, account->uid, url->protocol, TRUE, &service, NULL, &error)) {
+	if (!egdbus_session_call_add_service_sync (session_proxy, uid, backend_name, TRUE, &service, NULL, &error)) {
 		printf("Add Service failed: %s\n", error->message);
 	} else {
 		printf("Add Service Success : Path: %s\n", service);
@@ -1306,10 +1323,15 @@ start_test_client (gpointer foo)
 
 #if 1
 		/* Get SENT  folder */
+		extension = e_source_get_extension (source, E_SOURCE_EXTENSION_MAIL_SUBMISSION);
+		const char *sent_folder_uri =
+			e_source_mail_submission_get_sent_folder (
+			E_SOURCE_MAIL_SUBMISSION (extension));
+  
 		ops = create_operation (&ops_path);
 		if (!egdbus_session_call_get_folder_from_uri_sync (
 			session_proxy, 
-			account->sent_folder_uri, /* Pass the full name */
+			sent_folder_uri, /* Pass the full name */
 			ops_path, 
 			&path,
 			NULL, 
@@ -1399,13 +1421,22 @@ send_short_message_cb (EGdbusSession *session_proxy, const gchar *ops_path,
 static gboolean
 start_test_client_send_short_msg (gpointer foo)
 {
-	EAccount *account = e_get_default_account ();
+	ESource *source;
+  char *uid;
 	GError *error = NULL;
 	char **services;
 	int i;
 	char *recipients[]= { "000001111", "2222233333", NULL };
 	char *ops_path;
 	EGdbusOperation *ops_proxy;
+
+  if (!source_registry)  
+	  source_registry = e_source_registry_new_sync (NULL, NULL);
+	if (!source_registry) {
+		g_error ("Unable to open Mail Source registry\n");
+	}
+	source = e_source_registry_ref_default_mail_identity (source_registry);
+  uid = g_strdup(e_source_get_uid(source));  
 
 	/* Get Session */
 	session_proxy = egdbus_session_proxy_new_for_bus_sync (
@@ -1437,7 +1468,7 @@ start_test_client_send_short_msg (gpointer foo)
 				G_CALLBACK (send_short_message_cb), NULL);
 
 	if (!egdbus_session_call_send_short_message_sync (
-					session_proxy, account->uid,
+					session_proxy, uid,
 					"Hello World", recipients, &ops_path,
 					NULL, &error)) {
 		printf ("Send Message failed: %s\n", error->message);

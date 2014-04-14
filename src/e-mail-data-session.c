@@ -226,7 +226,7 @@ impl_Mail_getServiceByUrl (EGdbusSession *object, GDBusMethodInvocation *invocat
 }
 
 static gboolean
-impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uid, const char *url, gboolean isstore, EMailDataSession *msession)
+impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, const char *uid, const char *protocol, gboolean isstore, EMailDataSession *msession)
 {
 	EMailDataSessionPrivate *priv = DATA_SESSION_PRIVATE(msession);
 	CamelService *service;
@@ -236,10 +236,10 @@ impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 	g_mutex_lock (priv->stores_lock);
 	g_mutex_lock (priv->datastores_lock);
 
-	service = camel_session_add_service (CAMEL_SESSION(session), uid, url, isstore ? CAMEL_PROVIDER_STORE : CAMEL_PROVIDER_TRANSPORT, &error);
+	service = camel_session_add_service (CAMEL_SESSION(session), uid, protocol, isstore ? CAMEL_PROVIDER_STORE : CAMEL_PROVIDER_TRANSPORT, &error);
 
 	if (!service || error) {
-		ipc(printf("Unable to add  service %s/%s: %s\n", url, uid, error->message));
+		ipc(printf("Unable to add  service %s/%s: %s\n", protocol, uid, error->message));
 		g_dbus_method_invocation_return_gerror (invocation, error);
 		g_mutex_unlock (priv->datastores_lock);
 		g_mutex_unlock (priv->stores_lock);
@@ -251,7 +251,7 @@ impl_Mail_addService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 	g_hash_table_insert (priv->stores, g_strdup(camel_service_get_uid(service)), service);
 
 	path = process_service (msession, camel_service_get_uid(service), service, object, invocation);
-	ipc (printf("EMailDataSession: Add Service: Success %s  for uid/url %s/%s\n", path, uid, url));
+	ipc (printf("EMailDataSession: Add Service: Success %s  for uid/url %s/%s\n", path, uid, protocol));
 
 	egdbus_session_complete_add_service (object, invocation, path);
 

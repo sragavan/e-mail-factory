@@ -19,7 +19,7 @@
     <!-- Camel Session's Native APIs -->
     <method name="addService">
       <arg name="uid" type="s" direction="in"/>
-      <arg name="uri" type="s" direction="in"/>
+      <arg name="protocol" type="s" direction="in"/>
       <arg name="isstore" type="b" direction="in"/>
       <arg name="service" type="o" direction="out"/>
     </method>
