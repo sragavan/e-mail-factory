@@ -155,6 +155,7 @@ impl_Mail_getService (EGdbusSession *object, GDBusMethodInvocation *invocation, 
 		char *url;
 
 		service = camel_session_ref_service (CAMEL_SESSION(session), uid);
+    micro(printf("Got Service %p for %s\n", service, uid));
 		url = mail_get_service_url (service);
 
 		/* Hashtable owns the key's memory */

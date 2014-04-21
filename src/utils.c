@@ -349,3 +349,14 @@ mail_get_keep_on_server (CamelService *service)
 	g_object_unref (settings);
 	return keep_on_server;
 }
+
+/* Error Quark */
+GQuark
+mail_daemon_error_quark (void)
+{
+	static GQuark q = 0;
+	if (q == 0)
+		q = g_quark_from_static_string ("mail-daemon-error-quark");
+
+	return q;
+}

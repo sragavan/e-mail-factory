@@ -67,6 +67,16 @@ AC_SUBST(icondir)
 privsolibdir='${libdir}'/e-mail-factory
 AC_SUBST(privsolibdir)
 
+privincludedir='${includedir}'/e-mail-factory
+AC_SUBST(privincludedir)
+
+BASE_VERSION=3.8
+m4_define([base_version], [3.8])
+AC_SUBST([BASE_VERSION], [base_version])
+
+privdatadir='${datadir}'/evolution/$BASE_VERSION
+AC_SUBST(privdatadir)
+
 # Output files
 AC_OUTPUT([
 Makefile

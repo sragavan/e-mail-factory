@@ -1153,9 +1153,23 @@ start_test_client (gpointer foo)
 		g_error ("Unable to open Mail Source registry\n");
 	}
 
-	source = e_source_registry_ref_default_mail_identity (source_registry);
+	source = e_source_registry_ref_default_mail_account (source_registry);
+	/*extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
+	if (e_source_has_extension (source, extension_name)) {
+		ESourceMailAccount *extension;
+		gchar *uid;
+
+		extension = e_source_get_extension (source, extension_name);
+		uid = e_source_mail_account_dup_identity_uid (extension);
+
+		g_object_unref (source);
+		source = e_source_registry_ref_source (source_registry, uid);
+  }*/
+
   uid = g_strdup(e_source_get_uid(source));  
-  g_source_unref(source);
+  uid = g_strdup("1397637943.20129.2@localhost.localdomain");  
+  printf("DEFAULT ID: %s\n", uid);
+  //g_source_unref(source);
 
 	/* Get Session */
 	session_proxy = egdbus_session_proxy_new_for_bus_sync (

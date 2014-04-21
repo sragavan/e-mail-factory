@@ -16,6 +16,9 @@ typedef enum {
 	EMAIL_DEBUG_MICRO=6
 } EMailDebugFlag;
 
+#define MAIL_DAEMON_ERROR mail_daemon_error_quark()
+GQuark mail_daemon_error_quark (void) G_GNUC_CONST;
+
 void 		mail_debug_init 		(void);
 gboolean 	mail_debug_log 			(EMailDebugFlag flag);
 char * 		mail_get_service_url 		(CamelService *service);

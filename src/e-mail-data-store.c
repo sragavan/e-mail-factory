@@ -1161,14 +1161,19 @@ sbs_operate (GObject *object, gpointer sdata, GError **error)
 		} else {
 			data->folder_uids_builder = g_variant_builder_new (G_VARIANT_TYPE_ARRAY);
 			select_query = g_strconcat("SELECT folder_name, uid from AllFoldersView WHERE ", data->command, NULL);
+      printf("EXECUTING %p:  %s\n", data->folder_uids_builder, select_query);
 			camel_db_select (db, select_query, read_uids_to_array_callback, data, error);
 			g_variant_builder_add (data->folder_uids_builder , "(ss)", "", "");
 			g_free (select_query);
 		}
 
-		/* Drop the VIEW */
-		camel_db_command (db, "DROP VIEW AllFoldersView", error);
-	}
+	} else {
+	  *error = g_error_new_literal (MAIL_DAEMON_ERROR, 0, "EMailDataStore: Folders not found.");
+	  camel_store_unlock (store, CAMEL_STORE_FOLDER_LOCK);
+    return TRUE;
+  }
+	/* Drop the VIEW */
+	camel_db_command (db, "DROP VIEW AllFoldersView", error);
 
 	camel_store_unlock (store, CAMEL_STORE_FOLDER_LOCK);
 	return TRUE;
