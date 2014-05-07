@@ -1240,7 +1240,7 @@ impl_Mail_countBySql (EGdbusStore *object, GDBusMethodInvocation *invocation, co
 	GCancellable *ops;
 
 	GET_OPS_FROM_PATH;
-	ipc(printf("Executing SQL command: %s\n", sql));
+	ipc(printf("Executing SQL COUNT command: %s\n", sql));
 	
 	data = g_new0 (EMailStoreStdData, 1);
 	data->mstore = mstore;
@@ -1436,11 +1436,11 @@ store_folder_renamed_cb (CamelStore *store,
 	g_variant_unref (variant);	
 }
 
-
 guint 
 e_mail_data_store_register_gdbus_object (EMailDataStore *estore, GDBusConnection *connection, const gchar *object_path, GError **error)
 {
 	EMailDataStorePrivate *priv = DATA_STORE_PRIVATE(estore);
+  CamelURL *url;
 
 	g_return_val_if_fail (connection != NULL, 0);
 	g_return_val_if_fail (object_path != NULL, 0);
@@ -1448,7 +1448,9 @@ e_mail_data_store_register_gdbus_object (EMailDataStore *estore, GDBusConnection
 	priv->object_path = g_strdup (object_path);
 	g_object_set_data ((GObject *)priv->store, "object-path", priv->object_path);
 
-	ipc (printf("EMailDataStore: Registering gdbus path: %s: %p\n", object_path, priv->store));
+  url = camel_service_new_camel_url((CamelService *) priv->store);
+
+	ipc (printf("EMailDataStore: Registering gdbus path: %s: %s: %p %d\n", object_path, camel_url_to_string(url, 0), priv->store, ((CamelStore *)priv->store)->flags & CAMEL_STORE_USE_CACHE_DIR));
 	
 	if (CAMEL_IS_STORE(priv->store)) {
 		g_signal_connect (
@@ -1463,13 +1465,17 @@ e_mail_data_store_register_gdbus_object (EMailDataStore *estore, GDBusConnection
 		g_signal_connect (
 			priv->store, "folder-renamed",
 			G_CALLBACK (store_folder_renamed_cb), estore);
-		g_signal_connect (
-			priv->store, "folder-subscribed",
-			G_CALLBACK (store_folder_subscribed_cb), estore);
-		g_signal_connect (
-			priv->store, "folder-unsubscribed",
-			G_CALLBACK (store_folder_unsubscribed_cb), estore);
+    if (!CAMEL_IS_VEE_STORE (priv->store) && strcmp(url->protocol, "maildir") != 0) {
+		   g_signal_connect (
+			  priv->store, "folder-subscribed",
+			  G_CALLBACK (store_folder_subscribed_cb), estore);
+		  g_signal_connect (
+			  priv->store, "folder-unsubscribed",
+			  G_CALLBACK (store_folder_unsubscribed_cb), estore);
+    }
 	}
+
+	camel_url_free (url);
 
  	return g_dbus_interface_skeleton_export ((GDBusInterfaceSkeleton *) priv->gdbus_object,
                	                     		 connection,

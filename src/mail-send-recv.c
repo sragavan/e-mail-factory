@@ -1107,11 +1107,21 @@ auto_account_added (ESourceRegistry *registry,
 static void
 auto_account_changed (ESourceRegistry *registry,
 		      ESource *source,
-                      gpointer dummy)
+                      EMailSession *session)
 {
 	struct _auto_data *info = g_object_get_data((GObject *)source, "mail-autoreceive");
 
-	g_return_if_fail (info != NULL);
+	if (!e_source_get_enabled(source))
+		return;
+
+  if (!info) {
+    info = g_malloc0 (sizeof (*info));
+    info->account = source;
+    info->session = g_object_ref (session);
+	  g_object_set_data_full (
+		  G_OBJECT (source), "mail-autoreceive", info,
+		  (GDestroyNotify) auto_account_finalized);
+  }
 
 	auto_account_commit (info);
 	if (data_session)
@@ -1176,7 +1186,7 @@ mail_autoreceive_init (EMailSession *session)
 
 	g_signal_connect (
 		source_registry, "source-changed",
-		G_CALLBACK (auto_account_changed), NULL);
+		G_CALLBACK (auto_account_changed), session);
 
 	link = accounts;
 	while (link) {

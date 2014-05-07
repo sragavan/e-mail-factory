@@ -18,6 +18,14 @@
 #define E_MAIL_DATA_FACTORY_SERVICE_NAME \
 	"org.gnome.evolution.dataserver.Mail"
 
+gboolean crash = TRUE;
+gboolean wait = TRUE;
+
+#define INFO(x) g_print(x);
+#define LOG(x) if (crash) g_error(x); else g_warning(x);
+#define SLEEP() if (wait) g_usleep(1000);
+#define SPACER "** ** ** ** "
+
 EGdbusSession *session_proxy;
 
 static void
@@ -96,6 +104,7 @@ test_folder_basic (EGdbusFolder *folder_proxy, char *folder_path)
 	char *ops_path;
 	EGdbusOperation *ops;
 
+  INFO("TEST: Testing folder basic operations\n");
 	egdbus_folder_call_get_display_name_sync (folder_proxy, &data, NULL, NULL);
 	printf("\n Folder Name: %s\n", data);
 
@@ -107,6 +116,8 @@ test_folder_basic (EGdbusFolder *folder_proxy, char *folder_path)
 
         ops = create_operation (&ops_path);
 	printf("\n Prepare Summary %d\n", egdbus_folder_call_prepare_summary_sync (folder_proxy, ops_path, NULL, NULL));
+  INFO("Basic folder operation success\n\n\n");
+  SLEEP();
 
 }
 
@@ -360,10 +371,12 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 	char *ops_path;
 	EGdbusOperation *ops;
 
+  INFO("TEST: Get UIDS\n");
 	egdbus_folder_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
 
 	if (error) {
 		printf("Error while getting uids: %s\n", error->message);
+    LOG(SPACER"Get UIDS failed\n\n");
 		g_error_free (error);
 		error = NULL;
 	} else {
@@ -380,10 +393,14 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 			i++;
 		}
 		printf("\n");
+    INFO("Get UIDS success\n\n\n");
+    SLEEP();
 
+    INFO("TEST: Get Message Info\n");
 		ret = egdbus_folder_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting messageinfo: %s\n", error->message);
+      LOG(SPACER"Get Message Info failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
@@ -392,96 +409,133 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 			message_info_dump (info);
 			camel_message_info_free (info);
 			printf("\n--End--\n");
+      INFO("Get Message Info success\n\n\n");
+      SLEEP();
 		}
 
 		/* Message flags */
+    INFO("TEST: Get message flags\n");
 		ret = egdbus_folder_call_get_message_flags_sync(folder_proxy, uids[0], &flags, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message flags: %s\n", error->message);
+      LOG(SPACER"Get Message flags failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nFlags of the message : %u\n", flags);
+      INFO("Get message flags success\n\n\n");
+      SLEEP();
 		}
 
+    INFO("TEST: Set Message flags\n");
 		ret = egdbus_folder_call_set_message_flags_sync(folder_proxy, uids[0], CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message flags: %s\n", error->message);
+      LOG(SPACER"Set Message flags failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("Set the flags of the message : %u : success:%d\n", CAMEL_MESSAGE_SEEN | CAMEL_MESSAGE_DELETED, fg);
+      INFO("Set message flags success\n\n\n");
+      SLEEP();
 		}
 
 
 		/* User flags */
+    INFO("TEST: Get user flags\n");
 		ret = egdbus_folder_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user flag: %s\n", error->message);
+      LOG(SPACER"Get message user flags failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nUser Flags of the message for 'bold': %d\n", fg);
+      INFO("Get message user flags success\n\n\n");
+      SLEEP();
 		}
 	
+    INFO("TEST: Set user flag\n");
 		ret = egdbus_folder_call_set_message_user_flag_sync(folder_proxy, uids[0], "bold", TRUE, NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message user flag: %s\n", error->message);
+      LOG(SPACER"Set user flags failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nSet UserFlags of the message to 'bold': success\n");
+      INFO("Set user flags success\n\n\n");
+      SLEEP();
 		}
 
+    INFO("Get user flag\n");
 		ret = egdbus_folder_call_get_message_user_flag_sync(folder_proxy, uids[0], "bold", &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user flag: %s\n", error->message);
+      LOG(SPACER"Get user flag failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nUser Flags of the message for 'bold' : %d\n", fg);
+      INFO("Get user flags success\n\n\n");
+      SLEEP();
 		}
 		
 		/* User Tag */
+    INFO("Test: Get user tag\n");
 		ret = egdbus_folder_call_get_message_user_tag_sync(folder_proxy, uids[0], "", &val, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user tag: %s\n", error->message);
+      LOG(SPACER"Get User tag failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("User Tag of the message : %s\n", val ? val : "<empty>");
+      INFO("Get user tag success\n\n\n");
+      SLEEP();
 		}
 	
+    INFO("TEST: Set user tag\n");
 		ret = egdbus_folder_call_set_message_user_tag_sync(folder_proxy, uids[0], "bold", "strong", NULL, &error);
 		if (!ret || error) {
 			printf("Error while setting message user tag: %s\n", error->message);
+      LOG(SPACER"Set User tag failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nSet UserTag of the message 'bold' to 'strong': success\n");
+      INFO("Set user tag success\n\n\n");
+      SLEEP();
 		}
 
+    INFO("TEST: Get user tag\n");
 		ret = egdbus_folder_call_get_message_user_tag_sync(folder_proxy, uids[0], "bold", &val, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message user tag: %s\n", error->message);
+      LOG(SPACER"Get user tag failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n User Tag of the message for 'bold' : %s\n", val ? val : "<empty>");
+      INFO("Get user tag success\n\n\n");
+      SLEEP();
 		}
 
 
 		printf("\n\nMessage Info at the end\n");
-
+    INFO("TEST: Get message info\n");
 		ret = egdbus_folder_call_get_message_info_sync (folder_proxy, uids[0], &variant, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting messageinfo: %s\n", error->message);
+      LOG("Get message info faield\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			
 			info = info_from_variant (NULL, variant);
 			message_info_dump (info);
+      INFO("Get message info success\n\n\n");
+      SLEEP();
 			/* camel_message_info_free (info); */
 		}
 
@@ -499,19 +553,22 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		}
 #endif
 
-                GUnixFDList *fd_list = NULL, *alt;
+    INFO("TEST: Get Message\n");
+              GUnixFDList *fd_list = NULL, *alt;
      	        int pipe_fd[2], index;
             	GError *error = NULL;
             
+            	fd_list = g_unix_fd_list_new ();
+
             	if (pipe(pipe_fd) < 0) {
                 	printf("Unable to do pipe\n");
                 	return ;
             	}
             
-            	fd_list = g_unix_fd_list_new ();
-		index = g_unix_fd_list_append (fd_list, pipe_fd[1], &error);
+              printf("FD: %p %d\n", fd_list, pipe_fd[2]);
+		index = g_unix_fd_list_append (fd_list, pipe_fd[2], &error);
 	            if (index == -1) {
-        	        printf("Unable to append FD: %s", error ? error->message : "No message");
+                  g_error("Unable to append FD: %s", error ? error->message : "No message");
                 	return ;
             	}
 		    printf("INDEX = %d\n", index);
@@ -531,6 +588,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		ret = egdbus_folder_call_get_message_by_fd_sync (folder_proxy, uids[0], ops_path, g_variant_new("h", index), fd_list, &alt, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting message BY : %s\n", error->message);
+      LOG(SPACER"Get message failed\n");
 			g_error_free (error);
 			error = NULL;
 			return;
@@ -548,49 +606,68 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 
                  //printf("Get Message\n\n%d\n\n", strlen(msg));
 			/* g_free(msg); */
+      INFO("Get Message success\n\n\n");
+      SLEEP();
 		}
 
 		/* Folder sync */
+    INFO("TEST: Folder sync\n");
 	        ops = create_operation (&ops_path);
 		ret = egdbus_folder_call_sync_sync (folder_proxy, FALSE, ops_path, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while syncing folder: %s\n", error->message);
+      LOG(SPACER"Folder sync failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nSyncing folder success: %d\n", fg);
+      INFO("Folder sync success\n\n\n");
+      SLEEP();
 		}
 
 		/* getPermanentFlags */
+    INFO("TEST: get permanent flags\n");
 		ret = egdbus_folder_call_get_permanent_flags_sync (folder_proxy, &flags, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting folder permanent flags : %s\n", error->message);
+      LOG(SPACER"Get permanent flags failed\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Permanent Flags: %u\n", flags);
+      INFO("Get permanent flags success\n\n\n");
+      SLEEP();
 		}
 
 		/* hasSummaryCapability */
+    INFO("TEST: Has summary capability\n");
 		ret = egdbus_folder_call_has_summary_capability_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while checking has summary capability: %s\n", error->message);
+      LOG(SPACER"Has summary capability failed\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Has summary capability : %d\n", fg);
+      INFO("Has summary capabi;ity success\n\n\n");
+      SLEEP();
 		}
 
 		/* hasSearchCapability */
+    INFO("TEST: Has search capability\n");
 		ret = egdbus_folder_call_has_search_capability_sync (folder_proxy, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while checking has search capability: %s\n", error->message);
+      LOG(SPACER"Has search capability\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Has search capability : %d\n", fg);
+      INFO("Has search capability success\n\n\n");
+      SLEEP();
 		}
 
+    INFO("TEST: Folder message counts\n");
 		/* Total count */
 		ret = egdbus_folder_call_total_message_count_sync (folder_proxy, &i, NULL, &error);
 		if (!ret || error) {
@@ -620,6 +697,10 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		} else {
 			printf("\n Deleted message count : %d\n", i);
 		}
+
+    INFO("COUNTS Completed\n\n\n");
+    SLEEP();
+
 #if 0
 		/* Expunge */
 		ret = egdbus_folder_call_expunge_sync (folder_proxy, &fg, NULL, &error);
@@ -632,20 +713,26 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		}
 #endif
 		/* Refresh */
+    INFO("TEST: Folder refresh\n");
 	        ops = create_operation (&ops_path);
 		ret = egdbus_folder_call_refresh_info_sync (folder_proxy, ops_path, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while refreshing folder: %s\n", error->message);
+      LOG(SPACER"Folde refresh failed\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Refreshing folder success: %d\n", fg);
+      INFO("Folder refresh success\n\n\n");
+      SLEEP();
 		}
 
 		/* Get UIDS */
+    INFO("TEST: Get UIDS\n");
 		egdbus_folder_call_get_uids_sync (folder_proxy, &uids, NULL, &error);
 		if (error) {
 			printf("Error while getting uids: %s\n", error->message);
+      LOG(SPACER"Get uids failed\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
@@ -657,20 +744,27 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 				i++;
 			}
 			printf("\n");
+      INFO("Get UIDS success\n\n\n");
+      SLEEP();
 		}
 
 		/* get parent store */
+    INFO("TEST: Get parent store\n");
 		ret = egdbus_folder_call_get_parent_store_sync (folder_proxy, &name, NULL, &error);
 		if (error) {
 			printf("Error while getting parent store: %s\n", error->message);
+      LOG(SPACER"Get parent store failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\n Parent Store OBJ: %s\n", name);
+      INFO("Get parent store success\n\n\n");
+      SLEEP();
 			g_free (name);
 		}
 
 		/* Local Store*/
+    INFO("TEST: Get local store\n");
 		EGdbusFolder *local_folder_proxy;
 		char *local_folder_proxy_path;
 		EGdbusStore *local_store_proxy;
@@ -679,6 +773,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		ret = egdbus_session_call_get_local_store_sync (session_proxy, &local_store, NULL, &error);
 		if (error) {
 			printf("Error while getting local store: %s\n", error->message);
+      LOG(SPACER"Get local store failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
@@ -692,11 +787,17 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 				printf("Failed to create Local store proxy %s\n", error->message);
 			else 
 				printf("Created Local Store proxy\n");
+
+      INFO("Get local store success\n\n\n");
+      SLEEP();
 		}
+
 		/* Local Folder */
+    INFO("TEST: Get Local folder\n");
 		ret = egdbus_session_call_get_local_folder_sync (session_proxy, "drafts", &local_folder_proxy_path, NULL, &error);
 		if (error) {
 			printf("Error while getting local folder: %s\n", error->message);
+      LOG(SPACER"Get local folder failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
@@ -711,30 +812,40 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 				printf("failed to get local folder drafts: %s\n", error->message);
 			else
 				printf("Got Local Folder Drafts\n");
+      INFO("Get local folder success\n\n\n");
+      SLEEP();
 		}
 		
 		/* append message */
+    INFO("TEST: Append message\n");
 		char *retuid;
 		GVariant *gv = variant_from_info (info);
 	        ops = create_operation (&ops_path);
 		ret = egdbus_folder_call_append_message_sync (local_folder_proxy, gv, msg, ops_path, &retuid, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while getting appending msg: %s\n", error->message);
+      LOG(SPACER"Append message failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("Successfully appended msg: %s\n", retuid);
+      INFO("Append message success\n\n\n");
+      SLEEP();
 		}
 
 		/* Sync */
+    INFO("TEST: Folder SYNC\n");
 	        ops = create_operation (&ops_path);
 		ret = egdbus_folder_call_sync_sync (local_folder_proxy , FALSE, ops_path, &fg, NULL, &error);
 		if (!ret || error) {
 			printf("Error while syncing folder: %s\n", error->message);
+      LOG(SPACER"Folder sync failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
 			printf("\nSyncing folder success: %d\n", fg);
+      INFO("Folder sync success\n\n\n");
+      SLEEP();
 		}
 		
 		/* Search by expression */
@@ -817,6 +928,7 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 
 	ops = create_operation (&ops_path);
 	/* Get Inbox folder */
+  INFO("TEST: Get Folder\n");
 	if (!egdbus_store_call_get_folder_sync (
 		store_proxy, 
 		"INBOX", /* Pass the full name */
@@ -824,11 +936,16 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 		ops_path,
 		&folder_proxy_path,
 		NULL, 
-		&error))
+		&error)) {
 		printf("Error while getting folder INBOX: %s\n", error->message);
-	
+    LOG(SPACER"GetFolder failed\n");
+  } else
+    INFO("Get Folder success\n\n\n");
+
 	printf("Folder path for %s\n", folder_proxy_path);
-		
+	SLEEP();
+
+  INFO("TEST: Getting Folder proxy\n");
 	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
@@ -836,22 +953,27 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 							NULL, &error);
 	g_signal_connect (folder_proxy , "folder-changed", G_CALLBACK (folder_changed_cb), NULL);
 
-	printf("Success in getting FolderProxy? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
+	printf("Success in getting FolderProxy? %p %s\n", folder_proxy, error ? error->message : "Yahoo!");
 	inbox_proxy = folder_proxy;
 	inbox_path = g_strdup (folder_proxy_path);
 
+  SLEEP();
+
 	/* Fetch One set of old messages */
+  INFO("TEST: Fetch Message sync: \n");
 	ops = create_operation (&ops_path);
 	egdbus_folder_call_fetch_messages_sync (inbox_proxy, "old", 10, ops_path, &success, NULL, &error);
-	if (error)
+	if (error) {
 		printf("Fetch old error: %s\n", error->message);
-	else
-		printf("Fetch old success\n");
-
+    LOG(SPACER"Fetch old messages failed\n\n");
+  } else {
+    INFO("Fetch old messagess success\n\n\n");
+  }
 	
 	
 #if 1
 	/* Get Inbox API */
+  INFO("TEST: Get INBOX\n");
 	ops = create_operation (&ops_path);
 
 	/* Most providers don't implement Get Inbox */
@@ -860,9 +982,12 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 		ops_path, 
 		&folder_proxy_path,
 		NULL, 
-		&error))
+		&error)) {
 		printf("Error while getting GET INBOX: %s\n", error->message);
-	
+    LOG(SPACER"Get INBOX failed\n\n");
+  } else
+    INFO("Get INBOX Success\n\n\n");
+
 	printf("INBOX path for %s\n", folder_proxy_path);
 	if (!error)
 	folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (store_proxy)),
@@ -875,18 +1000,26 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 
 	error = NULL;
 	printf("Success in getting FolderProxy for INBOX ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
+
+  SLEEP();
+
 #endif
+
 #if 1	
 	/* Get Trash */
+  INFO("TEST: Get TRASH\n");
 	ops = create_operation (&ops_path);	
 	if (!egdbus_store_call_get_trash_sync (
 		store_proxy, 
 		ops_path,
 		&folder_proxy_path,
 		NULL, 
-		&error))
+		&error)) {
 		printf("Error while getting GET Trash: %s\n", error->message);
-	
+    LOG(SPACER"Get TRASH failed\n\n");
+  } else
+    INFO("Get TRASH SUCCESS\n\n\n");
+
 	printf("Got Trash path for %s\n", folder_proxy_path);
 		
 	if (!error)
@@ -900,15 +1033,21 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 	error = NULL;
 	printf("Success in getting FolderProxy for TRASH ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
 	
+  SLEEP();
+
 	/* Get Junk*/
+  INFO("TEST: Get JUNK\n");
 	ops = create_operation (&ops_path);	
 	if (!egdbus_store_call_get_junk_sync (
 		store_proxy, 
 		ops_path,
 		&folder_proxy_path,
 		NULL, 
-		&error))
+		&error)) {
 		printf("Error while getting GET Junk: %s\n", error->message);
+    LOG(SPACER"Get JUNK failed\n\n");
+  } else
+    INFO("Get Junk success\n\n\n");
 	
 	printf("Got Junk path for %s\n", folder_proxy_path);
 	
@@ -922,13 +1061,17 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 		g_error_free (error);
 	error = NULL;
 	printf("Success in getting FolderProxy for JUNK ? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
-
+  SLEEP();
 #endif	
 
 	/* Create Folder */
+  INFO("TEST: Create folder\n");
 	ops = create_operation (&ops_path);	
-	if (!egdbus_store_call_create_folder_sync (store_proxy, "", "ATestEmailServer", ops_path, &cf_info, NULL, &error))
+	if (!egdbus_store_call_create_folder_sync (store_proxy, "", "ATestEmailServer", ops_path, &cf_info, NULL, &error)) {
 		printf("Failed to create folder: %s \n", error->message);
+    LOG(SPACER"Create folder failed\n\n");
+  } else
+    INFO("Create folder success\n\n\n");
 
 	if (error && error->message) 
 		g_error_free (error);
@@ -938,7 +1081,9 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 			new_folder_uri = str1;
 			printf("NEW FOLDER: Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, u1, i1, i2);
 			/* */
+      SLEEP();
 			/* Get the folder */
+      INFO("\n\nTEST: Get Folder\n");
 			ops = create_operation (&ops_path);			
 			if (!egdbus_store_call_get_folder_sync (
 				store_proxy, 
@@ -947,8 +1092,11 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 				ops_path,
 				&folder_proxy_path,
 				NULL, 
-				&error))
+				&error)) {
 				printf("Error while getting folder : %s\n", error->message);
+        LOG("Get Folder failed\n\n");
+      } else
+        INFO("Get Folder success\n\n\n");
 	
 			printf("Folder path for %s\n", folder_proxy_path);
 		
@@ -958,7 +1106,9 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 							folder_proxy_path,
 							NULL, &error);
 
-			printf("Success in getting FolderProxy? %p %s\n", folder_proxy, error ? error->message : "Yahoo");
+			printf("Success in getting FolderProxy? %p %s\n\n\n", folder_proxy, error ? error->message : "Yahoo");
+      SLEEP();
+
 			test_folder_basic (folder_proxy, folder_proxy_path);
 			break;
 
@@ -967,40 +1117,61 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 	}
 	error = NULL;
 
+  SLEEP();
+
 	/* supports subscription ?*/ 
+  INFO("TEST: Supports subscription\n");
 	if (!egdbus_store_call_supports_subscriptions_sync(store_proxy, &success, NULL, &error)) {
 		printf("Unable to check sub: %s\n", error->message);
+    LOG(SPACER"Failed to check if subscription is supported\n\n");
 		g_error_free (error);
 		error = NULL;
 	} else {
 		printf("Store supports subscription: %d\n", success);
+    INFO("Checking for subscription support success\n\n\n");
+    SLEEP();
+
 		/* Subscribe Folder */
+    INFO("TEST: Subscribe folder\n");
 		ops = create_operation (&ops_path);
 		if (!egdbus_store_call_subscribe_folder_sync (store_proxy, "ATestEmailServer", ops_path, &success, NULL, &error)) {
 			printf("Unable to subscribe: %s\n", error->message);
+      LOG(SPACER"Subscribe folder failed\n\n");
 			g_error_free (error);
 			error = NULL;
 		} else {
+      INFO("Subscribe folder success\n\n\n");
+      SLEEP();
+
 			/* Can Refresh Folder */
+      INFO("TEST: Checking Can Refresh Folder\n");
 			if (!egdbus_store_call_can_refresh_folder_sync (store_proxy, cf_info, &success, NULL, &error)) {
 				printf("Unable to check if can refresh: %s\n", error->message);
+        LOG(SPACER"Checking for can refresh folder failed\n\n");
 				g_error_free (error);
 				error = NULL;
 
 			} else {
 				printf("Can Refresh Folder\n");
+        INFO("Checking for can refresh folder success\n\n\n");
+        SLEEP();
 			}
 
 			/* Transfer one msg */
+      INFO("TEST: Transfer message\n");
 			char *uids[4], **retuids;
-			uids[0] = "52";
-			uids[1] = "53";
+			uids[0] = "2";
+			uids[1] = "3";
 			uids[2] = NULL;
-		        ops = create_operation (&ops_path);
-			if (!egdbus_folder_call_transfer_messages_to_sync (inbox_proxy,  &uids, folder_proxy_path,  FALSE, ops_path, &retuids, NULL, NULL))
-				printf("\n Unable to copy \n");
-			else 
+		  ops = create_operation (&ops_path);
+			if (!egdbus_folder_call_transfer_messages_to_sync (inbox_proxy,  &uids, folder_proxy_path,  FALSE, ops_path, &retuids, NULL, NULL)) {
+        printf("\n Unable to copy \n");
+        LOG(SPACER"Transfer messages failed\n\n");
+      } else {
 				printf("\n COPIED %s\n", retuids[0] ? retuids[0] : "nil");
+        INFO("Transfer messagess success\n\n\n");
+        SLEEP();
+      }
 			
 			test_message_basics (folder_proxy_path, folder_proxy);
 
@@ -1022,52 +1193,69 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 
 
 	/* Rename Folder */
+  INFO("TEST: Rename Folder\n");
 	ops = create_operation (&ops_path);	
-	if (!egdbus_store_call_rename_folder_sync (store_proxy, "ATestEmailServer", "ANOTHERTestEmailServer", ops_path, &success, NULL, &error))
+	if (!egdbus_store_call_rename_folder_sync (store_proxy, "ATestEmailServer", "ANOTHERTestEmailServer", ops_path, &success, NULL, &error)) {
 		printf("Failed to rename folder: %s \n", error->message);
+    LOG(SPACER"Rename folder failed\n");
+  }
 
 	if (error && error->message) 
 		g_error_free (error);
 	else {
 		printf("SUCCESS, renamed folder to ANOTHERTestEmailServer\n");
+    INFO("Rename folder success\n\n\n");
+    SLEEP();
 	}
 	error = NULL;
 
 
 #if 1
 	/* Delete folder */
+  INFO("TEST: Delete folder\n");
 	ops = create_operation (&ops_path);	
-	if (!egdbus_store_call_delete_folder_sync (store_proxy, "ANOTHERTestEmailServer", ops_path, &success, NULL, &error))
+	if (!egdbus_store_call_delete_folder_sync (store_proxy, "ANOTHERTestEmailServer", ops_path, &success, NULL, &error)) {
 		printf("Failed to delete folder: %s \n", error->message);
+    LOG(SPACER"Delete folder failed\n");
+  }
 
 	if (error && error->message) 
 		g_error_free (error);
 	else {
 		printf("SUCCESS, delete folder to ANOTHERTestEmailServer\n");
+    INFO("Delete folder success\n\n\n");
+    SLEEP();
 	}
 	error = NULL;
 #endif
 
 	/* Sync */
+  INFO("TEST: Sync folder\n");
 	ops = create_operation (&ops_path);	
 	if (!egdbus_store_call_sync_sync (store_proxy, FALSE, ops_path, &success, NULL, &error)) {
 		printf("Unable to sync: %s\n", error->message);
+    LOG(SPACER"Folder sync failed\n\n");
 		g_error_free (error);
 		error = NULL;
 	} else {
 		printf("Sync store success\n");
+    INFO("Folder sync success\n\n\n");
+    SLEEP();
 	}
 
 	/* Noop */
+  INFO("TEST: Folder NOOP\n");
 	ops = create_operation (&ops_path);	
 	if (!egdbus_store_call_noop_sync (store_proxy, ops_path, &success, NULL, &error)) {
 		printf("Unable to noop : %s\n", error->message);
+    LOG(SPACER"Folder NOOP failed\n\n");
 		g_error_free (error);
 		error = NULL;
 	} else {
 		printf("Noop store success\n");
+    INFO("Folder Noop success\n\n\n");
+    SLEEP();
 	}
-
 
 	return g_list_reverse (l);
 }
@@ -1166,12 +1354,13 @@ start_test_client (gpointer foo)
 		source = e_source_registry_ref_source (source_registry, uid);
   }*/
 
+  //FIXME: SRINI: Find a way to get the default account.
+  source = e_source_registry_ref_source (source_registry, "1397637943.20129.2@localhost.localdomain");
   uid = g_strdup(e_source_get_uid(source));  
-  uid = g_strdup("1397637943.20129.2@localhost.localdomain");  
-  printf("DEFAULT ID: %s\n", uid);
-  //g_source_unref(source);
+  g_debug ("DEFAULT ID: %s\n", uid);
 
 	/* Get Session */
+  INFO("TEST 1: Getting Session Object\n");
 	session_proxy = egdbus_session_proxy_new_for_bus_sync (
 		G_BUS_TYPE_SESSION,
 		G_DBUS_PROXY_FLAGS_NONE,
@@ -1179,14 +1368,20 @@ start_test_client (gpointer foo)
 		"/org/gnome/evolution/dataserver/Mail/Session",
 		NULL,
 		&error);
-	if (error) 
+
+	if (error) {
 		printf("ERROR %s\n", error->message);
-	else 
-		printf("Success\n");
+    LOG(SPACER"Get Session Failed\n\n");
+  } else
+		INFO("GetSession Success\n\n\n");
+
+  SLEEP();
 
 	/* List services */
+  INFO("TEST: List Services\n");
 	if (!egdbus_session_call_list_services_sync (session_proxy, &services, NULL, &error)) {
 		printf("List Services failed: %s\n", error->message);
+    LOG(SPACER"List services failed\n\n");
 	} else {
 		printf("Services are: \n");
 		i=0;
@@ -1195,20 +1390,29 @@ start_test_client (gpointer foo)
 			i++;
 		}
 		printf("End\n");
+    INFO("Test Services success\n\n\n");
 	}
 
+  SLEEP();
+
 	/* Get Service */
+  INFO("TEST Get Service by uid\n");
 	if (!egdbus_session_call_get_service_sync (session_proxy, uid, &service, NULL, &error)) {
 		printf("Get Service failed: %s\n", error->message);
+    LOG(SPACER"Ger services failed\n\n");
 	} else {
 		char *name;
 		printf("Get Service: Path: %s\n", service);
+    INFO("GetService success\n\n\n");
+    SLEEP();
 
 		store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							service,
 							NULL, &error);
+
+    INFO("TEST: Getting basic detals on Store\n");
 		egdbus_store_call_get_display_name_sync (store_proxy, &name, NULL, &error);
 		printf("Display name: %s\n", name);
 		egdbus_store_call_get_user_data_dir_sync (store_proxy, &name, NULL, &error);
@@ -1221,39 +1425,50 @@ start_test_client (gpointer foo)
 		printf("UID: %s\n", name);
 		egdbus_store_call_get_url_sync (store_proxy, &name, NULL, &error);
 		printf("Url: %s\n", name);
-
+    INFO("Getting basic details success\n\n\n");
+    SLEEP();
 	}
 
 	/* Remove Service */
+  INFO("TEST: Remove Service\n");
 	if (!egdbus_session_call_remove_service_sync (session_proxy, uid, &success, NULL, &error)) {
 		printf("Remove Service failed: %s\n", error->message);
+    LOG(SPACER"Remove Service failed\n");
 	} else {
 		printf("Remove Service: Success: %d\n", success);
+    INFO("Remove Service success\n\n\n");
 	}
+
+  SLEEP();
 
 	extension = e_source_get_extension (source, E_SOURCE_EXTENSION_MAIL_ACCOUNT);
 	backend_name = e_source_backend_get_backend_name (extension);
-
 	/* Add Service */
+  INFO("TEST: Add Service\n");
 	if (!egdbus_session_call_add_service_sync (session_proxy, uid, backend_name, TRUE, &service, NULL, &error)) {
 		printf("Add Service failed: %s\n", error->message);
+    LOG(SPACER"Add Service failed\n");
 	} else {
 		printf("Add Service Success : Path: %s\n", service);
+    INFO("Add Service success\n\n\n");
 	}
 
+  SLEEP();
+
+  INFO("Creating Serice object\n");
 	store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							service,
 							NULL, &error);
-	if (error)
-		printf("Failed to create store proxy %s\n", error->message);
-	else {
+	if (error) {
+		g_error ("Failed to create store proxy %s\n", error->message);
+  } else {
 		char *name;
 
-		printf("Created Service object\n");
+		INFO("Created Service object\n");
 
-		printf("Registering signalhandlers\n\n");
+		INFO("Registering signalhandlers\n\n");
 		g_signal_connect (store_proxy, "folder-opened", G_CALLBACK (folder_opened_cb), NULL);
 		g_signal_connect (store_proxy, "folder-created", G_CALLBACK (folder_created_cb), NULL);
 		g_signal_connect (store_proxy, "folder-deleted", G_CALLBACK (folder_deleted_cb), NULL);
@@ -1261,6 +1476,7 @@ start_test_client (gpointer foo)
 		g_signal_connect (store_proxy, "folder-subscribed", G_CALLBACK (folder_subscribed_cb), NULL);
 		g_signal_connect (store_proxy, "folder-unsubscribed", G_CALLBACK (folder_unsubscribed_cb), NULL);
 		
+    INFO("TEST: Getting Store basic details\n");
 		egdbus_store_call_get_display_name_sync (store_proxy, &name, NULL, &error);
 		printf("Display name: %s\n", name);
 		egdbus_store_call_get_user_data_dir_sync (store_proxy, &name, NULL, &error);
@@ -1274,45 +1490,60 @@ start_test_client (gpointer foo)
 		egdbus_store_call_get_url_sync (store_proxy, &name, NULL, &error);
 		printf("Url: %s\n", name);
 
+    INFO("Getting Basic details success\n\n\n");
+    SLEEP();
+
 		{
 			char **folder_names;
 			char **uids;
 			int i;
-			int count; 
+			int count=0;
 			GVariant *folder_uids;
 
+      INFO("TEST: Counting messages with subject like test\n");
 			ops = create_operation (&ops_path);
 			egdbus_store_call_count_by_sql_sync (store_proxy, "subject LIKE '%test%'", ops_path, &count, NULL, &error);
+      if (!error) {
+        printf("Number of mails: %d\n", count);
+        INFO("Counting succeeded\n\n\n");
+      } else
+        LOG(SPACER"Counting messages with subject like test FAILED\n\n");
 
-			printf("Number of mails: %d\n", count);
+      SLEEP();
+
+      INFO("TEST: Searching for messages uid with subject like test\n");
 			egdbus_store_call_search_by_sql_sync (store_proxy, "subject LIKE '%test%'", ops_path, &folder_uids, NULL, &error);
 			if (!error) {
 				GVariantIter aiter;
 				GVariant *aitem;
 
 				printf("Search Result\n");
-			      	g_variant_iter_init (&aiter, folder_uids);
+			  g_variant_iter_init (&aiter, folder_uids);
 	
- 			     	while ((aitem = g_variant_iter_next_value (&aiter))) {
-					GVariantIter siter;
-					GVariant *sitem;
-					char *fname, *uid;
-		
-					g_variant_iter_init (&siter, aitem);
-					sitem = g_variant_iter_next_value (&siter);
-					fname = g_strdup (g_variant_get_string (sitem, NULL));
-					sitem = g_variant_iter_next_value (&siter);
-					uid = g_strdup (g_variant_get_string (sitem, NULL));
-					printf("%s: %s\n", fname, uid);
-					g_free (fname);
-					g_free (uid);
-			        }
+        while ((aitem = g_variant_iter_next_value (&aiter))) {
+				  GVariantIter siter;
+          GVariant *sitem;
+          char *fname, *uid;
 
+          g_variant_iter_init (&siter, aitem);
+          sitem = g_variant_iter_next_value (&siter);
+          fname = g_strdup (g_variant_get_string (sitem, NULL));
+          sitem = g_variant_iter_next_value (&siter);
+          uid = g_strdup (g_variant_get_string (sitem, NULL));
+          printf("%s: %s\n", fname, uid);
+          g_free (fname);
+          g_free (uid);
+			  }
+
+        INFO("Search by SQL succeeded\n\n\n");
 			} else {
 				printf("Error while searchbysql : %s \n", error->message);
 				g_error_free (error);
 				error = NULL;
+        LOG(SPACER"Search by SQL failed\n\n");
 			}
+
+      SLEEP();
 		}
 
 #if 0		
@@ -1337,22 +1568,43 @@ start_test_client (gpointer foo)
 
 #if 1
 		/* Get SENT  folder */
-		extension = e_source_get_extension (source, E_SOURCE_EXTENSION_MAIL_SUBMISSION);
-		const char *sent_folder_uri =
-			e_source_mail_submission_get_sent_folder (
+
+  INFO("TEST: Getting SENT Folder\n");
+	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
+	extension = e_source_get_extension (source, extension_name);
+
+	char *id_uid = e_source_mail_account_get_identity_uid (
+		E_SOURCE_MAIL_ACCOUNT (extension));
+	if (id_uid == NULL)
+		g_error("identity uid is null\n");
+
+	ESource *id_source = e_source_registry_ref_source (source_registry, id_uid);
+	if (id_source == NULL)
+		g_error ("identity source is null");
+
+
+	extension = e_source_get_extension (id_source, E_SOURCE_EXTENSION_MAIL_SUBMISSION);
+	const char *sent_folder_uri =
+	e_source_mail_submission_get_sent_folder (
 			E_SOURCE_MAIL_SUBMISSION (extension));
   
-		ops = create_operation (&ops_path);
-		if (!egdbus_session_call_get_folder_from_uri_sync (
-			session_proxy, 
+	ops = create_operation (&ops_path);
+	if (!egdbus_session_call_get_folder_from_uri_sync (
+		session_proxy,
 			sent_folder_uri, /* Pass the full name */
 			ops_path, 
 			&path,
 			NULL, 
-			&error))
-			printf("Error while getting folder SENT: %s\n", error->message);
-		printf("Folder path for %s\n", path);
+			&error)) {
+		printf("Error while getting folder SENT: %s\n", error->message);
+    LOG(SPACER"Failed to get SENT folder\n\n");
+  }
+
+		printf("Folder path for %s\n", sent_folder_uri, path);
+    INFO("Getting SENT Folder success\n\n\n");
+    SLEEP();
 		
+    INFO("Getting PROXY object for SENT Folder\n");
 		folder_proxy = egdbus_folder_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 								G_DBUS_PROXY_FLAGS_NONE,
 								E_MAIL_DATA_FACTORY_SERVICE_NAME,
@@ -1360,29 +1612,43 @@ start_test_client (gpointer foo)
 								NULL, &error);
 		printf("Success in getting FolderProxy for SENT ? %p %s\n", folder_proxy, error ? error->message : "Yeh!!!");
 
-		ops = create_operation (&ops_path);
-		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, ops_path, &infos, NULL, &error))
-			printf("Get Folder Info Error %s\n", error->message);
-		else
+    SLEEP();
 
-		parse_infos (store_proxy, infos);
+    INFO("TEST: Get Folder Info\n");
+		ops = create_operation (&ops_path);
+		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, ops_path, &infos, NULL, &error)) {
+			printf("Get Folder Info Error %s\n", error->message);
+      LOG(SPACER"Get Folder Info failed\n\n");
+    } else {
+      INFO("Get Folder Info Success\n\n\n");
+		  parse_infos (store_proxy, infos);
+    }
 
 
 #endif
 	}
 
+  SLEEP();
+  INFO("TEST: Get VStore\n")
 	if (!egdbus_session_call_get_vee_store_sync (session_proxy, &service, NULL, &error)) {
 		printf("Get VEE Service failed: %s\n", error->message);
+    LOG(SPACER"Get VStore failed\n");
 	} else {
-		printf("Got VEE FOLDER: %s\n", service);
+    INFO("Get VStore success\n\n\n");
+    SLEEP();
+		printf("Got VEE Store: %s\n", service);
 		store_proxy = egdbus_store_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (session_proxy)),
 							G_DBUS_PROXY_FLAGS_NONE,
 							E_MAIL_DATA_FACTORY_SERVICE_NAME,
 							service,
 							NULL, &error);
-		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, ops_path, &infos, NULL, &error))
+
+    SLEEP();
+    INFO("TEST: Get VFolderInfo\n");
+		if (!egdbus_store_call_get_folder_info_sync(store_proxy, "", CAMEL_STORE_FOLDER_INFO_RECURSIVE|CAMEL_STORE_FOLDER_INFO_FAST | CAMEL_STORE_FOLDER_INFO_SUBSCRIBED, ops_path, &infos, NULL, &error)) {
 			printf("Get Folder Info for VEEStore Error %s\n", error->message);
-		else {
+      LOG(SPACER"GetVFolderInfo failed\n\n");
+    } else {
 			GVariantIter iter;
 			guint32 u1;
 			gint32 i1, i2;
@@ -1392,6 +1658,7 @@ start_test_client (gpointer foo)
 			while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
 				printf("Folder Name:%s Full Name:%s Flags:%u, UnreadCount%d TotalCount%d\n", str1, str2, u1, i1, i2);
 			}			
+      INFO("GetVFolderInfo success\n\n");
 		}
 
 
