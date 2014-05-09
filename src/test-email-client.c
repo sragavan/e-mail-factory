@@ -4,6 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib/gi18n.h>
+#include <gio/gunixfdlist.h>
+#include <gio/ginputstream.h>
+#include <gio/gunixinputstream.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 
@@ -18,15 +21,30 @@
 #define E_MAIL_DATA_FACTORY_SERVICE_NAME \
 	"org.gnome.evolution.dataserver.Mail"
 
-gboolean crash = TRUE;
+gboolean crash = FALSE;
 gboolean wait = TRUE;
+GString *failed_cases;
 
 #define INFO(x) g_print(x);
-#define LOG(x) if (crash) g_error(x); else g_warning(x);
+#define LOG(x) { append_failure(__FILE__, __LINE__, x); if (crash) { dump_failed_cases(); g_error(x); } else g_warning(x); }
 #define SLEEP() if (wait) g_usleep(1000);
 #define SPACER "** ** ** ** "
 
 EGdbusSession *session_proxy;
+
+static void
+append_failure (char *file, int line, const char *string)
+{
+  g_string_append_printf(failed_cases, "%s:%d: %s\n", file, line, string);
+}
+
+static void
+dump_failed_cases()
+{
+  printf("Failed cases:\n\n");
+  printf("%s\n--------- x x x ---------\n", failed_cases->str);
+  g_string_free (failed_cases, TRUE);
+}
 
 static void
 ops_cancelled_cb (EGdbusOperation *ops, gpointer data)
@@ -208,7 +226,7 @@ info_from_variant (CamelFolder *folder, GVariant *vinfo)
       	g_variant_iter_init (&aiter, item);
 	
       	while ((aitem = g_variant_iter_next_value (&aiter))) {
-		char *str = g_variant_get_string (aitem, NULL);
+		const char *str = g_variant_get_string (aitem, NULL);
 		if (str && *str)	
 			camel_flag_set (&info->user_flags, str, TRUE);
 		else
@@ -385,7 +403,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 		guint32 flags=0;
 		char *msg = NULL;
 		char *name, *val=NULL;
-		CamelMessageInfoBase *info;
+		CamelMessageInfoBase *info = NULL;
 
 		printf("UIDS received: \t");
 		while (uids[i]) {
@@ -555,23 +573,20 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 
     INFO("TEST: Get Message\n");
               GUnixFDList *fd_list = NULL, *alt;
-     	        int pipe_fd[2], index;
+              int pipe_fd[3], index;
             	GError *error = NULL;
             
             	fd_list = g_unix_fd_list_new ();
-
             	if (pipe(pipe_fd) < 0) {
                 	printf("Unable to do pipe\n");
                 	return ;
             	}
             
-              printf("FD: %p %d\n", fd_list, pipe_fd[2]);
-		index = g_unix_fd_list_append (fd_list, pipe_fd[2], &error);
+		index = g_unix_fd_list_append (fd_list, pipe_fd[1], &error);
 	            if (index == -1) {
                   g_error("Unable to append FD: %s", error ? error->message : "No message");
                 	return ;
             	}
-		    printf("INDEX = %d\n", index);
             	close (pipe_fd[1]);
 
 		GInputStream *unix_input_stream;
@@ -765,7 +780,7 @@ test_message_basics (char *folder_path, EGdbusFolder *folder_proxy)
 
 		/* Local Store*/
     INFO("TEST: Get local store\n");
-		EGdbusFolder *local_folder_proxy;
+		EGdbusFolder *local_folder_proxy = NULL;
 		char *local_folder_proxy_path;
 		EGdbusStore *local_store_proxy;
 		char *local_store;
@@ -906,7 +921,7 @@ parse_infos (EGdbusStore *store_proxy, GVariant *var_changes)
 	GVariantIter iter;
 	guint32 u1;
 	gint32 i1, i2;
-	gchar *str1, *str2, *str3;
+	gchar *str1, *str2;
 	EGdbusFolder *inbox_proxy;
 	char *inbox_path;
 	EGdbusFolder *folder_proxy;
@@ -1264,7 +1279,7 @@ static void
 print_info (GVariant *v, const char *operation)
 {
 	GVariantIter iter;
-	char *str1, *str2, *str3;
+	char *str1, *str2;
 	int i1, i2;
 	guint32 u1;
 
@@ -1321,7 +1336,6 @@ start_test_client (gpointer foo)
 	GError *error = NULL;
 	EGdbusStore *store_proxy;
 	EGdbusFolder *folder_proxy;
-	EGdbusOperation *ops_proxy;
 	char **services; 
 	char *service;
 	char *path;
@@ -1334,6 +1348,8 @@ start_test_client (gpointer foo)
 	gchar *uid;
 	const gchar *backend_name;
 	ESourceBackend *extension;
+
+  failed_cases = g_string_new(NULL);
 
   if (!source_registry)  
 	  source_registry = e_source_registry_new_sync (NULL, NULL);
@@ -1494,10 +1510,7 @@ start_test_client (gpointer foo)
     SLEEP();
 
 		{
-			char **folder_names;
-			char **uids;
-			int i;
-			int count=0;
+			guint count=0;
 			GVariant *folder_uids;
 
       INFO("TEST: Counting messages with subject like test\n");
@@ -1573,7 +1586,7 @@ start_test_client (gpointer foo)
 	extension_name = E_SOURCE_EXTENSION_MAIL_ACCOUNT;
 	extension = e_source_get_extension (source, extension_name);
 
-	char *id_uid = e_source_mail_account_get_identity_uid (
+	const char *id_uid = e_source_mail_account_get_identity_uid (
 		E_SOURCE_MAIL_ACCOUNT (extension));
 	if (id_uid == NULL)
 		g_error("identity uid is null\n");
@@ -1600,7 +1613,7 @@ start_test_client (gpointer foo)
     LOG(SPACER"Failed to get SENT folder\n\n");
   }
 
-		printf("Folder path for %s\n", sent_folder_uri, path);
+		printf("Folder path for %s : %s\n", sent_folder_uri, path);
     INFO("Getting SENT Folder success\n\n\n");
     SLEEP();
 		
@@ -1652,7 +1665,7 @@ start_test_client (gpointer foo)
 			GVariantIter iter;
 			guint32 u1;
 			gint32 i1, i2;
-			gchar *str1, *str2, *str3;
+			gchar *str1, *str2;
 	
 			g_variant_iter_init (&iter, infos);
 			while (g_variant_iter_next (&iter, "(ssuii)", &str1, &str2, &u1, &i1, &i2)) {
@@ -1664,6 +1677,7 @@ start_test_client (gpointer foo)
 
 	}
 
+  dump_failed_cases();
 	return FALSE;
 }
 
@@ -1687,7 +1701,7 @@ send_short_message_cb (EGdbusSession *session_proxy, const gchar *ops_path,
 
 	printf ("\nsend_short_message_cb for ops [%s]\n", ops_path);
 
-	g_variant_iter_init (&iter, result);
+	g_variant_iter_init (&iter, (GVariant *)result);
 	while (g_variant_iter_next (&iter, "(sssi)", &addr, &err, &quark,
 								&code)) {
 		if (*err)
